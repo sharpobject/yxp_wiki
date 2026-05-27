@@ -3,5 +3,6 @@
   "lang": "zh",
   "render_scale": 1.0,
   "fusion_ingredients": [],
-  "card_text_passthrough": 1
+  "card_text_passthrough": 1,
+  "cjk_color_flavor_wrap": 2
 }
