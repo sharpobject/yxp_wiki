@@ -3886,7 +3886,7 @@ for each different phase card in your deck, make an additional attack [color:#9d
 <script>
 (() => {
   const input = document.querySelector('[data-card-search]');
-  const buttons = Array.from(document.querySelectorAll('[data-filter]'));
+  const buttons = Array.from(document.querySelectorAll('[data-filter-panel] button[data-filter]'));
   const cards = Array.from(document.querySelectorAll('[data-card-item]'));
   const count = document.querySelector('[data-visible-count]');
   const countSuffix = document.querySelector('[data-visible-count-suffix]');
