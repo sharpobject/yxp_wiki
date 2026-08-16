@@ -1,50 +1,50 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Match Recordings - Yi Xian Wiki</title>
+  <title>对局录像 - 弈仙牌 Wiki</title>
   <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
   <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css">
 </head>
 <body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data">
   <header>
-    <a class="brand" href="/yxp_wiki/en/index.html">Yi Xian Wiki</a>
+    <a class="brand" href="/yxp_wiki/zh/index.html">弈仙牌 Wiki</a>
     <nav>
-      <a href="/yxp_wiki/en/characters/index.html">Characters</a>
-      <a href="/yxp_wiki/en/cards/index.html">Cards</a>
-      <a href="/yxp_wiki/en/fates/index.html">Fates</a>
-      <a class="active" href="#">Recordings</a>
+      <a href="/yxp_wiki/zh/characters/index.html">角色</a>
+      <a href="/yxp_wiki/zh/cards/index.html">卡牌</a>
+      <a href="/yxp_wiki/zh/fates/index.html">仙命</a>
+      <a class="active" href="#">录像</a>
     </nav>
-    <a class="lang" href="/yxp_wiki/zh/recordings/">中文</a>
+    <a class="lang" href="/yxp_wiki/en/recordings/">English</a>
   </header>
 
   <main class="recording-page">
     <section class="recording-intro">
       <div>
-        <p class="eyebrow">Match recording archive</p>
-        <h1>Match recordings</h1>
-        <p class="muted">Browse a recorded player’s actions and the prior-round information available about the rest of the lobby.</p>
+        <p class="eyebrow">对局录像库</p>
+        <h1>对局录像</h1>
+        <p class="muted">浏览已记录玩家的操作，以及大厅中其他玩家上一轮的公开信息。</p>
       </div>
-      <label class="recording-picker">Recording
-        <select id="recording-select" aria-label="Choose a recording"></select>
+      <label class="recording-picker">录像
+        <select id="recording-select" aria-label="选择录像"></select>
       </label>
     </section>
 
     <section class="replay-shell" aria-live="polite">
       <div class="replay-toolbar">
-        <button id="previous" type="button" aria-label="Previous action">←</button>
-        <button id="next" type="button" aria-label="Next action">→</button>
-        <input id="timeline" type="range" min="0" value="0" aria-label="Recording timeline">
-        <select id="round-select" aria-label="Jump to round"></select>
-        <span id="step-label">Loading…</span>
+        <button id="previous" type="button" aria-label="上一步">←</button>
+        <button id="next" type="button" aria-label="下一步">→</button>
+        <input id="timeline" type="range" min="0" value="0" aria-label="录像时间线">
+        <select id="round-select" aria-label="跳转到轮次"></select>
+        <span id="step-label">载入中…</span>
       </div>
 
-      <div id="loading" class="recording-loading">Loading recording…</div>
+      <div id="loading" class="recording-loading">正在载入录像…</div>
       <div id="viewer" hidden>
         <div class="game-stage">
           <div class="round-marker" id="round-marker"></div>
-          <div class="player-roster" id="player-roster" aria-label="Players; select one to inspect"></div>
+          <div class="player-roster" id="player-roster" aria-label="玩家；选择以查看"></div>
 
           <div class="view-caption" id="view-caption"></div>
           <aside class="character-panel" id="character-panel"></aside>
@@ -65,7 +65,7 @@
 
         <section class="action-history">
           <div class="action-history-head">
-            <div><p class="eyebrow">At this point</p><h2>Recent actions</h2></div>
+            <div><p class="eyebrow">当前节点</p><h2>最近操作</h2></div>
             <span class="muted" id="recording-meta"></span>
           </div>
           <ol id="action-list"></ol>

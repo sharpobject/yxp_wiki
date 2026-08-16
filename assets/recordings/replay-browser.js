@@ -253,7 +253,7 @@
     $("#view-caption").textContent = isOwn
       ? `${copy.currentView} · ${selected?.username || recording.targetUsername}`
       : `${selected?.username} · ${copy.previousView}`;
-    $("#deck-label").textContent = isOwn ? `${copy.deck} · ${deck.length} ${copy.slots}` : `${copy.previousDeck} · ${deck.length} ${copy.slots}`;
+    $("#deck-label").textContent = isOwn ? copy.deck : copy.previousDeck;
     $("#deck").innerHTML = deck.map((id) => card(id, !isOwn)).join("") || `<span class="private-hand">${esc(copy.noDeck)}</span>`;
     $("#hand-label").textContent = isOwn ? `${copy.hand} · ${hand?.length ?? 0}` : copy.hand;
     $("#hand").innerHTML = hand ? hand.map(card).join("") : `<span class="private-hand">${esc(copy.hiddenHand)}</span>`;
