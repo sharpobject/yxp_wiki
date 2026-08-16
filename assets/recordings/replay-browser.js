@@ -70,8 +70,7 @@
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[character]);
   const cardAsset = (id) => {
-    const artId = Number(id) === 27 ? 347 : id;
-    return assetMode === "local" ? `card-images/${artId}_${language}.png` : `/yxp_wiki/assets/cards/${artId}_${language}.png`;
+    return assetMode === "local" ? `card-images/${id}_${language}.png` : `/yxp_wiki/assets/cards/${id}_${language}.png`;
   };
   const characterAsset = (player, kind, defaultOnly = false) => {
     const skinNumber = Number(player?.skinNumber) || 0;
@@ -187,7 +186,7 @@
   function daoYunChoice(choice) {
     const info = recording.catalog.cards[choice.selected] ?? {};
     const name = localizedInfo(info) || choice.selected;
-    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card")}</div></div>`;
+    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card")}</div></div>`;
   }
 
   function playerPortrait(player, state, privateOwnerUid) {
