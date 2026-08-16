@@ -1,6 +1,9 @@
 (() => {
   const $ = (selector) => document.querySelector(selector);
-  const catalog = window.RECORDING_CATALOG ?? [];
+  const preferredTargetUid = "65db92284574f980c154b895"; // 愿与林小月长相守
+  const catalog = [...(window.RECORDING_CATALOG ?? [])].sort((first, second) =>
+    String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
+      || String(second.capturedThrough ?? "").localeCompare(String(first.capturedThrough ?? "")));
   const select = $("#recording-select");
   const timeline = $("#timeline");
   const previous = $("#previous");
@@ -168,7 +171,7 @@
   function playerPortrait(player, state) {
     const own = state.players[state.targetUid];
     const upcoming = own?.nextOpponent === player.uid;
-    return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
+    return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
       <span class="avatar-wrap"><img class="avatar" src="${characterAsset(player.characterId, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
       <span class="name">${esc(player.username)}</span><span class="character-name">${esc(characterName(player))}</span>
     </button>`;
@@ -239,7 +242,10 @@
     const state = states[index];
     if (!state) return;
     const privatePlayer = state.privatePlayer;
-    const players = Object.values(state.players ?? {});
+    const players = Object.values(state.players ?? {}).sort((first, second) =>
+      (Number(second.rating) || 0) - (Number(first.rating) || 0)
+        || (Number(first.rank) || 0) - (Number(second.rank) || 0)
+        || String(first.uid).localeCompare(String(second.uid)));
     if (!selectedUid || !state.players[selectedUid]) selectedUid = state.targetUid || players[0]?.uid || "";
     const selected = state.players[selectedUid] ?? players[0];
     const isOwn = selected?.uid === state.targetUid;
@@ -336,6 +342,10 @@
   addEventListener("error", (event) => {
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-asset-fallback]")) event.target.hidden = true;
   }, true);
-  if (catalog[0]) loadRecording(catalog[0]);
+  const initialRecording = catalog.find((item) => item.targetUid === preferredTargetUid) ?? catalog[0];
+  if (initialRecording) {
+    select.value = initialRecording.id;
+    loadRecording(initialRecording);
+  }
   else $("#loading").textContent = copy.noRecordings;
 })();
