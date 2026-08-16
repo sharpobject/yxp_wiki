@@ -434,11 +434,13 @@
 
 .trait-icon:hover .trait-popover,
 .trait-icon:focus .trait-popover,
+.battle-buff:hover .trait-popover,
+.battle-buff:focus .trait-popover,
 .dao-yun-choice:hover .trait-popover,
 .dao-yun-choice:focus .trait-popover { display: block; }
 
 .trait-popover strong { color: #f1d58d; font-family: Georgia, serif; }
-.trait-popover p { margin: 5px 0 0; color: #d7d2c2; }
+.trait-popover p { margin: 5px 0 0; color: #d7d2c2; white-space: pre-line; }
 
 .offer-history { display: grid; gap: 7px; margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(218, 205, 161, .22); }
 .offer-row { display: grid; gap: 3px; }
@@ -543,7 +545,7 @@
 .battle-combatant {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(155px, 1.05fr) 120px minmax(82px, .55fr) minmax(470px, 3.25fr);
+  grid-template-columns: minmax(155px, 1.05fr) 120px minmax(145px, .85fr) minmax(430px, 3fr);
   align-items: center;
   gap: 8px;
   min-width: 0;
@@ -571,10 +573,37 @@
 .battle-destiny-delta.negative { color: #ff8b8b; }
 .battle-destiny-delta.positive { color: #8bd8a8; }
 .battle-first { grid-column: 1 / -1; color: #e4c56c; font-size: 8px; font-weight: 850; text-align: center; }
-.battle-talents { display: flex; justify-content: center; gap: 3px; min-width: 0; }
-.battle-talents .trait-icon { flex-basis: 27px; width: 27px; height: 27px; }
-.battle-talents .trait-popover { top: 31px; }
-.battle-combatant:last-child .battle-talents .trait-popover { top: auto; bottom: 31px; }
+.battle-effects { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-width: 0; }
+.battle-effects .trait-icon { flex-basis: 27px; width: 27px; height: 27px; }
+.battle-effects .trait-popover { top: 31px; }
+.battle-combatant:last-child .battle-effects .trait-popover { top: auto; bottom: 31px; }
+.battle-buff {
+  position: relative;
+  flex: 0 0 27px;
+  width: 27px;
+  height: 27px;
+  border: 1px solid #8e835e;
+  border-radius: 4px;
+  background: #172019;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, .48);
+}
+.battle-buff > img { width: 100%; height: 100%; border-radius: 3px; object-fit: contain; image-rendering: auto; }
+.battle-buff-count {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  min-width: 15px;
+  padding: 0 3px;
+  border: 1px solid #e4d18d;
+  border-radius: 999px;
+  background: #14231d;
+  color: #fff3c6;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 14px;
+  text-align: center;
+  box-shadow: 0 1px 3px #000;
+}
 .battle-deck { display: flex; align-items: center; justify-content: flex-end; gap: 3px; min-width: 0; height: 100%; }
 .battle-deck .game-card { width: 58px; min-width: 38px; max-width: 64px; flex-basis: 58px; max-height: 102px; }
 .battle-deck .game-card:hover { transform: translateY(-3px) scale(1.18); }
@@ -821,7 +850,7 @@
 .selection-icon > .fate-card-crop { width: calc(100% - 8px); height: calc(100% - 8px); }
 .selection-icon .fate-card-crop img { width: 100%; height: 100%; }
 .selection-option strong { position: relative; z-index: 1; display: block; margin: 4px 0 1px; font: 800 13px Georgia, serif; line-height: 1.15; }
-.selection-option p { position: relative; z-index: 1; align-self: start; margin: 5px 0 0; color: #f0f2e5; font-size: 10px; line-height: 1.25; }
+.selection-option p { position: relative; z-index: 1; align-self: start; margin: 5px 0 0; color: #f0f2e5; font-size: 10px; line-height: 1.25; white-space: pre-line; }
 
 .reroll-slot {
   position: absolute;
@@ -992,8 +1021,8 @@
   .character-stats span { font-size: 8px; line-height: 1.15; }
 
   .trait-popover,
-  .battle-talents .trait-popover,
-  .battle-combatant:last-child .battle-talents .trait-popover {
+  .battle-effects .trait-popover,
+  .battle-combatant:last-child .battle-effects .trait-popover {
     position: fixed;
     z-index: 100;
     top: auto;
@@ -1064,7 +1093,7 @@
     grid-template-columns: minmax(0, 1.2fr) minmax(106px, .8fr);
     grid-template-areas:
       "player values"
-      "talents talents"
+      "effects effects"
       "deck deck";
     align-items: center;
     gap: 6px;
@@ -1076,8 +1105,9 @@
   .battle-values { grid-area: values; }
   .battle-values > span:not(.battle-first) { padding: 3px 4px; }
   .battle-values strong { font-size: 11px; }
-  .battle-talents { grid-area: talents; justify-content: flex-start; min-height: 27px; }
-  .battle-talents .trait-icon { flex-basis: 26px; width: 26px; height: 26px; }
+  .battle-effects { grid-area: effects; justify-content: flex-start; min-height: 27px; }
+  .battle-effects .trait-icon,
+  .battle-effects .battle-buff { flex-basis: 26px; width: 26px; height: 26px; }
   .battle-deck {
     grid-area: deck;
     justify-content: flex-start;

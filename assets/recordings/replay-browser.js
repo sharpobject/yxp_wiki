@@ -27,7 +27,7 @@
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手",
-    previousOffer: "此前选项", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择",
+    previousOffer: "此前选项", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择", innerDemon: "心魔",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -41,7 +41,7 @@
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first",
-    previousOffer: "Previous offer", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen",
+    previousOffer: "Previous offer", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen", innerDemon: "Inner Demon",
   };
   const vocabulary = {
     phases: {
@@ -57,6 +57,20 @@
       3: ["Musician", "琴师"], 4: ["Painter", "画师"], 5: ["Formation Master", "阵法师"],
       6: ["Plant Master", "灵植师"], 7: ["Fortune Teller", "命理师"],
     },
+  };
+  const battleBuffMetadata = {
+    10008: ["Origin Herb", "归元草", "At battle start, gain HP and Max HP.", "战斗开始时增加生命及生命上限。"],
+    10009: ["Shuttle Orchid", "金梭兰", "At battle start, deal damage.", "战斗开始时造成伤害。"],
+    10010: ["Healing Chamomile", "愈甘菊", "At battle start, gain Regeneration.", "战斗开始时获得恢复。"],
+    10011: ["Divine Power Grass", "神力草", "At battle start, gain Increase ATK.", "战斗开始时获得加攻。"],
+    10012: ["Flying Owl Reishi", "飞枭灵芝", "At battle start, gain Speed.", "战斗开始时增加速度。"],
+    10013: ["Toxic Purple Fern", "穿肠紫蕨", "At battle start, apply Internal Injury to the opponent.", "战斗开始时向对方施加内伤。"],
+    10014: ["Rock Herb", "归岩草", "At battle start, gain DEF.", "战斗开始时增加防。"],
+    10017: ["Fire Orchid", "火梭兰", "At battle start, reduce the opponent's Max HP.", "战斗开始时减少对方生命上限。"],
+    10018: ["Lose Power Grass", "失力草", "At battle start, apply Decrease ATK to the opponent.", "战斗开始时向对方施加减攻。"],
+    10019: ["Clear Chamomile", "清甘菊", "At battle start, gain Hexproof.", "战斗开始时获得辟邪。"],
+    10020: ["Shadow Owl Reishi", "影枭灵芝", "At battle start, lose HP, then Chase after the first card played.", "战斗开始时自身失去生命，首次使用牌后再次行动。"],
+    10047: ["Protective Artifact", "护身法宝", "Begin this battle with the displayed number of Guard Up stacks.", "本场战斗开始时获得所示层数的护体。"],
   };
   let recording = null;
   let states = [];
@@ -85,6 +99,12 @@
     if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
     return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
   };
+  const buffAsset = (id) => {
+    const iconId = Number(id) === 10047 ? 5 : Number(id);
+    return assetMode === "local"
+      ? `buff-icons/Icon_Buff_${iconId}.png`
+      : `/yxp_wiki/assets/recordings/buffs/Icon_Buff_${iconId}.png`;
+  };
   const fateArtwork = (entry = {}, kind, alt = "") => {
     if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
       return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
@@ -100,8 +120,11 @@
   };
   const numericPrefix = (value) => Number.parseInt(String(value ?? "0"), 10) || 0;
   const localizedPair = (pair, fallback = "") => pair ? pair[isChinese ? 1 : 0] : fallback;
-  const localizedInfo = (info, field = "name") => info?.[`${field}${isChinese ? "Chinese" : "English"}`]
-    || info?.[`${field}${isChinese ? "English" : "Chinese"}`] || "";
+  const localizedInfo = (info, field = "name") => {
+    const value = info?.[`${field}${isChinese ? "Chinese" : "English"}`]
+      || info?.[`${field}${isChinese ? "English" : "Chinese"}`] || "";
+    return typeof value === "string" ? value.replace(/\\n/g, "\n") : value;
+  };
   const phaseName = (value) => localizedPair(vocabulary.phases[numericPrefix(value)], String(value ?? copy.unknownPhase));
   const sectName = (value) => localizedPair(vocabulary.sects[numericPrefix(value)], String(value ?? ""));
   const careerName = (value) => localizedPair(vocabulary.careers[numericPrefix(value)], String(value ?? copy.noSideJob));
@@ -197,6 +220,13 @@
     const name = localizedInfo(info);
     const localizedDescription = localizedInfo(info, "description");
     return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0">${fateArtwork(info, kind, name)}${badge}<div class="trait-popover"><strong>${esc(name)}</strong>${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(reference.choiceHistory, kind)}</div></div>`;
+  }
+
+  function battleBuff(reference) {
+    const metadata = battleBuffMetadata[Number(reference.id)] ?? [String(reference.id), String(reference.id), "", ""];
+    const name = metadata[isChinese ? 1 : 0];
+    const description = metadata[isChinese ? 3 : 2];
+    return `<div class="battle-buff" tabindex="0"><img data-asset-fallback src="${buffAsset(reference.id)}" alt="${esc(name)}"><span class="battle-buff-count">${esc(reference.value)}</span><div class="trait-popover"><strong>${esc(name)}</strong>${description ? `<p>${esc(description)}</p>` : ""}</div></div>`;
   }
 
   function daoYunChoice(choice) {
@@ -327,19 +357,24 @@
 
   function renderBattle(battle, playerUid) {
     const host = $("#battle-panel");
-    const selectedBattlePlayer = battle?.players?.[playerUid];
-    const opponent = battle?.players?.[selectedBattlePlayer?.opponentUid];
+    const matchups = battle?.matchups ?? (battle?.players ? [{ players: battle.players }] : []);
+    const matchup = matchups.find((entry) => entry.players?.[playerUid] && !entry.players[playerUid].innerDemon)
+      ?? matchups.find((entry) => entry.players?.[playerUid]);
+    const selectedBattlePlayer = matchup?.players?.[playerUid];
+    const opponent = matchup?.players?.[selectedBattlePlayer?.opponentUid];
     const combatants = [selectedBattlePlayer, opponent].filter(Boolean);
     host.innerHTML = `<div class="battle-heading"><span>${copy.round}${esc(battle.round)}${copy.roundSuffix}</span><strong>${esc(copy.battleResult)}</strong></div>
       <div class="battle-combatants">${combatants.map((player) => {
         const talents = (player.talents ?? []).map((reference) => trait(reference, "talent")).join("");
+        const fates = (player.fateStrategies ?? []).map((reference) => trait(reference, "fateStrategy")).join("");
+        const buffs = (player.battleBuffs ?? []).map(battleBuff).join("");
         const delta = Number(player.lifeDelta ?? 0);
         const deltaText = delta ? `<span class="battle-destiny-delta ${delta > 0 ? "positive" : "negative"}">${delta > 0 ? "+" : ""}${esc(delta)}</span>` : "";
         const speed = Number(player.speed ?? 0);
         return `<article class="battle-combatant ${esc(player.result)}">
           <div class="battle-player">
             <img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" src="${characterAsset(player, "avatar")}" alt="">
-            <div><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(player.phase))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span></div>
+            <div><strong>${esc(player.username)}${player.innerDemon ? isChinese ? `（${esc(copy.innerDemon)}）` : ` (${esc(copy.innerDemon)})` : ""}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(player.phase))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span></div>
             <b class="battle-result-stamp">${esc(copy[player.result] ?? copy.draw)}</b>
           </div>
           <div class="battle-values">
@@ -347,7 +382,7 @@
             <span><small>${esc(copy.cultivation)}</small><strong>${esc(player.cultivation)}${speed > 0 ? `<em>(+${esc(speed)})</em>` : ""}</strong></span>
             ${player.first ? `<span class="battle-first">◆ ${esc(copy.firstAction)}</span>` : ""}
           </div>
-          <div class="battle-talents">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div>
+          <div class="battle-effects">${talents}${fates}${buffs}</div>
           <div class="battle-deck">${(player.deck ?? []).map((id) => card(id, true)).join("")}</div>
         </article>`;
       }).join("")}</div>`;
