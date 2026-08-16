@@ -218,10 +218,14 @@
     const host = $("#selection-overlay");
     if (!overlay) { host.hidden = true; host.innerHTML = ""; return; }
     const canReroll = overlay.kind === "heavenly-derivation" && overlay.rerollsRemaining > 0;
+    const selectedOptionIndex = overlay.selected == null
+      ? -1
+      : overlay.options.findIndex((reference) => reference.id === overlay.selected);
     const options = overlay.options.map((reference, optionIndex) => {
       if (overlay.kind === "daoist-rhyme") {
         const info = recording.catalog.cards[reference.id] ?? {};
-        return `<article class="selection-option card-choice"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><strong>${esc(localizedInfo(info) || reference.id)}</strong></article>`;
+        const selected = optionIndex === selectedOptionIndex;
+        return `<article class="selection-option card-choice${selected ? " selected" : ""}"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><strong>${esc(localizedInfo(info) || reference.id)}</strong>${selected ? `<span class="chosen-mark">✓ ${esc(copy.chosen)}</span>` : ""}</article>`;
       }
       const kind = overlay.kind === "immortal-fate" ? "talent" : "fateStrategy";
       const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
@@ -242,6 +246,20 @@
       ${overlay.kind === "heavenly-derivation" ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
     </div>`;
     host.hidden = false;
+  }
+
+  function choiceOverlayForStep(state) {
+    if (state.privatePlayer?.choiceOverlay) return state.privatePlayer.choiceOverlay;
+    const choices = state.privatePlayer?.daoYunChoices ?? [];
+    const previousChoices = states[index - 1]?.privatePlayer?.daoYunChoices ?? [];
+    if (choices.length <= previousChoices.length) return null;
+    const choice = choices.at(-1);
+    return {
+      kind: "daoist-rhyme",
+      roundOrPhase: choice.roundOrPhase,
+      selected: choice.selected,
+      options: (choice.offers?.at(-1) ?? []).map((id) => ({ id })),
+    };
   }
 
   function recentActions() {
@@ -339,7 +357,7 @@
       : "";
     exchangeCounter.title = copy.exchangeChance;
     if (!battle) renderCharacter(selected, traits, state, prior, privateOwnerUid);
-    renderChoice(!battle && isOwn ? state.privatePlayer?.choiceOverlay : null);
+    renderChoice(!battle && isOwn ? choiceOverlayForStep(state) : null);
     renderActions();
 
     timeline.value = index;
