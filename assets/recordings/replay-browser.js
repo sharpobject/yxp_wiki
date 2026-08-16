@@ -168,7 +168,7 @@
     </div>`;
   }
 
-  function offerHistory(history, kind) {
+  function offerHistory(history, kind, { showFinalLabel = true } = {}) {
     if (!history?.offers?.length) return "";
     const final = history.offers.at(-1);
     const rows = kind === "fateStrategy"
@@ -187,13 +187,15 @@
           .concat(Array.from({ length: missingCount }, () => ({
             offer: [], label: copy.unrecordedReroll, previous: true, unknown: true,
           })))
-          .concat([{ offer: final, label: copy.finalOffer, previous: false }]);
+          .concat([{ offer: final, label: showFinalLabel ? copy.finalOffer : "", previous: false }]);
       })()
       : kind === "card"
-        ? [{ offer: final, label: copy.offer, previous: false }]
+        ? [{ offer: final, label: "", previous: false }]
         : history.offers.map((offer, offerIndex) => ({
           offer: offerIndex === history.offers.length - 1 ? offer : offer.slice(1),
-          label: offerIndex === history.offers.length - 1 ? copy.finalOffer : copy.previousOffer,
+          label: offerIndex === history.offers.length - 1
+            ? showFinalLabel ? copy.finalOffer : ""
+            : copy.previousOffer,
           previous: offerIndex !== history.offers.length - 1,
         }));
     return `<div class="offer-history">${rows.map((row) => {
@@ -208,18 +210,23 @@
           : fateArtwork(info ?? { id }, kind, name);
         return `<span class="offer-icon${kind === "card" ? " card-art" : ""}${selected ? " selected" : ""}" title="${esc(name)}">${artwork}</span>`;
       }).join("");
-      return `<div class="offer-row${row.previous ? " previous" : " final"}"><small>${esc(row.label)}</small><div>${row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons}</div></div>`;
+      return `<div class="offer-row${row.previous ? " previous" : " final"}">${row.label ? `<small>${esc(row.label)}</small>` : ""}<div>${row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons}</div></div>`;
     }).join("")}</div>`;
   }
 
-  function trait(reference, kind) {
+  function trait(reference, kind, { hasMyFateMyChoice = false } = {}) {
     const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
     if (!info) return "";
     const runtime = reference.runtime;
     const badge = runtime ? `<span class="trait-count">${runtime.kind === "cooldown" ? "CD " : ""}${esc(runtime.value)}</span>` : "";
     const name = localizedInfo(info);
     const localizedDescription = localizedInfo(info, "description");
-    return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0">${fateArtwork(info, kind, name)}${badge}<div class="trait-popover"><strong>${esc(name)}</strong>${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(reference.choiceHistory, kind)}</div></div>`;
+    const history = reference.choiceHistory;
+    const hasHeavenlyDerivationVariables = Number(history?.rerollsRemainingAtStart ?? 0) > 0
+      || Number(history?.rerollsUsed ?? 0) > 0
+      || Number(history?.rerollsRemaining ?? 0) > 0;
+    const showFinalLabel = kind === "talent" ? hasMyFateMyChoice : hasHeavenlyDerivationVariables;
+    return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0">${fateArtwork(info, kind, name)}${badge}<div class="trait-popover"><strong>${esc(name)}</strong>${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(history, kind, { showFinalLabel })}</div></div>`;
   }
 
   function battleBuff(reference) {
@@ -232,7 +239,7 @@
   function daoYunChoice(choice) {
     const info = recording.catalog.cards[choice.selected] ?? {};
     const name = localizedInfo(info) || choice.selected;
-    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card")}</div></div>`;
+    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
   }
 
   function playerPortrait(player, state, privateOwnerUid) {
@@ -246,7 +253,8 @@
 
   function renderCharacter(player, traits, state, priorRound, privateOwnerUid) {
     const privatePlayer = state.privatePlayer;
-    const talents = (traits.talents ?? []).map((value) => trait(value, "talent")).join("");
+    const hasMyFateMyChoice = (traits.fates ?? []).some((reference) => Number(reference.id) === 12);
+    const talents = (traits.talents ?? []).map((value) => trait(value, "talent", { hasMyFateMyChoice })).join("");
     const fates = (traits.fates ?? []).map((value) => trait(value, "fateStrategy")).join("");
     const daoYunChoices = player.uid === privateOwnerUid
       ? (privatePlayer?.daoYunChoices ?? []).map(daoYunChoice).join("")
