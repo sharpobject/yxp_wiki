@@ -26,7 +26,7 @@
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
-    battle: "战斗",
+    battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手",
     previousOffer: "此前选项", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
@@ -40,7 +40,7 @@
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
-    battle: "battle",
+    battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first",
     previousOffer: "Previous offer", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen",
   };
   const vocabulary = {
@@ -167,7 +167,7 @@
             : recording.catalog.fateStrategies[id];
         const source = kind === "card" ? cardAsset(id) : fateAsset(info ?? { id }, kind);
         const selected = !row.previous && Number(id) === Number(history.selected);
-        return `<span class="offer-icon${selected ? " selected" : ""}" title="${esc(localizedInfo(info) || id)}"><img data-asset-fallback src="${source}" alt="${esc(localizedInfo(info) || id)}"></span>`;
+        return `<span class="offer-icon${kind === "card" ? " card-art" : ""}${selected ? " selected" : ""}" title="${esc(localizedInfo(info) || id)}"><img data-asset-fallback src="${source}" alt="${esc(localizedInfo(info) || id)}"></span>`;
       }).join("");
       return `<div class="offer-row${row.previous ? " previous" : " final"}"><small>${esc(row.label)}</small><div>${row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons}</div></div>`;
     }).join("")}</div>`;
@@ -211,7 +211,7 @@
         ${player.uid === privateOwnerUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
       </div>
       <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
-      <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(priorRound?.phase ?? player.phase))}</span><span>${esc(sectName(player.sect))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span><span>${esc(priorRound?.cultivation ?? player.cultivation)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span></div>`;
+      <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(priorRound?.phase ?? player.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(priorRound?.cultivation ?? player.cultivation)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span></div>`;
   }
 
   function renderChoice(overlay) {
@@ -262,9 +262,38 @@
       : `<li class="empty">${esc(copy.noActions)}</li>`;
   }
 
+  function renderBattle(battle, playerUid) {
+    const host = $("#battle-panel");
+    const selectedBattlePlayer = battle?.players?.[playerUid];
+    const opponent = battle?.players?.[selectedBattlePlayer?.opponentUid];
+    const combatants = [selectedBattlePlayer, opponent].filter(Boolean);
+    host.innerHTML = `<div class="battle-heading"><span>${copy.round}${esc(battle.round)}${copy.roundSuffix}</span><strong>${esc(copy.battleResult)}</strong></div>
+      <div class="battle-combatants">${combatants.map((player) => {
+        const talents = (player.talents ?? []).map((reference) => trait(reference, "talent")).join("");
+        const delta = Number(player.lifeDelta ?? 0);
+        const deltaText = delta ? `<span class="battle-destiny-delta ${delta > 0 ? "positive" : "negative"}">${delta > 0 ? "+" : ""}${esc(delta)}</span>` : "";
+        const speed = Number(player.speed ?? 0);
+        return `<article class="battle-combatant ${esc(player.result)}">
+          <div class="battle-player">
+            <img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" src="${characterAsset(player, "avatar")}" alt="">
+            <div><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(player.phase))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span></div>
+            <b class="battle-result-stamp">${esc(copy[player.result] ?? copy.draw)}</b>
+          </div>
+          <div class="battle-values">
+            <span><small>${esc(copy.destiny)}</small><strong>${esc(player.lifeBefore)}${deltaText}</strong></span>
+            <span><small>${esc(copy.cultivation)}</small><strong>${esc(player.cultivation)}${speed > 0 ? `<em>(+${esc(speed)})</em>` : ""}</strong></span>
+            ${player.first ? `<span class="battle-first">◆ ${esc(copy.firstAction)}</span>` : ""}
+          </div>
+          <div class="battle-talents">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div>
+          <div class="battle-deck">${(player.deck ?? []).map((id) => card(id, true)).join("")}</div>
+        </article>`;
+      }).join("")}</div>`;
+  }
+
   function render() {
     const state = states[index];
     if (!state) return;
+    const battle = recording.steps[index]?.battle;
     const privatePlayer = state.privatePlayer;
     const privateOwnerUid = privatePlayer?.uid || recording.targetUid;
     const players = Object.values(state.players ?? {}).sort((first, second) =>
@@ -282,26 +311,35 @@
       ? { talents: selected?.talents, fates: state.privatePlayer?.selectedFateStrategies }
       : { talents: prior?.talents, fates: prior?.fateStrategies };
 
-    $(".game-stage").dataset.viewMode = isOwn ? "private" : "prior-round";
+    $(".game-stage").dataset.viewMode = battle ? "battle" : isOwn ? "private" : "prior-round";
 
     $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state, privateOwnerUid)).join("");
-    $("#round-marker").textContent = `${copy.round}${state.round || "—"}${copy.roundSuffix}`;
-    $("#view-caption").textContent = isOwn
+    $("#round-marker").textContent = `${copy.round}${battle?.round || state.round || "—"}${copy.roundSuffix}`;
+    $("#view-caption").textContent = battle
+      ? `${selected?.username || recording.targetUsername} · ${copy.battleResult}`
+      : isOwn
       ? `${copy.currentView} · ${selected?.username || recording.targetUsername}`
       : `${selected?.username} · ${copy.previousView}`;
-    $("#deck-label").textContent = isOwn ? copy.deck : copy.previousDeck;
-    $("#deck").innerHTML = deck.map((id) => card(id, !isOwn)).join("") || `<span class="private-hand">${esc(copy.noDeck)}</span>`;
-    $("#hand-label").textContent = isOwn ? `${copy.hand} · ${hand?.length ?? 0}` : copy.hand;
-    $("#hand").innerHTML = hand ? hand.map(card).join("") : `<span class="private-hand">${esc(copy.hiddenHand)}</span>`;
+    $("#board-panel").hidden = Boolean(battle);
+    $("#character-panel").hidden = Boolean(battle);
+    $("#battle-panel").hidden = !battle;
+    if (battle) {
+      renderBattle(battle, selectedUid);
+    } else {
+      $("#deck-label").textContent = isOwn ? copy.deck : copy.previousDeck;
+      $("#deck").innerHTML = deck.map((id) => card(id, !isOwn)).join("") || `<span class="private-hand">${esc(copy.noDeck)}</span>`;
+      $("#hand-label").textContent = isOwn ? `${copy.hand} · ${hand?.length ?? 0}` : copy.hand;
+      $("#hand").innerHTML = hand ? hand.map(card).join("") : `<span class="private-hand">${esc(copy.hiddenHand)}</span>`;
+    }
     const exchangeCounter = $("#exchange-counter");
-    exchangeCounter.hidden = !isOwn;
+    exchangeCounter.hidden = Boolean(battle) || !isOwn;
     const exchangeLimit = Number(privatePlayer?.exchangeLimit);
     exchangeCounter.textContent = isOwn
       ? `${privatePlayer?.exchangesRemaining ?? "—"}${Number.isFinite(exchangeLimit) && exchangeLimit > 0 ? `/${exchangeLimit}` : ""}`
       : "";
     exchangeCounter.title = copy.exchangeChance;
-    renderCharacter(selected, traits, state, prior, privateOwnerUid);
-    renderChoice(isOwn ? state.privatePlayer?.choiceOverlay : null);
+    if (!battle) renderCharacter(selected, traits, state, prior, privateOwnerUid);
+    renderChoice(!battle && isOwn ? state.privatePlayer?.choiceOverlay : null);
     renderActions();
 
     timeline.value = index;
