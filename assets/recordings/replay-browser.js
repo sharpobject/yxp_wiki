@@ -62,6 +62,7 @@
   let states = [];
   let index = 0;
   let selectedUid = "";
+  let selectionFollowsPrivate = true;
   let activeCatalogItem = null;
   let loadGeneration = 0;
 
@@ -189,8 +190,8 @@
     return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card")}</div></div>`;
   }
 
-  function playerPortrait(player, state) {
-    const own = state.players[state.targetUid];
+  function playerPortrait(player, state, privateOwnerUid) {
+    const own = state.players[privateOwnerUid];
     const upcoming = own?.nextOpponent === player.uid;
     return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
       <span class="avatar-wrap"><img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" class="avatar ${Number(player.skinNumber) > 0 ? "costume" : ""}" src="${characterAsset(player, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
@@ -198,17 +199,17 @@
     </button>`;
   }
 
-  function renderCharacter(player, traits, state, priorRound) {
+  function renderCharacter(player, traits, state, priorRound, privateOwnerUid) {
     const privatePlayer = state.privatePlayer;
     const talents = (traits.talents ?? []).map((value) => trait(value, "talent")).join("");
     const fates = (traits.fates ?? []).map((value) => trait(value, "fateStrategy")).join("");
-    const daoYunChoices = player.uid === state.targetUid
+    const daoYunChoices = player.uid === privateOwnerUid
       ? (privatePlayer?.daoYunChoices ?? []).map(daoYunChoice).join("")
       : "";
     $("#character-panel").innerHTML = `<div class="trait-panel">
         <div class="trait-group"><span class="trait-heading">${esc(copy.immortalFates)}</span><div class="trait-row">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         <div class="trait-group"><span class="trait-heading">${esc(copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
-        ${player.uid === state.targetUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
+        ${player.uid === privateOwnerUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
       </div>
       <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
       <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(priorRound?.phase ?? player.phase))}</span><span>${esc(sectName(player.sect))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span><span>${esc(priorRound?.cultivation ?? player.cultivation)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span></div>`;
@@ -266,11 +267,15 @@
     const state = states[index];
     if (!state) return;
     const privatePlayer = state.privatePlayer;
+    const privateOwnerUid = privatePlayer?.uid || recording.targetUid;
     const players = Object.values(state.players ?? {}).sort((first, second) =>
       (Number(first.rank) || 0) - (Number(second.rank) || 0));
-    if (!selectedUid || !state.players[selectedUid]) selectedUid = state.targetUid || players[0]?.uid || "";
+    if (selectionFollowsPrivate || !selectedUid || !state.players[selectedUid]) {
+      selectedUid = state.players[privateOwnerUid] ? privateOwnerUid : players[0]?.uid || "";
+      selectionFollowsPrivate = true;
+    }
     const selected = state.players[selectedUid] ?? players[0];
-    const isOwn = selected?.uid === state.targetUid;
+    const isOwn = selected?.uid === privateOwnerUid;
     const prior = isOwn ? null : selected?.lastRound;
     const deck = isOwn ? state.privatePlayer?.deck ?? [] : prior?.deck ?? [];
     const hand = isOwn ? state.privatePlayer?.hand ?? [] : null;
@@ -280,7 +285,7 @@
 
     $(".game-stage").dataset.viewMode = isOwn ? "private" : "prior-round";
 
-    $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state)).join("");
+    $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state, privateOwnerUid)).join("");
     $("#round-marker").textContent = `${copy.round}${state.round || "—"}${copy.roundSuffix}`;
     $("#view-caption").textContent = isOwn
       ? `${copy.currentView} · ${selected?.username || recording.targetUsername}`
@@ -296,7 +301,7 @@
       ? `${privatePlayer?.exchangesRemaining ?? "—"}${Number.isFinite(exchangeLimit) && exchangeLimit > 0 ? `/${exchangeLimit}` : ""}`
       : "";
     exchangeCounter.title = copy.exchangeChance;
-    renderCharacter(selected, traits, state, prior);
+    renderCharacter(selected, traits, state, prior, privateOwnerUid);
     renderChoice(isOwn ? state.privatePlayer?.choiceOverlay : null);
     renderActions();
 
@@ -305,7 +310,11 @@
     next.disabled = index === recording.steps.length - 1;
     $("#step-label").textContent = `${index + 1} / ${recording.steps.length}`;
     $("#recording-meta").textContent = recording.targetUsername;
-    document.querySelectorAll(".player-portrait").forEach((button) => button.addEventListener("click", () => { selectedUid = button.dataset.uid; render(); }));
+    document.querySelectorAll(".player-portrait").forEach((button) => button.addEventListener("click", () => {
+      selectedUid = button.dataset.uid;
+      selectionFollowsPrivate = selectedUid === privateOwnerUid;
+      render();
+    }));
   }
 
   function requestedLocation() {
@@ -354,6 +363,7 @@
     index = requestedStepIndex == null ? Math.max(0, firstRecordedIndex) : requestedStepIndex;
     index = Math.max(0, Math.min(data.steps.length - 1, index));
     selectedUid = data.targetUid;
+    selectionFollowsPrivate = true;
     timeline.max = data.steps.length - 1;
     const firstByRound = new Map();
     states.forEach((state, stateIndex) => { if (state.round && !firstByRound.has(state.round)) firstByRound.set(state.round, stateIndex); });
