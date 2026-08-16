@@ -20,9 +20,9 @@
     heavenlyDerivation: "天衍仙命", noneVisible: "暂无可见信息", cultivation: "修为", destiny: "命元",
     exchangeChance: "换牌机会", currentView: "当前私密视角", previousView: "上一轮公开状态",
     deck: "卡组", previousDeck: "上一轮卡组", hand: "手牌", slots: "格", noDeck: "未记录到可见卡组。",
-    hiddenHand: "查看其他玩家时无法看到其手牌。", round: "第", roundSuffix: "轮", hide: "隐藏",
-    rerollsRemaining: "次刷新剩余", choicePending: "等待记录中的选择", selectHdf: "选择天衍仙命",
-    selectTalent: "选择仙命", selectDaoYun: "选择道韵预感", noActions: "尚无玩家操作。",
+    hiddenHand: "查看其他玩家时无法看到其手牌。", round: "第", roundSuffix: "轮",
+    rerollsRemaining: "次刷新剩余", selectHdf: "选择天衍仙命",
+    selectTalent: "选择仙命", selectDaoYun: "选择卡牌", noActions: "尚无玩家操作。",
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
@@ -34,9 +34,9 @@
     heavenlyDerivation: "Heavenly Derivation", noneVisible: "None visible", cultivation: "Cultivation", destiny: "Destiny",
     exchangeChance: "Exchange Chance", currentView: "Current private view", previousView: "previous-round public state",
     deck: "Deck", previousDeck: "Previous-round deck", hand: "Hand", slots: "slots", noDeck: "No deck was visible.",
-    hiddenHand: "Private hand is not visible when browsing another player.", round: "Round ", roundSuffix: "", hide: "Hide",
-    rerollsRemaining: "rerolls remaining", choicePending: "Recorded choice pending", selectHdf: "Select a Heavenly Derivation Fate",
-    selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Daoist Rhyme Omen", noActions: "No player action has occurred yet.",
+    hiddenHand: "Private hand is not visible when browsing another player.", round: "Round ", roundSuffix: "",
+    rerollsRemaining: "rerolls remaining", selectHdf: "Select a Heavenly Derivation Fate",
+    selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Card", noActions: "No player action has occurred yet.",
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
@@ -237,9 +237,9 @@
       : `${esc(phaseName(overlay.roundOrPhase))}`;
     host.dataset.kind = overlay.kind;
     host.innerHTML = `<div class="selection-frame" style="--choice-count:${overlay.options.length}">
-      <div class="selection-heading"><span class="selection-context">${roundOrPhase}</span><h2>${esc(title)}</h2><span class="selection-hide">◒ ${esc(copy.hide)}</span></div>
+      <div class="selection-heading"><span class="selection-context">${roundOrPhase}</span><h2>${esc(title)}</h2><span class="selection-heading-spacer" aria-hidden="true"></span></div>
       <div class="selection-options">${options}</div>
-      <div class="selection-actions">${overlay.kind === "heavenly-derivation" ? `<span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span>` : ""}<span class="recording-pending">${esc(copy.choicePending)}</span></div>
+      ${overlay.kind === "heavenly-derivation" ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
     </div>`;
     host.hidden = false;
   }

@@ -691,9 +691,7 @@
   text-shadow: 0 2px 2px #153639;
 }
 
-.selection-context,
-.selection-hide { color: #d8ece5; font: 700 12px Georgia, serif; }
-.selection-hide { justify-self: end; }
+.selection-context { color: #d8ece5; font: 700 12px Georgia, serif; }
 
 .selection-options {
   display: grid;
@@ -768,7 +766,7 @@
 
 .selection-option.card-choice { grid-template-rows: minmax(170px, 1fr) auto auto; }
 .selection-option.card-choice .selection-icon { width: auto; height: 100%; max-height: 315px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
-.selection-option.card-choice .selection-icon img { width: auto; height: 100%; max-width: 100%; border-radius: 7px; object-fit: contain; }
+.selection-option.card-choice .selection-icon img { width: 100%; height: 100%; min-width: 0; min-height: 0; max-width: 100%; max-height: 100%; border-radius: 7px; object-fit: contain; }
 
 .selection-actions {
   position: relative;
@@ -779,9 +777,7 @@
   margin-top: 7px;
 }
 
-.reroll-bank,
-.recording-pending { color: #d8ebe3; font-size: 11px; font-weight: 750; }
-.recording-pending { justify-self: end; text-align: right; }
+.reroll-bank { color: #d8ebe3; font-size: 11px; font-weight: 750; }
 
 .action-history {
   padding: 9px 12px 11px;
@@ -843,14 +839,15 @@
   .selection-frame { min-height: 0; max-height: 748px; overflow-y: auto; padding: 0 10px 12px; }
   .selection-heading { grid-template-columns: 1fr; margin: 0 -10px 10px; padding: 8px 12px; text-align: center; }
   .selection-heading h2 { font-size: 19px; }
-  .selection-context, .selection-hide { justify-self: center; }
+  .selection-context { justify-self: center; }
+  .selection-heading-spacer { display: none; }
   .selection-options { grid-template-columns: repeat(2, minmax(0, 1fr)); min-height: 0; }
   .selection-option { grid-template-rows: 76px auto auto 1fr; padding: 11px 8px; }
   .selection-icon { width: 69px; height: 69px; }
   .selection-icon img { width: 63px; height: 63px; }
   .selection-option strong { font-size: 12px; }
   .selection-actions { grid-template-columns: 1fr; }
-  .reroll-bank, .recording-pending { justify-self: center; text-align: center; }
+  .reroll-bank { justify-self: center; text-align: center; }
   .action-history-head { display: block; }
   .action-history-head .muted { display: block; margin-top: 4px; }
   .action-history { padding: 15px; }
