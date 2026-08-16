@@ -25,7 +25,8 @@
     selectTalent: "选择仙命", selectDaoYun: "选择道韵预感", noActions: "尚无玩家操作。",
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", recordingRoom: "房间", currentPrivate: "当前私密视角",
-    actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情" },
+    actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", reroll: "刷新" },
+    battle: "战斗",
     previousOffer: "此前选项", rerolledAway: "已刷走", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
@@ -38,7 +39,8 @@
     selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Daoist Rhyme Omen", noActions: "No player action has occurred yet.",
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", recordingRoom: "Room", currentPrivate: "Current private view",
-    actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote" },
+    actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", reroll: "reroll" },
+    battle: "battle",
     previousOffer: "Previous offer", rerolledAway: "Rerolled away", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen",
   };
   const vocabulary = {
@@ -68,7 +70,13 @@
     const artId = Number(id) === 27 ? 347 : id;
     return assetMode === "local" ? `card-images/${artId}_${language}.png` : `/yxp_wiki/assets/cards/${artId}_${language}.png`;
   };
-  const characterAsset = (id, kind) => assetMode === "local" ? `character-images/${id}-${kind}.png` : `/yxp_wiki/assets/characters/${id}-${kind}.png`;
+  const characterAsset = (player, kind, defaultOnly = false) => {
+    const skinNumber = Number(player?.skinNumber) || 0;
+    const suffix = !defaultOnly && skinNumber > 0 ? `skin-${skinNumber}` : kind;
+    return assetMode === "local"
+      ? `character-images/${player?.characterId}-${suffix}.png`
+      : `/yxp_wiki/assets/characters/${player?.characterId}-${suffix}.png`;
+  };
   const fateAsset = (entry, kind) => {
     if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
     return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
@@ -112,9 +120,10 @@
     const info = recording.catalog.cards[cardId] ?? (cardId === 0
       ? { id: 0, nameEnglish: "Normal Attack", nameChinese: "普通攻击", upgrade: 1 }
       : { id: cardId, nameEnglish: `Card ${cardId}`, nameChinese: `卡牌 ${cardId}`, upgrade: 1 });
-    const name = localizedInfo(info) || `${copy.unknownCard} ${cardId}`;
-    return `<div class="game-card" title="${esc(name)}">
-      <span class="card-fallback"><strong>${esc(name)}</strong><small>ID ${esc(cardId)}</small></span>
+    const name = localizedInfo(info) || copy.unknownCard;
+    const level = isChinese ? `${info.upgrade ?? 1}级` : `Lv.${info.upgrade ?? 1}`;
+    return `<div class="game-card" title="${esc(name)} ${esc(level)}">
+      <span class="card-fallback"><strong>${esc(name)}</strong><small>${esc(level)}</small></span>
       <img data-asset-fallback src="${cardAsset(cardId)}" alt="${esc(name)}">
     </div>`;
   }
@@ -172,7 +181,7 @@
     const own = state.players[state.targetUid];
     const upcoming = own?.nextOpponent === player.uid;
     return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
-      <span class="avatar-wrap"><img class="avatar" src="${characterAsset(player.characterId, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
+      <span class="avatar-wrap"><img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" class="avatar ${Number(player.skinNumber) > 0 ? "costume" : ""}" src="${characterAsset(player, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
       <span class="name">${esc(player.username)}</span><span class="character-name">${esc(characterName(player))}</span>
     </button>`;
   }
@@ -189,7 +198,7 @@
         <div class="trait-group"><span class="trait-heading">${esc(copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         ${player.uid === state.targetUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
       </div>
-      <img class="character-art" src="${characterAsset(player.characterId, "portrait")}" alt="${esc(characterName(player))}">
+      <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
       <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(priorRound?.phase ?? player.phase))}</span><span>${esc(sectName(player.sect))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span><span>${esc(priorRound?.cultivation ?? player.cultivation)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span></div>`;
   }
 
@@ -230,11 +239,14 @@
   }
 
   const actionText = (action) => action[isChinese ? "textChinese" : "textEnglish"] || action.text || "";
+  const actionKindText = (action) => action.kind === "destiny" && Number(action.round) > 0
+    ? isChinese ? `${copy.round}${action.round}${copy.roundSuffix}${copy.battle}` : `${copy.round}${action.round}${copy.roundSuffix} ${copy.battle}`
+    : copy.actionKinds[action.kind] || action.kind;
 
   function renderActions() {
     const actions = recentActions();
     $("#action-list").innerHTML = actions.length
-      ? actions.map((action) => `<li class="${action.current ? "current" : ""}"><span class="action-kind">${esc(copy.actionKinds[action.kind] || action.kind)}</span>${esc(actionText(action))}</li>`).join("")
+      ? actions.map((action) => `<li class="${action.current ? "current" : ""}"><span class="action-kind">${esc(actionKindText(action))}</span>${esc(actionText(action))}</li>`).join("")
       : `<li class="empty">${esc(copy.noActions)}</li>`;
   }
 
@@ -340,6 +352,13 @@
     if (event.key === "ArrowRight") setIndex(index + 1);
   });
   addEventListener("error", (event) => {
+    if (event.target instanceof HTMLImageElement && event.target.matches("img[data-character-fallback]")) {
+      if (!event.target.dataset.fallbackApplied) {
+        event.target.dataset.fallbackApplied = "true";
+        event.target.src = event.target.dataset.defaultSrc;
+      } else event.target.hidden = true;
+      return;
+    }
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-asset-fallback]")) event.target.hidden = true;
   }, true);
   const initialRecording = catalog.find((item) => item.targetUid === preferredTargetUid) ?? catalog[0];

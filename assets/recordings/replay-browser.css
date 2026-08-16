@@ -177,6 +177,8 @@
   box-shadow: 0 5px 14px rgba(0, 0, 0, .55);
 }
 
+.avatar.costume { object-position: 50% 40%; }
+
 .life-gem {
   position: absolute;
   top: -3px;
