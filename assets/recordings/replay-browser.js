@@ -225,7 +225,7 @@
       if (overlay.kind === "daoist-rhyme") {
         const info = recording.catalog.cards[reference.id] ?? {};
         const selected = optionIndex === selectedOptionIndex;
-        return `<article class="selection-option card-choice${selected ? " selected" : ""}"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><strong>${esc(localizedInfo(info) || reference.id)}</strong>${selected ? `<span class="chosen-mark">✓ ${esc(copy.chosen)}</span>` : ""}</article>`;
+        return `<article class="selection-option card-choice${selected ? " selected" : ""}"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(localizedInfo(info) || reference.id)}</strong></article>`;
       }
       const kind = overlay.kind === "immortal-fate" ? "talent" : "fateStrategy";
       const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
