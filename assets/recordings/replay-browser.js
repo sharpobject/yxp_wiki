@@ -62,6 +62,8 @@
   let states = [];
   let index = 0;
   let selectedUid = "";
+  let activeCatalogItem = null;
+  let loadGeneration = 0;
 
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
@@ -300,16 +302,51 @@
     document.querySelectorAll(".player-portrait").forEach((button) => button.addEventListener("click", () => { selectedUid = button.dataset.uid; render(); }));
   }
 
-  function setIndex(value) {
-    index = Math.max(0, Math.min(recording.steps.length - 1, Number(value)));
-    render();
+  function requestedLocation() {
+    const params = new URLSearchParams(location.search);
+    const requestedStep = Number.parseInt(params.get("step") ?? "", 10);
+    return {
+      recordingId: params.get("recording") || "",
+      stepIndex: Number.isFinite(requestedStep) && requestedStep > 0 ? requestedStep - 1 : null,
+    };
   }
 
-  function installRecording(data) {
+  function updateLanguageLink(url) {
+    const link = $(".lang");
+    if (!link) return;
+    const target = new URL(link.href, location.href);
+    target.search = url.search;
+    target.hash = url.hash;
+    link.href = target.href;
+  }
+
+  function syncLocation(mode = "replace") {
+    if (!recording || !activeCatalogItem) return;
+    const url = new URL(location.href);
+    url.searchParams.set("recording", activeCatalogItem.id);
+    url.searchParams.set("step", String(index + 1));
+    history[mode === "push" ? "pushState" : "replaceState"](
+      { recordingId: activeCatalogItem.id, step: index + 1 },
+      "",
+      url,
+    );
+    updateLanguageLink(url);
+  }
+
+  function setIndex(value, sync = true) {
+    if (!recording) return;
+    index = Math.max(0, Math.min(recording.steps.length - 1, Number(value)));
+    render();
+    if (sync) syncLocation();
+  }
+
+  function installRecording(data, item, requestedStepIndex, historyMode) {
     recording = data;
+    activeCatalogItem = item;
     states = hydrateStates(data);
-    index = states.findIndex((state) => state.round > 0);
-    if (index < 0) index = 0;
+    const firstRecordedIndex = states.findIndex((state) => state.round > 0);
+    index = requestedStepIndex == null ? Math.max(0, firstRecordedIndex) : requestedStepIndex;
+    index = Math.max(0, Math.min(data.steps.length - 1, index));
     selectedUid = data.targetUid;
     timeline.max = data.steps.length - 1;
     const firstByRound = new Map();
@@ -318,9 +355,12 @@
     $("#loading").hidden = true;
     $("#viewer").hidden = false;
     render();
+    syncLocation(historyMode);
   }
 
-  function loadRecording(item) {
+  function loadRecording(item, { stepIndex = null, historyMode = "replace" } = {}) {
+    if (!item) return;
+    const generation = ++loadGeneration;
     $("#loading").hidden = false;
     $("#viewer").hidden = true;
     window.REPLAY_RECORDING = null;
@@ -329,8 +369,13 @@
     const script = document.createElement("script");
     script.dataset.recording = "";
     script.src = `${recordingBase}/${item.file}${recordingVersion ? `?v=${encodeURIComponent(recordingVersion)}` : ""}`;
-    script.onload = () => installRecording(window.REPLAY_RECORDING);
-    script.onerror = () => { $("#loading").textContent = `${copy.couldNotLoad} ${item.file}`; };
+    script.onload = () => {
+      if (generation !== loadGeneration) return;
+      installRecording(window.REPLAY_RECORDING, item, stepIndex, historyMode);
+    };
+    script.onerror = () => {
+      if (generation === loadGeneration) $("#loading").textContent = `${copy.couldNotLoad} ${item.file}`;
+    };
     document.body.appendChild(script);
   }
 
@@ -343,7 +388,7 @@
     return parts.join(" · ");
   };
   select.innerHTML = catalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("");
-  select.addEventListener("change", () => loadRecording(catalog.find((item) => item.id === select.value)));
+  select.addEventListener("change", () => loadRecording(catalog.find((item) => item.id === select.value), { historyMode: "push" }));
   previous.addEventListener("click", () => setIndex(index - 1));
   next.addEventListener("click", () => setIndex(index + 1));
   timeline.addEventListener("input", (event) => setIndex(event.target.value));
@@ -352,6 +397,18 @@
     if (["INPUT", "SELECT"].includes(document.activeElement?.tagName)) return;
     if (event.key === "ArrowLeft") setIndex(index - 1);
     if (event.key === "ArrowRight") setIndex(index + 1);
+  });
+  addEventListener("popstate", () => {
+    const requested = requestedLocation();
+    const item = catalog.find((candidate) => candidate.id === requested.recordingId)
+      ?? catalog.find((candidate) => candidate.targetUid === preferredTargetUid)
+      ?? catalog[0];
+    if (!item) return;
+    select.value = item.id;
+    if (recording && activeCatalogItem?.id === item.id) {
+      setIndex(requested.stepIndex ?? states.findIndex((state) => state.round > 0), false);
+      updateLanguageLink(new URL(location.href));
+    } else loadRecording(item, { stepIndex: requested.stepIndex, historyMode: "replace" });
   });
   addEventListener("error", (event) => {
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-character-fallback]")) {
@@ -363,10 +420,13 @@
     }
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-asset-fallback]")) event.target.hidden = true;
   }, true);
-  const initialRecording = catalog.find((item) => item.targetUid === preferredTargetUid) ?? catalog[0];
+  const requested = requestedLocation();
+  const initialRecording = catalog.find((item) => item.id === requested.recordingId)
+    ?? catalog.find((item) => item.targetUid === preferredTargetUid)
+    ?? catalog[0];
   if (initialRecording) {
     select.value = initialRecording.id;
-    loadRecording(initialRecording);
+    loadRecording(initialRecording, { stepIndex: requested.stepIndex });
   }
   else $("#loading").textContent = copy.noRecordings;
 })();
