@@ -389,7 +389,9 @@
   transform: scale(1.08);
 }
 .trait-icon > .fate-card-crop,
-.offer-icon > .fate-card-crop {
+.offer-icon > .fate-card-crop,
+.trait-icon > .fate-composite,
+.offer-icon > .fate-composite {
   position: absolute;
   inset: 2px;
   width: auto;
@@ -481,22 +483,38 @@
 .dao-yun-choice { position: relative; flex: 0 0 31px; width: 31px; color: #e7d6a0; text-align: center; }
 .dao-round { display: block; margin-bottom: 2px; font-size: 7px; font-weight: 850; line-height: 1; white-space: nowrap; }
 .dao-pentagon {
-  display: grid;
-  place-items: center;
+  position: relative;
+  display: block;
   width: 29px;
-  height: 29px;
+  height: 30px;
   padding: 0;
-  clip-path: polygon(50% 0, 98% 35%, 80% 100%, 20% 100%, 2% 35%);
-  overflow: hidden;
-  background: #172019;
+  overflow: visible;
+  background: linear-gradient(145deg, #d9b86a 0 10%, #6c291d 38%, #2b1715 66%, #b48446 100%);
+  clip-path: polygon(50% 0, 63% 9%, 100% 45%, 91% 75%, 79% 100%, 21% 100%, 9% 75%, 0 45%, 37% 9%);
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .58));
 }
-.dao-art { position: relative; display: block; width: 100%; height: 100%; overflow: hidden; }
+.dao-pentagon::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 1px;
+  background: linear-gradient(160deg, #551b15, #140f10 58%, #401714);
+  clip-path: polygon(50% 0, 64% 10%, 100% 46%, 91% 75%, 79% 100%, 21% 100%, 9% 75%, 0 46%, 36% 10%);
+}
+.dao-art {
+  position: absolute;
+  z-index: 2;
+  inset: 3px 3px 4px;
+  display: block;
+  overflow: hidden;
+  background: #172019;
+  clip-path: polygon(50% 0, 64% 10%, 100% 47%, 90% 74%, 78% 100%, 22% 100%, 10% 74%, 0 47%, 36% 10%);
+}
 .dao-art img {
   position: absolute;
-  top: -42%;
-  left: -47%;
-  width: 174%;
+  top: -39%;
+  left: -49%;
+  width: 178%;
   max-width: none;
   height: auto;
 }
@@ -1015,7 +1033,7 @@
   .trait-count { min-width: 17px; padding: 0 3px; font-size: 8px; }
   .dao-yun-row { gap: 3px; }
   .dao-yun-choice { flex-basis: 28px; width: 28px; }
-  .dao-pentagon { width: 27px; height: 27px; }
+  .dao-pentagon { width: 27px; height: 28px; }
   .character-stats { align-content: center; padding: 7px; }
   .character-stats strong { overflow-wrap: anywhere; font-size: 11px; line-height: 1.12; }
   .character-stats span { font-size: 8px; line-height: 1.15; }
