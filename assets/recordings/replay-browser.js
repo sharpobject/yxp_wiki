@@ -61,7 +61,10 @@
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (character) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[character]);
-  const cardAsset = (id) => assetMode === "local" ? `card-images/${id}_${language}.png` : `/yxp_wiki/assets/cards/${id}_${language}.png`;
+  const cardAsset = (id) => {
+    const artId = Number(id) === 27 ? 347 : id;
+    return assetMode === "local" ? `card-images/${artId}_${language}.png` : `/yxp_wiki/assets/cards/${artId}_${language}.png`;
+  };
   const characterAsset = (id, kind) => assetMode === "local" ? `character-images/${id}-${kind}.png` : `/yxp_wiki/assets/characters/${id}-${kind}.png`;
   const fateAsset = (entry, kind) => {
     if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
