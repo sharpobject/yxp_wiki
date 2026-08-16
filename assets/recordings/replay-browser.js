@@ -17,7 +17,7 @@
   const copy = isChinese ? {
     unknownPhase: "未知境界", noSideJob: "无副职业", emptySlot: "空卡位", unknownCard: "未知卡牌",
     inspect: "查看上一轮公开状态", upcomingOpponent: "下一位对手", immortalFates: "仙命",
-    heavenlyDerivation: "天衍仙命", noneVisible: "暂无可见信息", cultivation: "修为", destiny: "命元",
+    heavenlyDerivation: "天衍仙命", noneVisible: "暂无可见信息", cultivation: "修为", destiny: "命元", physique: "体魄", maxHp: "生命上限",
     exchangeChance: "换牌机会", currentView: "当前私密视角", previousView: "上一轮公开状态",
     deck: "卡组", previousDeck: "上一轮卡组", hand: "手牌", slots: "格", noDeck: "未记录到可见卡组。",
     hiddenHand: "查看其他玩家时无法看到其手牌。", round: "第", roundSuffix: "轮",
@@ -26,12 +26,12 @@
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
-    battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手",
+    battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
     previousOffer: "此前选项", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择", innerDemon: "心魔",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
-    heavenlyDerivation: "Heavenly Derivation", noneVisible: "None visible", cultivation: "Cultivation", destiny: "Destiny",
+    heavenlyDerivation: "Heavenly Derivation", noneVisible: "None visible", cultivation: "Cultivation", destiny: "Destiny", physique: "Physique", maxHp: "Max HP",
     exchangeChance: "Exchange Chance", currentView: "Current private view", previousView: "previous-round public state",
     deck: "Deck", previousDeck: "Previous-round deck", hand: "Hand", slots: "slots", noDeck: "No deck was visible.",
     hiddenHand: "Private hand is not visible when browsing another player.", round: "Round ", roundSuffix: "",
@@ -40,7 +40,7 @@
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
-    battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first",
+    battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
     previousOffer: "Previous offer", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen", innerDemon: "Inner Demon",
   };
   const vocabulary = {
@@ -58,7 +58,9 @@
       6: ["Plant Master", "灵植师"], 7: ["Fortune Teller", "命理师"],
     },
   };
+  const baseMaxHpByPhase = { 1: 40, 2: 45, 3: 52, 4: 62, 5: 75, 6: 100 };
   const battleBuffMetadata = {
+    17: ["Will of Desperate Combat", "死战之志", "After HP drops to 0 or below for the first time, cannot be defeated until the end of this turn.", "首次生命降至0或以下后，本回合结束前不会战败。"],
     10008: ["Origin Herb", "归元草", "At battle start, gain HP and Max HP.", "战斗开始时增加生命及生命上限。"],
     10009: ["Shuttle Orchid", "金梭兰", "At battle start, deal damage.", "战斗开始时造成伤害。"],
     10010: ["Healing Chamomile", "愈甘菊", "At battle start, gain Regeneration.", "战斗开始时获得恢复。"],
@@ -86,6 +88,9 @@
   const cardAsset = (id) => {
     return assetMode === "local" ? `card-images/${id}_${language}.png` : `/yxp_wiki/assets/cards/${id}_${language}.png`;
   };
+  const specialCardArt = (id) => assetMode === "local"
+    ? `special-card-art/${id}.png`
+    : `/yxp_wiki/assets/recordings/special-cards/${id}.png`;
   const characterAsset = (player, kind, defaultOnly = false) => {
     const skinNumber = Number(player?.skinNumber) || 0;
     const suffix = !defaultOnly && skinNumber > 0
@@ -105,6 +110,9 @@
       ? `buff-icons/Icon_Buff_${iconId}.png`
       : `/yxp_wiki/assets/recordings/buffs/Icon_Buff_${iconId}.png`;
   };
+  const emojiAsset = (id) => assetMode === "local"
+    ? `emoji-images/${id}.png`
+    : `/yxp_wiki/assets/recordings/emojis/${id}.png`;
   const fateArtwork = (entry = {}, kind, alt = "") => {
     if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
       return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
@@ -126,6 +134,7 @@
     return typeof value === "string" ? value.replace(/\\n/g, "\n") : value;
   };
   const phaseName = (value) => localizedPair(vocabulary.phases[numericPrefix(value)], String(value ?? copy.unknownPhase));
+  const priorMaxHp = (prior) => Number(baseMaxHpByPhase[numericPrefix(prior?.phase)] ?? 0) + Number(prior?.extraMaxHp ?? 0);
   const sectName = (value) => localizedPair(vocabulary.sects[numericPrefix(value)], String(value ?? ""));
   const careerName = (value) => localizedPair(vocabulary.careers[numericPrefix(value)], String(value ?? copy.noSideJob));
   const characterName = (player) => {
@@ -162,6 +171,8 @@
       : { id: cardId, nameEnglish: `Card ${cardId}`, nameChinese: `卡牌 ${cardId}`, upgrade: 1 });
     const name = localizedInfo(info) || copy.unknownCard;
     const level = isChinese ? `${info.upgrade ?? 1}级` : `Lv.${info.upgrade ?? 1}`;
+    if (info.placeholder) return `<div class="game-card placeholder-card" title="${esc(name)}"><span class="card-fallback"><strong>${esc(name)}</strong></span><img data-asset-fallback src="${cardAsset(399)}" alt="${esc(name)}"></div>`;
+    if (Number(cardId) === -1) return `<div class="game-card special-card" title="${esc(name)} ${esc(level)}"><img data-asset-fallback class="card-special-art" src="${specialCardArt(cardId)}" alt=""><span class="special-card-name"><strong>${esc(name)}</strong><small>${esc(level)}</small></span></div>`;
     return `<div class="game-card" title="${esc(name)} ${esc(level)}">
       <span class="card-fallback"><strong>${esc(name)}</strong><small>${esc(level)}</small></span>
       <img data-asset-fallback src="${cardAsset(cardId)}" alt="${esc(name)}">
@@ -218,7 +229,10 @@
     const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
     if (!info) return "";
     const runtime = reference.runtime;
-    const badge = runtime ? `<span class="trait-count">${runtime.kind === "cooldown" ? "CD " : ""}${esc(runtime.value)}</span>` : "";
+    const badgeText = runtime?.kind === "cooldown"
+      ? isChinese ? `冷却：${runtime.value}轮` : `CD ${runtime.value}`
+      : runtime?.value;
+    const badge = runtime ? `<span class="trait-count">${esc(badgeText)}</span>` : "";
     const name = localizedInfo(info);
     const localizedDescription = localizedInfo(info, "description");
     const history = reference.choiceHistory;
@@ -242,12 +256,13 @@
     return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
   }
 
-  function playerPortrait(player, state, privateOwnerUid) {
+  function playerPortrait(player, state, privateOwnerUid, emojiId = null) {
     const own = state.players[privateOwnerUid];
     const upcoming = own?.nextOpponent === player.uid;
     return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
       <span class="avatar-wrap"><img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" class="avatar ${Number(player.skinNumber) > 0 ? "costume" : ""}" src="${characterAsset(player, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
       <span class="name">${esc(player.username)}</span><span class="character-name">${esc(characterName(player))}</span>
+      ${emojiId == null ? "" : `<span class="player-emote" aria-label="${esc(copy.actionKinds.emote)} ${esc(emojiId)}"><span>${esc(emojiId)}</span><img data-emote-art src="${emojiAsset(emojiId)}" alt=""></span>`}
     </button>`;
   }
 
@@ -259,13 +274,16 @@
     const daoYunChoices = player.uid === privateOwnerUid
       ? (privatePlayer?.daoYunChoices ?? []).map(daoYunChoice).join("")
       : "";
+    const displayedStats = priorRound ?? player;
+    const physique = Number(displayedStats?.physique ?? 0);
+    const showPhysique = numericPrefix(player.sect) === 4 || physique > 0;
     $("#character-panel").innerHTML = `<div class="trait-panel">
         <div class="trait-group"><span class="trait-heading">${esc(copy.immortalFates)}</span><div class="trait-row">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         <div class="trait-group"><span class="trait-heading">${esc(copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         ${player.uid === privateOwnerUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
       </div>
       <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
-      <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(priorRound?.phase ?? player.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(priorRound?.cultivation ?? player.cultivation)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span></div>`;
+      <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(displayedStats?.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(displayedStats?.cultivation ?? 0)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span><span>${showPhysique ? `${esc(physique)} / ${esc(displayedStats?.maxPhysique ?? 0)} ${esc(copy.physique)} · ` : ""}${esc(priorMaxHp(displayedStats))} ${esc(copy.maxHp)}</span></div>`;
   }
 
   function renderChoice(overlay) {
@@ -379,6 +397,8 @@
         const delta = Number(player.lifeDelta ?? 0);
         const deltaText = delta ? `<span class="battle-destiny-delta ${delta > 0 ? "positive" : "negative"}">${delta > 0 ? "+" : ""}${esc(delta)}</span>` : "";
         const speed = Number(player.speed ?? 0);
+        const physique = Number(player.physique ?? 0);
+        const showPhysique = numericPrefix(player.sect) === 4 || physique > 0;
         return `<article class="battle-combatant ${esc(player.result)}">
           <div class="battle-player">
             <img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" src="${characterAsset(player, "avatar")}" alt="">
@@ -388,12 +408,40 @@
           <div class="battle-values">
             <span><small>${esc(copy.destiny)}</small><strong>${esc(player.lifeBefore)}${deltaText}</strong></span>
             <span><small>${esc(copy.cultivation)}</small><strong>${esc(player.cultivation)}${speed > 0 ? `<em>(+${esc(speed)})</em>` : ""}</strong></span>
+            ${showPhysique ? `<span><strong>${esc(physique)} / ${esc(player.maxPhysique ?? 0)} ${esc(copy.physique)}</strong></span>` : ""}
             ${player.first ? `<span class="battle-first">◆ ${esc(copy.firstAction)}</span>` : ""}
           </div>
           <div class="battle-effects">${talents}${fates}${buffs}</div>
           <div class="battle-deck">${(player.deck ?? []).map((id) => card(id, true)).join("")}</div>
         </article>`;
       }).join("")}</div>`;
+  }
+
+  function renderOpponentPreview(opponent) {
+    const host = $("#opponent-preview");
+    const prior = opponent?.lastRound;
+    if (!opponent || !prior) {
+      host.hidden = true;
+      host.innerHTML = "";
+      return false;
+    }
+    const talents = (prior.talents ?? []).map((reference) => trait(reference, "talent")).join("");
+    const fates = (prior.fateStrategies ?? []).map((reference) => trait(reference, "fateStrategy")).join("");
+    const physique = Number(prior.physique ?? 0);
+    const showPhysique = numericPrefix(opponent.sect) === 4 || physique > 0;
+    host.innerHTML = `<div class="opponent-summary">
+        <span class="opponent-kicker">${esc(copy.opponentLastRound)}</span>
+        <strong title="${esc(opponent.username)}">${esc(opponent.username)}</strong>
+        <div class="opponent-stats${showPhysique ? "" : " without-physique"}">
+          <span><small>${esc(copy.cultivation)}</small><b>${esc(prior.cultivation ?? "—")}</b></span>
+          ${showPhysique ? `<span><b>${esc(physique)} / ${esc(prior.maxPhysique ?? 0)} ${esc(copy.physique)}</b></span>` : ""}
+          <span><small>${esc(copy.maxHp)}</small><b>${esc(priorMaxHp(prior) || "—")}</b></span>
+        </div>
+        <div class="opponent-effects"><div>${talents}</div><div>${fates}</div></div>
+      </div>
+      <div class="opponent-deck">${(prior.deck ?? []).map((id) => card(id, true)).join("") || `<span class="private-hand">${esc(copy.noDeck)}</span>`}</div>`;
+    host.hidden = false;
+    return true;
   }
 
   function render() {
@@ -419,7 +467,10 @@
 
     $(".game-stage").dataset.viewMode = battle ? "battle" : isOwn ? "private" : "prior-round";
 
-    $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state, privateOwnerUid)).join("");
+    const emotes = new Map((recording.steps[index]?.humanActions ?? [])
+      .filter((action) => action.kind === "emote" && action.emojiId != null)
+      .map((action) => [action.actorUid, action.emojiId]));
+    $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state, privateOwnerUid, emotes.get(player.uid))).join("");
     $("#round-marker").textContent = `${copy.round}${battle?.round || state.round || "—"}${copy.roundSuffix}`;
     $("#view-caption").textContent = battle
       ? `${selected?.username || recording.targetUsername} · ${copy.battleResult}`
@@ -432,6 +483,9 @@
     if (battle) {
       renderBattle(battle, selectedUid);
     } else {
+      const opponent = isOwn ? state.players[selected?.nextOpponent] : null;
+      const hasOpponentPreview = renderOpponentPreview(opponent);
+      $("#board-panel").classList.toggle("has-opponent-preview", hasOpponentPreview);
       $("#deck-label").textContent = isOwn ? copy.deck : copy.previousDeck;
       $("#deck").innerHTML = deck.map((id) => card(id, !isOwn)).join("") || `<span class="private-hand">${esc(copy.noDeck)}</span>`;
       $("#hand-label").textContent = isOwn ? `${copy.hand} · ${hand?.length ?? 0}` : copy.hand;
@@ -585,6 +639,7 @@
       return;
     }
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-asset-fallback]")) event.target.hidden = true;
+    if (event.target instanceof HTMLImageElement && event.target.matches("img[data-emote-art]")) event.target.hidden = true;
   }, true);
   const requested = requestedLocation();
   const initialRecording = catalog.find((item) => item.id === requested.recordingId)

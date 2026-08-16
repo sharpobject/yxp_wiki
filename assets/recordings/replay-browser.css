@@ -101,6 +101,11 @@
   min-height: 540px;
 }
 
+.game-stage:has(.board-panel.has-opponent-preview) {
+  height: 540px;
+  min-height: 540px;
+}
+
 .game-stage::after {
   content: "";
   position: absolute;
@@ -228,6 +233,42 @@
 
 .player-portrait .character-name { display: none; }
 .player-portrait.settled { filter: grayscale(.8); opacity: .5; }
+
+.player-emote {
+  position: absolute;
+  z-index: 12;
+  top: 48px;
+  left: calc(50% + 16px);
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 57px;
+  padding: 3px;
+  border: 2px solid #493d2d;
+  border-radius: 48% 52% 48% 45%;
+  background: linear-gradient(145deg, #fff8d9, #dbc99a);
+  color: #604f32;
+  font: 900 12px Georgia, serif;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, .64);
+  pointer-events: none;
+  transform: translateX(-18%);
+  animation: emote-pop .2s cubic-bezier(.18, .89, .32, 1.28);
+}
+.player-emote::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid #493d2d;
+  border-left: 2px solid #493d2d;
+  background: #fff8d9;
+  transform: rotate(45deg);
+}
+.player-emote > span { position: absolute; z-index: 0; }
+.player-emote > img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
+@keyframes emote-pop { from { opacity: 0; transform: translateX(-18%) scale(.45); } to { opacity: 1; transform: translateX(-18%) scale(1); } }
 
 .view-caption {
   position: absolute;
@@ -537,6 +578,53 @@
   gap: 4px;
 }
 
+.board-panel.has-opponent-preview {
+  top: 82px;
+  grid-template-rows: 158px 158px minmax(0, 1fr);
+}
+
+.opponent-preview[hidden] { display: none; }
+.opponent-preview {
+  display: grid;
+  grid-template-columns: 196px minmax(0, 1fr);
+  gap: 8px;
+  min-width: 0;
+  min-height: 0;
+  padding: 8px 10px;
+  overflow: visible;
+  border: 1px solid rgba(177, 154, 105, .55);
+  border-radius: 14px 14px 5px 5px;
+  background:
+    radial-gradient(ellipse at 70% 20%, rgba(164, 123, 75, .14), transparent 58%),
+    linear-gradient(180deg, rgba(65, 63, 54, .97), rgba(42, 51, 48, .97));
+  box-shadow: inset 0 0 48px rgba(5, 15, 14, .52), 0 6px 18px rgba(0, 0, 0, .35);
+}
+
+.opponent-summary {
+  display: grid;
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  align-content: start;
+  min-width: 0;
+  padding-right: 8px;
+  border-right: 1px solid rgba(219, 204, 155, .24);
+}
+.opponent-kicker { color: #bcae88; font: 700 7px Georgia, serif; letter-spacing: .08em; text-transform: uppercase; }
+.opponent-summary > strong { overflow: hidden; margin: 1px 0 4px; color: #f2d78f; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.opponent-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+.opponent-stats.without-physique { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.opponent-stats > span { display: grid; gap: 1px; padding: 3px 4px; border: 1px solid rgba(219, 204, 155, .2); border-radius: 4px; background: rgba(6, 17, 16, .44); }
+.opponent-stats small { overflow: hidden; color: #aeb9ad; font-size: 6px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.opponent-stats b { color: #f0e3bb; font-size: 11px; }
+.opponent-effects { display: grid; align-content: end; gap: 3px; min-height: 0; padding-top: 5px; }
+.opponent-effects > div { display: flex; gap: 3px; min-height: 25px; }
+.opponent-effects .trait-icon { flex-basis: 25px; width: 25px; height: 25px; }
+.opponent-effects .trait-popover { top: 29px; }
+.opponent-deck { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; min-height: 0; }
+.opponent-deck .game-card { flex: 1 1 70px; width: 70px; min-width: 38px; max-width: 76px; max-height: 138px; }
+.opponent-deck .game-card:hover { transform: translateY(-3px) scale(1.12); }
+.opponent-deck .card-fallback { padding: 4px; }
+.opponent-deck .card-fallback strong { font-size: 8px; }
+
 .battle-panel[hidden] { display: none; }
 .battle-panel {
   position: absolute;
@@ -714,6 +802,18 @@
   aspect-ratio: 5 / 8;
   transition: transform .12s ease, filter .12s ease;
 }
+
+.special-card {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  overflow: hidden;
+  border-color: #896f66;
+  background: linear-gradient(160deg, #30211f, #130f12 68%, #4a2721);
+}
+.card-special-art { width: 100%; height: 100%; min-height: 0; object-fit: cover; object-position: center; }
+.special-card-name { display: grid; gap: 1px; padding: 4px 3px 5px; background: rgba(18, 10, 12, .94); color: #f2dfcf; text-align: center; }
+.special-card-name strong { overflow-wrap: anywhere; font: 700 8px Georgia, serif; line-height: 1.05; }
+.special-card-name small { color: #cfb8aa; font-size: 7px; }
 
 .hand-zone .game-card { width: 70px; flex-basis: 70px; max-width: 76px; }
 
@@ -972,7 +1072,8 @@
   }
 
   .game-stage,
-  .game-stage:has(.selection-overlay:not([hidden])) {
+  .game-stage:has(.selection-overlay:not([hidden])),
+  .game-stage:has(.board-panel.has-opponent-preview) {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     align-content: start;
@@ -1071,6 +1172,25 @@
     width: 100%;
     height: 323px;
   }
+  .board-panel.has-opponent-preview {
+    top: auto;
+    grid-template-rows: 158px 158px 158px;
+    height: 488px;
+  }
+  .opponent-preview {
+    grid-template-columns: 154px minmax(0, 1fr);
+    gap: 5px;
+    padding: 7px;
+  }
+  .opponent-summary { padding-right: 5px; }
+  .opponent-summary > strong { font-size: 10px; }
+  .opponent-stats small { font-size: 5px; }
+  .opponent-effects { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
+  .opponent-effects > div { gap: 2px; overflow: hidden; }
+  .opponent-effects .trait-icon { flex-basis: 22px; width: 22px; height: 22px; }
+  .opponent-deck { justify-content: flex-start; overflow-x: auto; padding: 2px 1px 6px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .opponent-deck::-webkit-scrollbar { display: none; }
+  .opponent-deck .game-card { flex: 0 0 68px; width: 68px; min-width: 68px; max-width: 68px; scroll-snap-align: center; }
   .deck-zone { padding: 20px 7px 7px; }
   .hand-zone { padding: 2px 48px 0 3px; }
   .exchange-counter { right: 3px; bottom: 10px; }
