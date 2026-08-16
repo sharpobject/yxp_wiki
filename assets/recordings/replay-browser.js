@@ -93,6 +93,9 @@
         <span class="fate-composite-ink" aria-hidden="true"></span>
       </span>`;
     }
+    if (kind === "fateStrategy" && /^Card_\d+\.png$/.test(entry.iconFile ?? "")) {
+      return `<span class="fate-card-crop" role="img" aria-label="${esc(alt)}"><img data-asset-fallback src="${fateAsset(entry, kind)}" alt=""></span>`;
+    }
     return `<img data-asset-fallback src="${fateAsset(entry, kind)}" alt="${esc(alt)}">`;
   };
   const numericPrefix = (value) => Number.parseInt(String(value ?? "0"), 10) || 0;
@@ -235,15 +238,15 @@
       ? -1
       : overlay.options.findIndex((reference) => reference.id === overlay.selected);
     const options = overlay.options.map((reference, optionIndex) => {
+      const selected = optionIndex === selectedOptionIndex;
       if (overlay.kind === "daoist-rhyme") {
         const info = recording.catalog.cards[reference.id] ?? {};
-        const selected = optionIndex === selectedOptionIndex;
         return `<article class="selection-option card-choice${selected ? " selected" : ""}"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(localizedInfo(info) || reference.id)}</strong></article>`;
       }
       const kind = overlay.kind === "immortal-fate" ? "talent" : "fateStrategy";
       const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
       const name = localizedInfo(info) || reference.id;
-      return `<article class="selection-option"><div class="selection-icon">${fateArtwork(info, kind, name)}</div>${canReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
+      return `<article class="selection-option${selected ? " selected" : ""}"><div class="selection-icon">${fateArtwork(info, kind, name)}</div>${canReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
     }).join("");
     const title = overlay.kind === "heavenly-derivation"
       ? copy.selectHdf
@@ -264,8 +267,36 @@
 
   function choiceOverlayForStep(state) {
     if (state.privatePlayer?.choiceOverlay) return state.privatePlayer.choiceOverlay;
+    const previousState = states[index - 1];
+    const privateUid = state.privatePlayer?.uid;
+    const currentTalents = state.players?.[privateUid]?.talents ?? [];
+    const previousTalentIds = new Set((previousState?.players?.[privateUid]?.talents ?? []).map((reference) => Number(reference.id)));
+    const chosenTalent = currentTalents.find((reference) => reference.choiceHistory?.selected
+      && !previousTalentIds.has(Number(reference.id)));
+    if (chosenTalent) {
+      const history = chosenTalent.choiceHistory;
+      return {
+        kind: "immortal-fate",
+        roundOrPhase: history.roundOrPhase,
+        selected: history.selected,
+        options: (history.offers?.at(-1) ?? []).map((id) => ({ id })),
+      };
+    }
+    const previousFateIds = new Set((previousState?.privatePlayer?.selectedFateStrategies ?? []).map((reference) => Number(reference.id)));
+    const chosenFate = (state.privatePlayer?.selectedFateStrategies ?? []).find((reference) => reference.choiceHistory?.selected
+      && !previousFateIds.has(Number(reference.id)));
+    if (chosenFate) {
+      const history = chosenFate.choiceHistory;
+      return {
+        kind: "heavenly-derivation",
+        roundOrPhase: history.roundOrPhase,
+        rerollsRemaining: Number(history.rerollsRemaining ?? 0),
+        selected: history.selected,
+        options: (history.offers?.at(-1) ?? []).map((id) => ({ id })),
+      };
+    }
     const choices = state.privatePlayer?.daoYunChoices ?? [];
-    const previousChoices = states[index - 1]?.privatePlayer?.daoYunChoices ?? [];
+    const previousChoices = previousState?.privatePlayer?.daoYunChoices ?? [];
     if (choices.length <= previousChoices.length) return null;
     const choice = choices.at(-1);
     return {
@@ -384,6 +415,13 @@
       selectionFollowsPrivate = selectedUid === privateOwnerUid;
       render();
     }));
+    if (matchMedia("(max-width: 760px)").matches) {
+      const selectedPortrait = document.querySelector(".player-portrait.selected");
+      if (selectedPortrait) {
+        const roster = $("#player-roster");
+        roster.scrollLeft = Math.max(0, selectedPortrait.offsetLeft - (roster.clientWidth - selectedPortrait.offsetWidth) / 2);
+      }
+    }
   }
 
   function requestedLocation() {
