@@ -302,7 +302,7 @@
 
 .trait-group { min-width: 0; }
 .trait-heading { display: block; margin-bottom: 2px; color: #b9d3cb; font-size: 8px; font-weight: 850; letter-spacing: .04em; text-transform: uppercase; }
-.trait-row { display: flex; min-height: 30px; gap: 3px; overflow-x: auto; padding: 1px; }
+.trait-row { display: flex; min-height: 30px; gap: 3px; overflow: visible; padding: 1px; }
 .trait-empty { align-self: center; color: #7e9790; font-size: 10px; font-style: italic; }
 
 .trait-icon {
@@ -319,6 +319,8 @@
 .trait-icon.heavenly-fate { border-color: #5aa3a0; }
 .trait-icon.locked { filter: grayscale(.8); opacity: .55; }
 .trait-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.trait-icon:focus,
+.dao-yun-choice:focus { outline: 2px solid #f0d17c; outline-offset: 2px; }
 
 .trait-count {
   position: absolute;
@@ -334,13 +336,15 @@
   text-align: center;
 }
 
-.trait-icon:hover::after {
-  content: attr(data-tooltip);
+.trait-popover {
   position: absolute;
-  z-index: 50;
+  z-index: 80;
   top: 34px;
   left: 0;
-  width: 270px;
+  display: none;
+  width: 286px;
+  max-height: 260px;
+  overflow-y: auto;
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -351,6 +355,48 @@
   white-space: normal;
   box-shadow: 0 8px 24px #000;
 }
+
+.trait-icon:hover .trait-popover,
+.trait-icon:focus .trait-popover,
+.dao-yun-choice:hover .trait-popover,
+.dao-yun-choice:focus .trait-popover { display: block; }
+
+.trait-popover strong { color: #f1d58d; font-family: Georgia, serif; }
+.trait-popover p { margin: 5px 0 0; color: #d7d2c2; }
+
+.offer-history { display: grid; gap: 7px; margin-top: 8px; padding-top: 7px; border-top: 1px solid rgba(218, 205, 161, .22); }
+.offer-row { display: grid; gap: 3px; }
+.offer-row small { color: #a9beb7; font-size: 8px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.offer-row > div { display: flex; flex-wrap: wrap; gap: 4px; }
+.offer-icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  border: 1px solid #66817b;
+  border-radius: 50%;
+  background: #172019;
+}
+.offer-row.previous .offer-icon { width: 21px; height: 21px; opacity: .78; }
+.offer-row.previous small { font-size: 7px; opacity: .8; }
+.offer-icon.selected { border-color: #f0d17c; box-shadow: 0 0 0 2px rgba(240, 209, 124, .2); }
+.offer-icon img { width: 100%; height: 100%; object-fit: contain; }
+
+.dao-yun-row { align-items: end; gap: 5px; }
+.dao-yun-choice { position: relative; flex: 0 0 31px; width: 31px; color: #e7d6a0; text-align: center; }
+.dao-round { display: block; margin-bottom: 2px; font-size: 7px; font-weight: 850; line-height: 1; white-space: nowrap; }
+.dao-pentagon {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  padding: 2px;
+  clip-path: polygon(50% 0, 98% 35%, 80% 100%, 20% 100%, 2% 35%);
+  background: linear-gradient(145deg, #f1d48a, #5d9a94 65%, #243e3c);
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .58));
+}
+.dao-pentagon img { width: 100%; height: 100%; clip-path: inherit; object-fit: cover; }
+.dao-yun-choice .trait-popover { top: 42px; text-align: left; }
 
 .board-panel {
   position: absolute;
@@ -394,11 +440,27 @@
 .deck-zone::after { right: 5px; border-right: 1px solid rgba(219, 204, 155, .36); }
 
 .hand-zone {
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr;
   align-items: end;
   min-height: 0;
-  padding: 2px 9px 0;
+  padding: 2px 56px 0 9px;
+}
+
+.exchange-counter {
+  position: absolute;
+  right: 8px;
+  bottom: 13px;
+  min-width: 39px;
+  padding: 4px 5px;
+  border: 1px solid rgba(231, 214, 158, .52);
+  border-radius: 5px;
+  background: rgba(8, 20, 19, .9);
+  color: #f4dfa5;
+  font: 850 11px Georgia, serif;
+  text-align: center;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
 }
 
 .zone-label {
@@ -464,19 +526,6 @@
 
 .card-fallback strong { font: 700 11px Georgia, serif; }
 .card-fallback small { color: #aeb8aa; font-size: 9px; }
-
-.game-card .card-level {
-  position: absolute;
-  z-index: 4;
-  top: 2px;
-  right: 2px;
-  padding: 1px 3px;
-  border-radius: 999px;
-  background: rgba(8, 16, 12, .86);
-  color: #ffe19a;
-  font-size: 8px;
-  font-weight: 850;
-}
 
 .empty-slot {
   width: 78px;
@@ -599,7 +648,6 @@
 
 .selection-icon img { width: 60px; height: 60px; object-fit: contain; border-radius: 50%; }
 .selection-option strong { position: relative; z-index: 1; display: block; margin: 4px 0 1px; font: 800 13px Georgia, serif; line-height: 1.15; }
-.selection-cn { position: relative; z-index: 1; min-height: 17px; color: #c7ddd6; font-size: 11px; }
 .selection-option p { position: relative; z-index: 1; align-self: start; margin: 5px 0 0; color: #f0f2e5; font-size: 10px; line-height: 1.25; }
 
 .reroll-slot {
@@ -628,7 +676,7 @@
 .selection-actions {
   position: relative;
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   gap: 12px;
   margin-top: 7px;
@@ -637,19 +685,6 @@
 .reroll-bank,
 .recording-pending { color: #d8ebe3; font-size: 11px; font-weight: 750; }
 .recording-pending { justify-self: end; text-align: right; }
-
-.selection-confirm {
-  min-width: 210px;
-  padding: 6px 20px;
-  border: 2px solid #d2e1b8;
-  border-radius: 5px 5px 24px 24px;
-  background: #154d5e;
-  color: white;
-  font: 800 18px Georgia, serif;
-  text-align: center;
-  text-shadow: 0 2px 2px #06242d;
-  box-shadow: inset 0 0 12px rgba(169, 232, 219, .22), 0 4px 10px rgba(0, 0, 0, .35);
-}
 
 .action-history {
   padding: 9px 12px 11px;
@@ -714,7 +749,6 @@
   .selection-icon img { width: 63px; height: 63px; }
   .selection-option strong { font-size: 12px; }
   .selection-actions { grid-template-columns: 1fr; }
-  .selection-confirm { grid-row: 1; min-width: 0; font-size: 19px; }
   .reroll-bank, .recording-pending { justify-self: center; text-align: center; }
   .action-history-head { display: block; }
   .action-history-head .muted { display: block; margin-top: 4px; }
