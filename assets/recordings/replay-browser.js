@@ -8,6 +8,7 @@
   const roundSelect = $("#round-select");
   const assetMode = document.body.dataset.assetMode || "wiki";
   const recordingBase = document.body.dataset.recordingBase || "data";
+  const recordingVersion = document.body.dataset.recordingVersion || "";
   const isChinese = document.documentElement.lang.toLowerCase().startsWith("zh");
   const language = isChinese ? "zh" : "en";
   const copy = isChinese ? {
@@ -304,7 +305,7 @@
     if (old) old.remove();
     const script = document.createElement("script");
     script.dataset.recording = "";
-    script.src = `${recordingBase}/${item.file}`;
+    script.src = `${recordingBase}/${item.file}${recordingVersion ? `?v=${encodeURIComponent(recordingVersion)}` : ""}`;
     script.onload = () => installRecording(window.REPLAY_RECORDING);
     script.onerror = () => { $("#loading").textContent = `${copy.couldNotLoad} ${item.file}`; };
     document.body.appendChild(script);
