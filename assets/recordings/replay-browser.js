@@ -68,12 +68,15 @@
     return result;
   }
 
-  function card(id) {
-    if (!id) return '<div class="empty-slot" title="Empty deck slot"></div>';
-    const info = recording.catalog.cards[id] ?? { id, nameEnglish: `Card ${id}`, upgrade: 1 };
+  function card(id, zeroAsNormalAttack = false) {
+    if (!id && !zeroAsNormalAttack) return '<div class="empty-slot" title="Empty deck slot"></div>';
+    const cardId = id || 0;
+    const info = recording.catalog.cards[cardId] ?? (cardId === 0
+      ? { id: 0, nameEnglish: "Normal Attack", nameChinese: "普通攻击", upgrade: 1 }
+      : { id: cardId, nameEnglish: `Card ${cardId}`, upgrade: 1 });
     return `<div class="game-card" title="${esc(info.nameEnglish)}${info.nameChinese ? ` / ${esc(info.nameChinese)}` : ""}">
       <span class="card-fallback"><strong>${esc(info.nameEnglish)}</strong><small>${esc(info.nameChinese || `ID ${id}`)}</small></span>
-      <img data-asset-fallback src="${cardAsset(id)}" alt="${esc(info.nameEnglish)}"><span class="card-level">Lv.${esc(info.upgrade)}</span>
+      <img data-asset-fallback src="${cardAsset(cardId)}" alt="${esc(info.nameEnglish)}"><span class="card-level">Lv.${esc(info.upgrade)}</span>
     </div>`;
   }
 
@@ -178,7 +181,7 @@
       ? `Current private view · ${selected?.username || recording.targetUsername}`
       : `${selected?.username} · previous-round public state`;
     $("#deck-label").textContent = isOwn ? `Deck / 牌组 · ${deck.length} slots` : `Previous-round deck / 上回合牌组 · ${deck.length} slots`;
-    $("#deck").innerHTML = deck.map(card).join("") || '<span class="private-hand">No deck was visible.</span>';
+    $("#deck").innerHTML = deck.map((id) => card(id, !isOwn)).join("") || '<span class="private-hand">No deck was visible.</span>';
     $("#hand-label").textContent = isOwn ? `Hand / 手牌 · ${hand?.length ?? 0}` : "Hand / 手牌";
     $("#hand").innerHTML = hand ? hand.map(card).join("") : '<span class="private-hand">Private hand is not visible when browsing another player.</span>';
     renderCharacter(selected, traits, state, prior);
