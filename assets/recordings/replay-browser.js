@@ -85,6 +85,16 @@
     if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
     return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
   };
+  const fateArtwork = (entry = {}, kind, alt = "") => {
+    if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
+      return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
+        <span class="fate-composite-card first"><img data-asset-fallback src="${cardAsset(entry.compositeCardIds[0])}" alt=""></span>
+        <span class="fate-composite-card second"><img data-asset-fallback src="${cardAsset(entry.compositeCardIds[1])}" alt=""></span>
+        <span class="fate-composite-ink" aria-hidden="true"></span>
+      </span>`;
+    }
+    return `<img data-asset-fallback src="${fateAsset(entry, kind)}" alt="${esc(alt)}">`;
+  };
   const numericPrefix = (value) => Number.parseInt(String(value ?? "0"), 10) || 0;
   const localizedPair = (pair, fallback = "") => pair ? pair[isChinese ? 1 : 0] : fallback;
   const localizedInfo = (info, field = "name") => info?.[`${field}${isChinese ? "Chinese" : "English"}`]
@@ -165,9 +175,12 @@
         const info = kind === "card" ? recording.catalog.cards[id]
           : kind === "talent" ? recording.catalog.talents[id]
             : recording.catalog.fateStrategies[id];
-        const source = kind === "card" ? cardAsset(id) : fateAsset(info ?? { id }, kind);
         const selected = !row.previous && Number(id) === Number(history.selected);
-        return `<span class="offer-icon${kind === "card" ? " card-art" : ""}${selected ? " selected" : ""}" title="${esc(localizedInfo(info) || id)}"><img data-asset-fallback src="${source}" alt="${esc(localizedInfo(info) || id)}"></span>`;
+        const name = localizedInfo(info) || id;
+        const artwork = kind === "card"
+          ? `<img data-asset-fallback src="${cardAsset(id)}" alt="${esc(name)}">`
+          : fateArtwork(info ?? { id }, kind, name);
+        return `<span class="offer-icon${kind === "card" ? " card-art" : ""}${selected ? " selected" : ""}" title="${esc(name)}">${artwork}</span>`;
       }).join("");
       return `<div class="offer-row${row.previous ? " previous" : " final"}"><small>${esc(row.label)}</small><div>${row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons}</div></div>`;
     }).join("")}</div>`;
@@ -180,7 +193,7 @@
     const badge = runtime ? `<span class="trait-count">${runtime.kind === "cooldown" ? "CD " : ""}${esc(runtime.value)}</span>` : "";
     const name = localizedInfo(info);
     const localizedDescription = localizedInfo(info, "description");
-    return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0"><img data-asset-fallback src="${fateAsset(info, kind)}" alt="${esc(name)}">${badge}<div class="trait-popover"><strong>${esc(name)}</strong>${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(reference.choiceHistory, kind)}</div></div>`;
+    return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0">${fateArtwork(info, kind, name)}${badge}<div class="trait-popover"><strong>${esc(name)}</strong>${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(reference.choiceHistory, kind)}</div></div>`;
   }
 
   function daoYunChoice(choice) {
@@ -229,7 +242,8 @@
       }
       const kind = overlay.kind === "immortal-fate" ? "talent" : "fateStrategy";
       const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
-      return `<article class="selection-option"><div class="selection-icon"><img data-asset-fallback src="${fateAsset(info, kind)}" alt=""></div>${canReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<strong>${esc(localizedInfo(info) || reference.id)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
+      const name = localizedInfo(info) || reference.id;
+      return `<article class="selection-option"><div class="selection-icon">${fateArtwork(info, kind, name)}</div>${canReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
     }).join("");
     const title = overlay.kind === "heavenly-derivation"
       ? copy.selectHdf
