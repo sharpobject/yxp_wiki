@@ -24,10 +24,10 @@
     rerollsRemaining: "次刷新剩余", choicePending: "等待记录中的选择", selectHdf: "选择天衍仙命",
     selectTalent: "选择仙命", selectDaoYun: "选择道韵预感", noActions: "尚无玩家操作。",
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
-    rating: "分", rounds: "轮", recordingRoom: "房间", currentPrivate: "当前私密视角",
-    actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", reroll: "刷新" },
+    rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
+    actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
     battle: "战斗",
-    previousOffer: "此前选项", rerolledAway: "已刷走", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择",
+    previousOffer: "此前选项", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -38,10 +38,10 @@
     rerollsRemaining: "rerolls remaining", choicePending: "Recorded choice pending", selectHdf: "Select a Heavenly Derivation Fate",
     selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Daoist Rhyme Omen", noActions: "No player action has occurred yet.",
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
-    rating: "rating", rounds: "rounds", recordingRoom: "Room", currentPrivate: "Current private view",
-    actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", reroll: "reroll" },
+    rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
+    actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
     battle: "battle",
-    previousOffer: "Previous offer", rerolledAway: "Rerolled away", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen",
+    previousOffer: "Previous offer", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen",
   };
   const vocabulary = {
     phases: {
@@ -136,15 +136,23 @@
     if (!history?.offers?.length) return "";
     const final = history.offers.at(-1);
     const rows = kind === "fateStrategy"
-      ? history.offers.slice(0, -1).flatMap((offer, offerIndex) => {
-        const remaining = [...history.offers[offerIndex + 1]];
-        return offer.filter((id) => {
-          const retainedIndex = remaining.indexOf(id);
-          if (retainedIndex < 0) return true;
-          remaining.splice(retainedIndex, 1);
-          return false;
-        }).map((id) => ({ offer: [id], label: copy.rerolledAway, previous: true }));
-      }).concat([{ offer: final, label: copy.finalOffer, previous: false }])
+      ? (() => {
+        const knownRows = history.offers.slice(0, -1).flatMap((offer, offerIndex) => {
+          const remaining = [...history.offers[offerIndex + 1]];
+          return offer.filter((id) => {
+            const retainedIndex = remaining.indexOf(id);
+            if (retainedIndex < 0) return true;
+            remaining.splice(retainedIndex, 1);
+            return false;
+          }).map((id) => ({ offer: [id], label: copy.rerolledAway, previous: true }));
+        });
+        const missingCount = Math.max(0, Number(history.rerollsUsed ?? knownRows.length) - knownRows.length);
+        return knownRows
+          .concat(Array.from({ length: missingCount }, () => ({
+            offer: [], label: copy.unrecordedReroll, previous: true, unknown: true,
+          })))
+          .concat([{ offer: final, label: copy.finalOffer, previous: false }]);
+      })()
       : kind === "card"
         ? [{ offer: final, label: copy.offer, previous: false }]
         : history.offers.map((offer, offerIndex) => ({
@@ -161,7 +169,7 @@
         const selected = !row.previous && Number(id) === Number(history.selected);
         return `<span class="offer-icon${selected ? " selected" : ""}" title="${esc(localizedInfo(info) || id)}"><img data-asset-fallback src="${source}" alt="${esc(localizedInfo(info) || id)}"></span>`;
       }).join("");
-      return `<div class="offer-row${row.previous ? " previous" : " final"}"><small>${esc(row.label)}</small><div>${icons}</div></div>`;
+      return `<div class="offer-row${row.previous ? " previous" : " final"}"><small>${esc(row.label)}</small><div>${row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons}</div></div>`;
     }).join("")}</div>`;
   }
 
@@ -259,9 +267,7 @@
     if (!state) return;
     const privatePlayer = state.privatePlayer;
     const players = Object.values(state.players ?? {}).sort((first, second) =>
-      (Number(second.rating) || 0) - (Number(first.rating) || 0)
-        || (Number(first.rank) || 0) - (Number(second.rank) || 0)
-        || String(first.uid).localeCompare(String(second.uid)));
+      (Number(first.rank) || 0) - (Number(second.rank) || 0));
     if (!selectedUid || !state.players[selectedUid]) selectedUid = state.targetUid || players[0]?.uid || "";
     const selected = state.players[selectedUid] ?? players[0];
     const isOwn = selected?.uid === state.targetUid;
@@ -298,7 +304,7 @@
     previous.disabled = index === 0;
     next.disabled = index === recording.steps.length - 1;
     $("#step-label").textContent = `${index + 1} / ${recording.steps.length}`;
-    $("#recording-meta").textContent = `${copy.recordingRoom} ${recording.roomId} · ${recording.targetUsername}`;
+    $("#recording-meta").textContent = recording.targetUsername;
     document.querySelectorAll(".player-portrait").forEach((button) => button.addEventListener("click", () => { selectedUid = button.dataset.uid; render(); }));
   }
 
@@ -384,7 +390,7 @@
     const parts = [item.targetUsername, `${item.rounds} ${copy.rounds}`];
     if (Number.isFinite(item.startingRating) && item.startingRating > 0) parts.push(`${item.startingRating} ${copy.rating}`);
     if (numericPrefix(item.career) > 0) parts.push(careerName(item.career));
-    parts.push(item.roomId || item.id);
+    if (item.capturedThrough) parts.push(`${item.capturedThrough.slice(0, 16).replace("T", " ")} UTC`);
     return parts.join(" · ");
   };
   select.innerHTML = catalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("");

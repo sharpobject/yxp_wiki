@@ -381,6 +381,14 @@
 .offer-row.previous small { font-size: 7px; opacity: .8; }
 .offer-icon.selected { border-color: #f0d17c; box-shadow: 0 0 0 2px rgba(240, 209, 124, .2); }
 .offer-icon img { width: 100%; height: 100%; object-fit: contain; }
+.offer-icon.unknown {
+  display: grid;
+  place-items: center;
+  border-style: dashed;
+  color: #b7c5c0;
+  font-size: 11px;
+  font-weight: 800;
+}
 
 .dao-yun-row { align-items: end; gap: 5px; }
 .dao-yun-choice { position: relative; flex: 0 0 31px; width: 31px; color: #e7d6a0; text-align: center; }
