@@ -72,7 +72,9 @@
   };
   const characterAsset = (player, kind, defaultOnly = false) => {
     const skinNumber = Number(player?.skinNumber) || 0;
-    const suffix = !defaultOnly && skinNumber > 0 ? `skin-${skinNumber}` : kind;
+    const suffix = !defaultOnly && skinNumber > 0
+      ? kind === "avatar" ? `avatar-${skinNumber}` : `skin-${skinNumber}`
+      : kind;
     return assetMode === "local"
       ? `character-images/${player?.characterId}-${suffix}.png`
       : `/yxp_wiki/assets/characters/${player?.characterId}-${suffix}.png`;
