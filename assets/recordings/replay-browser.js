@@ -72,6 +72,8 @@
     10018: ["Lose Power Grass", "失力草", "At battle start, apply Decrease ATK to the opponent.", "战斗开始时向对方施加减攻。"],
     10019: ["Clear Chamomile", "清甘菊", "At battle start, gain Hexproof.", "战斗开始时获得辟邪。"],
     10020: ["Shadow Owl Reishi", "影枭灵芝", "At battle start, lose HP, then Chase after the first card played.", "战斗开始时自身失去生命，首次使用牌后再次行动。"],
+    10037: ["Saved Hexagram", "保存的卦象", "Gain the displayed number of saved Hexagram stacks at battle start.", "战斗开始时获得所示层数的已保存卦象。"],
+    10045: ["Ambush", "偷袭", "The displayed number is how many Ambush charges were used for this battle; each charge grants 6 Speed.", "所示数字为本场战斗使用的偷袭次数；每次使速度增加6。"],
     10047: ["Protective Artifact", "护身法宝", "Begin this battle with the displayed number of Guard Up stacks.", "本场战斗开始时获得所示层数的护体。"],
   };
   let recording = null;
@@ -105,6 +107,11 @@
     return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
   };
   const buffAsset = (id) => {
+    if (Number(id) === 10045) {
+      return assetMode === "local"
+        ? "fate-icons/Icon_FateStrategy_20.png"
+        : "/yxp_wiki/assets/fates/Icon_FateStrategy_20.png";
+    }
     const iconId = Number(id) === 10047 ? 5 : Number(id);
     return assetMode === "local"
       ? `buff-icons/Icon_Buff_${iconId}.png`
