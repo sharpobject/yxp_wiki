@@ -684,7 +684,9 @@
 .battle-destiny-delta.negative { color: #ff8b8b; }
 .battle-destiny-delta.positive { color: #8bd8a8; }
 .battle-first { grid-column: 1 / -1; color: #e4c56c; font-size: 8px; font-weight: 850; text-align: center; }
-.battle-effects { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-width: 0; }
+.battle-effects { display: grid; align-content: center; gap: 3px; min-width: 0; }
+.battle-effect-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-width: 0; min-height: 27px; }
+.battle-effect-row:empty { min-height: 0; }
 .battle-effects .trait-icon { flex-basis: 27px; width: 27px; height: 27px; }
 .battle-effects .trait-popover { top: 31px; }
 .battle-combatant:last-child .battle-effects .trait-popover { top: auto; bottom: 31px; }
@@ -1034,7 +1036,10 @@
   .character-panel { width: 184px; height: 304px; }
   .character-art { width: 176px; height: 174px; }
   .board-panel { left: 196px; }
-  .battle-combatant { grid-template-columns: 145px 112px 74px minmax(390px, 1fr); }
+  .battle-combatant { grid-template-columns: 145px 112px 125px minmax(390px, 1fr); }
+  .battle-effects .trait-icon,
+  .battle-effects .battle-buff { flex-basis: 23px; width: 23px; height: 23px; }
+  .battle-effect-row { min-height: 23px; gap: 2px; }
   .battle-deck .game-card { width: 50px; flex-basis: 50px; }
   .game-stage::after { left: 196px; }
   .game-card, .empty-slot { width: 68px; flex-basis: 68px; }
@@ -1248,7 +1253,8 @@
   .battle-values { grid-area: values; }
   .battle-values > span:not(.battle-first) { padding: 3px 4px; }
   .battle-values strong { font-size: 11px; }
-  .battle-effects { grid-area: effects; justify-content: flex-start; min-height: 27px; }
+  .battle-effects { grid-area: effects; min-height: 27px; }
+  .battle-effect-row { justify-content: flex-start; min-height: 26px; }
   .battle-effects .trait-icon,
   .battle-effects .battle-buff { flex-basis: 26px; width: 26px; height: 26px; }
   .battle-deck {

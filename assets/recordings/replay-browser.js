@@ -418,7 +418,11 @@
             ${showPhysique ? `<span><strong>${esc(physique)} / ${esc(player.maxPhysique ?? 0)} ${esc(copy.physique)}</strong></span>` : ""}
             ${player.first ? `<span class="battle-first">◆ ${esc(copy.firstAction)}</span>` : ""}
           </div>
-          <div class="battle-effects">${talents}${fates}${buffs}</div>
+          <div class="battle-effects">
+            <div class="battle-effect-row battle-fates">${talents}</div>
+            <div class="battle-effect-row battle-heavenly-fates">${fates}</div>
+            <div class="battle-effect-row battle-temp-buffs">${buffs}</div>
+          </div>
           <div class="battle-deck">${(player.deck ?? []).map((id) => card(id, true)).join("")}</div>
         </article>`;
       }).join("")}</div>`;
