@@ -619,7 +619,7 @@
 .opponent-effects > div { display: flex; gap: 3px; min-height: 25px; }
 .opponent-effects .trait-icon { flex-basis: 25px; width: 25px; height: 25px; }
 .opponent-effects .trait-popover { top: 29px; }
-.opponent-deck { display: flex; align-items: center; justify-content: flex-end; gap: 4px; min-width: 0; min-height: 0; }
+.opponent-deck { display: flex; align-items: center; justify-content: center; gap: 4px; min-width: 0; min-height: 0; }
 .opponent-deck .game-card { flex: 1 1 70px; width: 70px; min-width: 38px; max-width: 76px; max-height: 138px; }
 .opponent-deck .game-card:hover { transform: translateY(-3px) scale(1.12); }
 .opponent-deck .card-fallback { padding: 4px; }
@@ -1193,7 +1193,7 @@
   .opponent-effects { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; }
   .opponent-effects > div { gap: 2px; overflow: hidden; }
   .opponent-effects .trait-icon { flex-basis: 22px; width: 22px; height: 22px; }
-  .opponent-deck { justify-content: flex-start; overflow-x: auto; padding: 2px 1px 6px; scroll-snap-type: x proximity; scrollbar-width: none; }
+  .opponent-deck { justify-content: safe center; overflow-x: auto; padding: 2px 1px 6px; scroll-snap-type: x proximity; scrollbar-width: none; }
   .opponent-deck::-webkit-scrollbar { display: none; }
   .opponent-deck .game-card { flex: 0 0 68px; width: 68px; min-width: 68px; max-width: 68px; scroll-snap-align: center; }
   .deck-zone { padding: 20px 7px 7px; }
