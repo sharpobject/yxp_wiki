@@ -312,7 +312,8 @@
   function renderChoice(overlay) {
     const host = $("#selection-overlay");
     if (!overlay) { host.hidden = true; host.innerHTML = ""; return; }
-    const canReroll = overlay.kind === "heavenly-derivation" && overlay.rerollsRemaining > 0;
+    const showRerolls = overlay.kind === "heavenly-derivation" && Number(overlay.roundOrPhase) !== 3;
+    const canReroll = showRerolls && overlay.rerollsRemaining > 0;
     const selectedOptionIndex = overlay.selected == null
       ? -1
       : overlay.options.findIndex((reference) => reference.id === overlay.selected);
@@ -339,7 +340,7 @@
     host.innerHTML = `<div class="selection-frame" style="--choice-count:${overlay.options.length}">
       <div class="selection-heading"><span class="selection-context">${roundOrPhase}</span><h2>${esc(title)}</h2><span class="selection-heading-spacer" aria-hidden="true"></span></div>
       <div class="selection-options">${options}</div>
-      ${overlay.kind === "heavenly-derivation" ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
+      ${showRerolls ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
     </div>`;
     host.hidden = false;
   }

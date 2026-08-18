@@ -188,9 +188,11 @@
   right: -7px;
   display: grid;
   place-items: center;
-  min-width: 22px;
+  width: 22px;
   height: 22px;
-  padding: 0 4px;
+  box-sizing: border-box;
+  padding: 0;
+  overflow: visible;
   transform: rotate(45deg);
   border: 2px solid #070d11;
   border-radius: 4px;
@@ -201,7 +203,7 @@
   box-shadow: 0 2px 5px #000;
 }
 
-.life-gem span { transform: rotate(-45deg); }
+.life-gem span { line-height: 1; white-space: nowrap; transform: rotate(-45deg); }
 .player-portrait.own .life-gem {
   background: linear-gradient(135deg, #183c6b, #1b3e6a);
 }
