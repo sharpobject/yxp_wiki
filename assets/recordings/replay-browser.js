@@ -635,6 +635,11 @@
     if (item.capturedThrough) parts.push(`${item.capturedThrough.slice(0, 16).replace("T", " ")} UTC`);
     return parts.join(" · ");
   };
+  const legacyRecordingAliases = new Map([
+    ["r-8429f9ca71dd2f18", "r-5b2e107c8e668b62"],
+  ]);
+  const catalogItemForId = (id) => catalog.find((candidate) =>
+    candidate.id === (legacyRecordingAliases.get(id) ?? id));
   select.innerHTML = catalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("");
   select.addEventListener("change", () => loadRecording(catalog.find((item) => item.id === select.value), { historyMode: "push" }));
   previous.addEventListener("click", () => setIndex(index - 1));
@@ -648,7 +653,7 @@
   });
   addEventListener("popstate", () => {
     const requested = requestedLocation();
-    const item = catalog.find((candidate) => candidate.id === requested.recordingId)
+    const item = catalogItemForId(requested.recordingId)
       ?? catalog.find((candidate) => candidate.targetUid === preferredTargetUid)
       ?? catalog[0];
     if (!item) return;
@@ -670,7 +675,7 @@
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-emote-art]")) event.target.hidden = true;
   }, true);
   const requested = requestedLocation();
-  const initialRecording = catalog.find((item) => item.id === requested.recordingId)
+  const initialRecording = catalogItemForId(requested.recordingId)
     ?? catalog.find((item) => item.targetUid === preferredTargetUid)
     ?? catalog[0];
   if (initialRecording) {
