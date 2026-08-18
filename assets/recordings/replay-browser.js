@@ -27,7 +27,7 @@
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
-    previousOffer: "此前选项", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择", innerDemon: "心魔",
+    previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择", innerDemon: "心魔",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -41,7 +41,7 @@
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
-    previousOffer: "Previous offer", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen", innerDemon: "Inner Demon",
+    previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen", innerDemon: "Inner Demon",
   };
   const vocabulary = {
     phases: {
@@ -191,15 +191,25 @@
     const final = history.offers.at(-1);
     const rows = kind === "fateStrategy"
       ? (() => {
-        const knownRows = history.offers.slice(0, -1).flatMap((offer, offerIndex) => {
+        const inferredRolledAway = history.offers.slice(0, -1).flatMap((offer, offerIndex) => {
           const remaining = [...history.offers[offerIndex + 1]];
           return offer.filter((id) => {
             const retainedIndex = remaining.indexOf(id);
             if (retainedIndex < 0) return true;
             remaining.splice(retainedIndex, 1);
             return false;
-          }).map((id) => ({ offer: [id], label: copy.rerolledAway, previous: true }));
+          });
         });
+        const knownRolledAway = history.rolledAway?.length ? history.rolledAway : inferredRolledAway;
+        const knownRows = history.rerolls?.length
+          ? history.rerolls.map(({ from, to }) => {
+            const possibleFrom = Array.isArray(from) ? from : [from];
+            return {
+              offer: [...possibleFrom, to], inputCount: possibleFrom.length,
+              label: copy.rerolled, previous: true, transition: true,
+            };
+          })
+          : knownRolledAway.map((id) => ({ offer: [id], label: copy.rerolledAway, previous: true }));
         const missingCount = Math.max(0, Number(history.rerollsUsed ?? knownRows.length) - knownRows.length);
         return knownRows
           .concat(Array.from({ length: missingCount }, () => ({
@@ -218,6 +228,7 @@
         }));
     return `<div class="offer-history">${rows.map((row) => {
       const icons = row.offer.map((id) => {
+        if (!Number(id)) return '<span class="offer-icon unknown" aria-label="?">?</span>';
         const info = kind === "card" ? recording.catalog.cards[id]
           : kind === "talent" ? recording.catalog.talents[id]
             : recording.catalog.fateStrategies[id];
@@ -227,8 +238,11 @@
           ? `<img data-asset-fallback src="${cardAsset(id)}" alt="${esc(name)}">`
           : fateArtwork(info ?? { id }, kind, name);
         return `<span class="offer-icon${kind === "card" ? " card-art" : ""}${selected ? " selected" : ""}" title="${esc(name)}">${artwork}</span>`;
-      }).join("");
-      return `<div class="offer-row${row.previous ? " previous" : " final"}">${row.label ? `<small>${esc(row.label)}</small>` : ""}<div>${row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons}</div></div>`;
+      });
+      const contents = row.transition && !row.unknown
+          ? `<span class="reroll-inputs">${icons.slice(0, row.inputCount).join("")}</span><span class="reroll-arrow" aria-hidden="true">→</span>${icons.at(-1)}`
+          : row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons.join("");
+        return `<div class="offer-row${row.previous ? " previous" : " final"}">${row.label ? `<small>${esc(row.label)}</small>` : ""}<div>${contents}</div></div>`;
     }).join("")}</div>`;
   }
 
@@ -237,9 +251,11 @@
     if (!info) return "";
     const runtime = reference.runtime;
     const badgeText = runtime?.kind === "cooldown"
-      ? isChinese ? `冷却：${runtime.value}轮` : `CD ${runtime.value}`
+      ? isChinese ? `冷却${runtime.value}轮` : `CD ${runtime.value}`
       : runtime?.value;
-    const badge = runtime ? `<span class="trait-count">${esc(badgeText)}</span>` : "";
+    const badge = runtime
+      ? `<span class="trait-count${runtime.kind === "cooldown" ? " cooldown" : ""}">${esc(badgeText)}</span>`
+      : "";
     const name = localizedInfo(info);
     const localizedDescription = localizedInfo(info, "description");
     const history = reference.choiceHistory;
@@ -266,7 +282,7 @@
   function playerPortrait(player, state, privateOwnerUid, emojiId = null) {
     const own = state.players[privateOwnerUid];
     const upcoming = own?.nextOpponent === player.uid;
-    return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
+    return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.uid === privateOwnerUid ? "own" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
       <span class="avatar-wrap"><img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" class="avatar ${Number(player.skinNumber) > 0 ? "costume" : ""}" src="${characterAsset(player, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
       <span class="name">${esc(player.username)}</span><span class="character-name">${esc(characterName(player))}</span>
       ${emojiId == null ? "" : `<span class="player-emote" aria-label="${esc(copy.actionKinds.emote)} ${esc(emojiId)}"><span>${esc(emojiId)}</span><img data-emote-art src="${emojiAsset(emojiId)}" alt=""></span>`}
