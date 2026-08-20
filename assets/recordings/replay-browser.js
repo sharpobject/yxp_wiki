@@ -27,7 +27,7 @@
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
-    previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", chosen: "已选择", innerDemon: "心魔",
+    previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -41,7 +41,7 @@
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
-    previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", chosen: "Chosen", innerDemon: "Inner Demon",
+    previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon",
   };
   const vocabulary = {
     phases: {
@@ -279,6 +279,12 @@
     return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
   }
 
+  function cardSelectionChoice(choice) {
+    const info = recording.catalog.cards[choice.selected] ?? {};
+    const name = localizedInfo(info) || choice.selected;
+    return `<div class="card-selection-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="card-selection-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
+  }
+
   function playerPortrait(player, state, privateOwnerUid, emojiId = null) {
     const own = state.players[privateOwnerUid];
     const upcoming = own?.nextOpponent === player.uid;
@@ -297,6 +303,9 @@
     const daoYunChoices = player.uid === privateOwnerUid
       ? (privatePlayer?.daoYunChoices ?? []).map(daoYunChoice).join("")
       : "";
+    const cardSelections = player.uid === privateOwnerUid
+      ? (privatePlayer?.cardSelections ?? []).map(cardSelectionChoice).join("")
+      : "";
     const displayedStats = priorRound ?? player;
     const physique = Number(displayedStats?.physique ?? 0);
     const showPhysique = numericPrefix(player.sect) === 4 || physique > 0;
@@ -304,6 +313,7 @@
         <div class="trait-group"><span class="trait-heading">${esc(copy.immortalFates)}</span><div class="trait-row">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         <div class="trait-group"><span class="trait-heading">${esc(copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         ${player.uid === privateOwnerUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
+        ${player.uid === privateOwnerUid && cardSelections ? `<div class="trait-group card-selection-group"><span class="trait-heading">${esc(copy.cardSelections)}</span><div class="trait-row card-selection-row">${cardSelections}</div></div>` : ""}
       </div>
       <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
       <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(displayedStats?.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(displayedStats?.cultivation ?? 0)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span><span>${showPhysique ? `${esc(physique)} / ${esc(displayedStats?.maxPhysique ?? 0)} ${esc(copy.physique)} · ` : ""}${esc(priorMaxHp(displayedStats))} ${esc(copy.maxHp)}</span></div>`;
@@ -319,7 +329,7 @@
       : overlay.options.findIndex((reference) => reference.id === overlay.selected);
     const options = overlay.options.map((reference, optionIndex) => {
       const selected = optionIndex === selectedOptionIndex;
-      if (overlay.kind === "daoist-rhyme") {
+      if (overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection") {
         const info = recording.catalog.cards[reference.id] ?? {};
         return `<article class="selection-option card-choice${selected ? " selected" : ""}"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(localizedInfo(info) || reference.id)}</strong></article>`;
       }
@@ -333,7 +343,7 @@
       : overlay.kind === "immortal-fate"
         ? copy.selectTalent
         : copy.selectDaoYun;
-    const roundOrPhase = overlay.kind === "heavenly-derivation" || overlay.kind === "daoist-rhyme"
+    const roundOrPhase = overlay.kind === "heavenly-derivation" || overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection"
       ? `${copy.round}${esc(overlay.roundOrPhase)}${copy.roundSuffix}`
       : `${esc(phaseName(overlay.roundOrPhase))}`;
     host.dataset.kind = overlay.kind;
@@ -377,10 +387,21 @@
     }
     const choices = state.privatePlayer?.daoYunChoices ?? [];
     const previousChoices = previousState?.privatePlayer?.daoYunChoices ?? [];
-    if (choices.length <= previousChoices.length) return null;
-    const choice = choices.at(-1);
+    if (choices.length > previousChoices.length) {
+      const choice = choices.at(-1);
+      return {
+        kind: "daoist-rhyme",
+        roundOrPhase: choice.roundOrPhase,
+        selected: choice.selected,
+        options: (choice.offers?.at(-1) ?? []).map((id) => ({ id })),
+      };
+    }
+    const cardSelections = state.privatePlayer?.cardSelections ?? [];
+    const previousCardSelections = previousState?.privatePlayer?.cardSelections ?? [];
+    if (cardSelections.length <= previousCardSelections.length) return null;
+    const choice = cardSelections.at(-1);
     return {
-      kind: "daoist-rhyme",
+      kind: "card-selection",
       roundOrPhase: choice.roundOrPhase,
       selected: choice.selected,
       options: (choice.offers?.at(-1) ?? []).map((id) => ({ id })),

@@ -449,7 +449,8 @@
   height: auto;
 }
 .trait-icon:focus,
-.dao-yun-choice:focus { outline: 2px solid #f0d17c; outline-offset: 2px; }
+.dao-yun-choice:focus,
+.card-selection-choice:focus { outline: 2px solid #f0d17c; outline-offset: 2px; }
 
 .trait-count {
   position: absolute;
@@ -468,7 +469,7 @@
 }
 
 .trait-count.cooldown {
-  top: calc(100% - 2px);
+  top: calc(100% - 5px);
   right: auto;
   bottom: auto;
   left: 50%;
@@ -510,7 +511,9 @@
 .battle-buff:hover .trait-popover,
 .battle-buff:focus .trait-popover,
 .dao-yun-choice:hover .trait-popover,
-.dao-yun-choice:focus .trait-popover { display: block; }
+.dao-yun-choice:focus .trait-popover,
+.card-selection-choice:hover .trait-popover,
+.card-selection-choice:focus .trait-popover { display: block; }
 
 .trait-popover strong { color: #f1d58d; font-family: Georgia, serif; }
 .trait-popover p { margin: 5px 0 0; color: #d7d2c2; white-space: pre-line; }
@@ -590,6 +593,29 @@
   height: auto;
 }
 .dao-yun-choice .trait-popover { top: 42px; text-align: left; }
+
+.card-selection-row { align-items: end; gap: 5px; }
+.card-selection-choice { position: relative; flex: 0 0 31px; width: 31px; color: #e7d6a0; text-align: center; }
+.card-selection-art {
+  position: relative;
+  display: block;
+  width: 29px;
+  height: 29px;
+  overflow: hidden;
+  border: 1px solid #b99b58;
+  border-radius: 50%;
+  background: #172019;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, .58);
+}
+.card-selection-art img {
+  position: absolute;
+  top: -42%;
+  left: -47%;
+  width: 174%;
+  max-width: none;
+  height: auto;
+}
+.card-selection-choice .trait-popover { top: 42px; text-align: left; }
 
 .board-panel {
   position: absolute;
@@ -1177,6 +1203,9 @@
   .dao-yun-row { gap: 3px; }
   .dao-yun-choice { flex-basis: 28px; width: 28px; }
   .dao-pentagon { width: 27px; height: 28px; }
+  .card-selection-row { gap: 3px; }
+  .card-selection-choice { flex-basis: 28px; width: 28px; }
+  .card-selection-art { width: 27px; height: 27px; }
   .character-stats { align-content: center; padding: 7px; }
   .character-stats strong { overflow-wrap: anywhere; font-size: 11px; line-height: 1.12; }
   .character-stats span { font-size: 8px; line-height: 1.15; }
