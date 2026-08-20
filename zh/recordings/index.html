@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>对局录像 - 弈仙牌 Wiki</title>
   <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
-  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=20260820-02">
+  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=20260820-03">
 </head>
-<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data" data-recording-version="20260820-02">
+<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data" data-recording-version="20260820-03">
   <header>
     <a class="brand" href="/yxp_wiki/zh/index.html">弈仙牌 Wiki</a>
     <nav>
@@ -27,7 +27,11 @@
         <p class="muted">浏览已记录玩家的操作，以及大厅中其他玩家上一轮的公开信息。</p>
       </div>
       <label class="recording-picker">录像
-        <select id="recording-select" aria-label="选择录像"></select>
+        <span class="recording-picker-row">
+          <select id="recording-select" aria-label="选择录像"></select>
+          <button id="recording-filter-toggle" type="button" aria-label="筛选录像" aria-expanded="false">⌄</button>
+          <span id="recording-filter-popover" class="recording-filter-popover" hidden></span>
+        </span>
       </label>
     </section>
 
@@ -77,7 +81,7 @@
     </section>
   </main>
 
-  <script src="/yxp_wiki/assets/recordings/data/catalog.js?v=20260820-02"></script>
-  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=20260820-02"></script>
+  <script src="/yxp_wiki/assets/recordings/data/catalog.js?v=20260820-03"></script>
+  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=20260820-03"></script>
 </body>
 </html>

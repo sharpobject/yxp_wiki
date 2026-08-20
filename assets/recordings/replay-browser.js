@@ -9,6 +9,8 @@
   const previous = $("#previous");
   const next = $("#next");
   const roundSelect = $("#round-select");
+  const filterToggle = $("#recording-filter-toggle");
+  const filterPopover = $("#recording-filter-popover");
   const assetMode = document.body.dataset.assetMode || "wiki";
   const recordingBase = document.body.dataset.recordingBase || "data";
   const recordingVersion = document.body.dataset.recordingVersion || "";
@@ -27,7 +29,8 @@
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角",
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
-    previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔",
+    previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔", andOtherCards: (count) => `另有 ${count} 张牌`,
+    filters: "筛选", heavenlyFateFilter: "天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -41,7 +44,8 @@
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view",
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
-    previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon",
+    previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon", andOtherCards: (count) => `and ${count} other cards`,
+    filters: "Filters", heavenlyFateFilter: "Heavenly Derivation Fates", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
   };
   const vocabulary = {
     phases: {
@@ -227,7 +231,17 @@
           previous: offerIndex !== history.offers.length - 1,
         }));
     return `<div class="offer-history">${rows.map((row) => {
-      const icons = row.offer.map((id) => {
+      let displayedOffer = row.offer;
+      let omittedCardCount = 0;
+      if (kind === "card" && row.offer.length > 6) {
+        const selectedId = Number(history.selected);
+        displayedOffer = row.offer.slice(0, 4);
+        if (selectedId > 0 && !displayedOffer.some((id) => Number(id) === selectedId)) {
+          displayedOffer[displayedOffer.length - 1] = row.offer.find((id) => Number(id) === selectedId) ?? displayedOffer.at(-1);
+        }
+        omittedCardCount = row.offer.length - displayedOffer.length;
+      }
+      const icons = displayedOffer.map((id) => {
         if (!Number(id)) return '<span class="offer-icon unknown" aria-label="?">?</span>';
         const info = kind === "card" ? recording.catalog.cards[id]
           : kind === "talent" ? recording.catalog.talents[id]
@@ -239,6 +253,7 @@
           : fateArtwork(info ?? { id }, kind, name);
         return `<span class="offer-icon${kind === "card" ? " card-art" : ""}${selected ? " selected" : ""}" title="${esc(name)}">${artwork}</span>`;
       });
+      if (omittedCardCount > 0) icons.push(`<span class="offer-icon offer-more" title="${esc(copy.andOtherCards(omittedCardCount))}">${esc(copy.andOtherCards(omittedCardCount))}</span>`);
       const contents = row.transition && !row.unknown
           ? `<span class="reroll-inputs">${icons.slice(0, row.inputCount).join("")}</span><span class="reroll-arrow" aria-hidden="true">→</span>${icons.at(-1)}`
           : row.unknown ? '<span class="offer-icon unknown" aria-label="?">?</span>' : icons.join("");
@@ -276,7 +291,9 @@
   function daoYunChoice(choice) {
     const info = recording.catalog.cards[choice.selected] ?? {};
     const name = localizedInfo(info) || choice.selected;
-    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
+    const multiplier = Number(choice.multiplier) > 1
+      ? `<span class="dao-multiplier">${esc(choice.multiplier)}x</span>` : "";
+    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span>${multiplier}<div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
   }
 
   function cardSelectionChoice(choice) {
@@ -327,7 +344,16 @@
     const selectedOptionIndex = overlay.selected == null
       ? -1
       : overlay.options.findIndex((reference) => reference.id === overlay.selected);
-    const options = overlay.options.map((reference, optionIndex) => {
+    let displayedOptions = overlay.options.map((reference, optionIndex) => ({ reference, optionIndex }));
+    let omittedCardCount = 0;
+    if (overlay.kind === "card-selection" && overlay.options.length > 6) {
+      displayedOptions = displayedOptions.slice(0, 4);
+      if (selectedOptionIndex >= 0 && !displayedOptions.some(({ optionIndex }) => optionIndex === selectedOptionIndex)) {
+        displayedOptions[displayedOptions.length - 1] = { reference: overlay.options[selectedOptionIndex], optionIndex: selectedOptionIndex };
+      }
+      omittedCardCount = overlay.options.length - displayedOptions.length;
+    }
+    const options = displayedOptions.map(({ reference, optionIndex }) => {
       const selected = optionIndex === selectedOptionIndex;
       if (overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection") {
         const info = recording.catalog.cards[reference.id] ?? {};
@@ -337,7 +363,9 @@
       const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
       const name = localizedInfo(info) || reference.id;
       return `<article class="selection-option${selected ? " selected" : ""}"><div class="selection-icon">${fateArtwork(info, kind, name)}</div>${canReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
-    }).join("");
+    }).concat(omittedCardCount > 0
+      ? [`<article class="selection-option card-choice selection-more"><div class="selection-icon"><span>${esc(copy.andOtherCards(omittedCardCount))}</span></div><span class="chosen-mark placeholder">—</span><strong>${esc(copy.andOtherCards(omittedCardCount))}</strong></article>`]
+      : []).join("");
     const title = overlay.kind === "heavenly-derivation"
       ? copy.selectHdf
       : overlay.kind === "immortal-fate"
@@ -347,7 +375,7 @@
       ? `${copy.round}${esc(overlay.roundOrPhase)}${copy.roundSuffix}`
       : `${esc(phaseName(overlay.roundOrPhase))}`;
     host.dataset.kind = overlay.kind;
-    host.innerHTML = `<div class="selection-frame" style="--choice-count:${overlay.options.length}">
+    host.innerHTML = `<div class="selection-frame" style="--choice-count:${displayedOptions.length + (omittedCardCount > 0 ? 1 : 0)}">
       <div class="selection-heading"><span class="selection-context">${roundOrPhase}</span><h2>${esc(title)}</h2><span class="selection-heading-spacer" aria-hidden="true"></span></div>
       <div class="selection-options">${options}</div>
       ${showRerolls ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
@@ -601,6 +629,23 @@
     updateLanguageLink(url);
   }
 
+  function syncPendingRecordingLocation(item, mode = "push") {
+    const url = new URL(location.href);
+    url.searchParams.set("recording", item.id);
+    url.searchParams.delete("step");
+    history[mode === "push" ? "pushState" : "replaceState"](
+      { recordingId: item.id }, "", url,
+    );
+    updateLanguageLink(url);
+  }
+
+  function navigateToRecording(item) {
+    if (!item) return;
+    select.value = item.id;
+    syncPendingRecordingLocation(item, "push");
+    loadRecording(item, { historyMode: "replace" });
+  }
+
   function setIndex(value, sync = true) {
     if (!recording) return;
     index = Math.max(0, Math.min(recording.steps.length - 1, Number(value)));
@@ -661,8 +706,72 @@
   ]);
   const catalogItemForId = (id) => catalog.find((candidate) =>
     candidate.id === (legacyRecordingAliases.get(id) ?? id));
-  select.innerHTML = catalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("");
-  select.addEventListener("change", () => loadRecording(catalog.find((item) => item.id === select.value), { historyMode: "push" }));
+  const replayFilters = { fates: new Set(), career: 0, opponents: new Set() };
+  let filteredCatalog = [...catalog];
+  const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
+    .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
+  const filterFates = uniqueFilterEntries(catalog.flatMap((item) => item.linFates ?? []));
+  const filterOpponents = uniqueFilterEntries(catalog.flatMap((item) => item.humanOpponentCharacters ?? []));
+  const filterCareers = [...new Set(catalog.map((item) => numericPrefix(item.linCareer)).filter((value) => value > 0))]
+    .sort((first, second) => first - second);
+
+  function filterCount() {
+    return replayFilters.fates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0);
+  }
+
+  function renderRecordingFilters() {
+    const checkbox = (kind, entry, checked) => `<label><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
+    filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
+      <fieldset><legend>${esc(copy.heavenlyFateFilter)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>
+      <fieldset><legend>${esc(copy.sideJobFilter)}</legend><select data-career-filter><option value="0">${esc(copy.anySideJob)}</option>${filterCareers.map((career) => `<option value="${career}"${replayFilters.career === career ? " selected" : ""}>${esc(careerName(career))}</option>`).join("")}</select></fieldset>
+      <fieldset><legend>${esc(copy.opponentFilter)}</legend><div class="recording-filter-options">${filterOpponents.map((entry) => checkbox("opponents", entry, replayFilters.opponents.has(Number(entry.id)))).join("")}</div></fieldset>`;
+    filterToggle.innerHTML = `☷${filterCount() ? `<span>${filterCount()}</span>` : ""}`;
+    filterPopover.querySelectorAll("input[data-filter-kind]").forEach((input) => input.addEventListener("change", () => {
+      const target = replayFilters[input.dataset.filterKind];
+      if (input.checked) target.add(Number(input.value)); else target.delete(Number(input.value));
+      applyRecordingFilters();
+      renderRecordingFilters();
+    }));
+    filterPopover.querySelector("[data-career-filter]")?.addEventListener("change", (event) => {
+      replayFilters.career = Number(event.target.value);
+      applyRecordingFilters();
+      renderRecordingFilters();
+    });
+    filterPopover.querySelector("[data-clear-filters]")?.addEventListener("click", () => {
+      replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
+      applyRecordingFilters();
+      renderRecordingFilters();
+    });
+  }
+
+  function applyRecordingFilters({ navigate = true } = {}) {
+    filteredCatalog = catalog.filter((item) =>
+      (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
+      && [...replayFilters.fates].every((id) => (item.linFates ?? []).some((entry) => Number(entry.id) === id))
+      && [...replayFilters.opponents].every((id) => (item.humanOpponentCharacters ?? []).some((entry) => Number(entry.id) === id)));
+    const currentId = activeCatalogItem?.id || select.value;
+    select.innerHTML = filteredCatalog.length
+      ? filteredCatalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("")
+      : `<option value="">${esc(copy.noMatchingRecordings)}</option>`;
+    select.disabled = filteredCatalog.length === 0;
+    const currentStillVisible = filteredCatalog.some((item) => item.id === currentId);
+    if (currentStillVisible) select.value = currentId;
+    else if (navigate && activeCatalogItem && filteredCatalog.length) navigateToRecording(filteredCatalog[0]);
+  }
+
+  renderRecordingFilters();
+  applyRecordingFilters({ navigate: false });
+  filterToggle.addEventListener("click", () => {
+    filterPopover.hidden = !filterPopover.hidden;
+    filterToggle.setAttribute("aria-expanded", String(!filterPopover.hidden));
+  });
+  document.addEventListener("click", (event) => {
+    if (!filterPopover.hidden && !event.target.closest(".recording-picker-row")) {
+      filterPopover.hidden = true;
+      filterToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+  select.addEventListener("change", () => navigateToRecording(catalog.find((item) => item.id === select.value)));
   previous.addEventListener("click", () => setIndex(index - 1));
   next.addEventListener("click", () => setIndex(index + 1));
   timeline.addEventListener("input", (event) => setIndex(event.target.value));
@@ -678,6 +787,11 @@
       ?? catalog.find((candidate) => candidate.targetUid === preferredTargetUid)
       ?? catalog[0];
     if (!item) return;
+    if (!filteredCatalog.some((candidate) => candidate.id === item.id)) {
+      replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
+      applyRecordingFilters({ navigate: false });
+      renderRecordingFilters();
+    }
     select.value = item.id;
     if (recording && activeCatalogItem?.id === item.id) {
       setIndex(requested.stepIndex ?? states.findIndex((state) => state.round > 0), false);

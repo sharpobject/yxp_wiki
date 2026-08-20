@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Match Recordings - Yi Xian Wiki</title>
   <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
-  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=20260820-02">
+  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=20260820-03">
 </head>
-<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data" data-recording-version="20260820-02">
+<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data" data-recording-version="20260820-03">
   <header>
     <a class="brand" href="/yxp_wiki/en/index.html">Yi Xian Wiki</a>
     <nav>
@@ -27,7 +27,11 @@
         <p class="muted">Browse a recorded player’s actions and the prior-round information available about the rest of the lobby.</p>
       </div>
       <label class="recording-picker">Recording
-        <select id="recording-select" aria-label="Choose a recording"></select>
+        <span class="recording-picker-row">
+          <select id="recording-select" aria-label="Choose a recording"></select>
+          <button id="recording-filter-toggle" type="button" aria-label="Filter recordings" aria-expanded="false">⌄</button>
+          <span id="recording-filter-popover" class="recording-filter-popover" hidden></span>
+        </span>
       </label>
     </section>
 
@@ -77,7 +81,7 @@
     </section>
   </main>
 
-  <script src="/yxp_wiki/assets/recordings/data/catalog.js?v=20260820-02"></script>
-  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=20260820-02"></script>
+  <script src="/yxp_wiki/assets/recordings/data/catalog.js?v=20260820-03"></script>
+  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=20260820-03"></script>
 </body>
 </html>
