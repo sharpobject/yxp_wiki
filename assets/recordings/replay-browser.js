@@ -30,7 +30,7 @@
     actionKinds: { move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
     previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", unrecordedReroll: "未捕获的刷新", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔", andOtherCards: (count) => `另有 ${count} 张牌`,
-    filters: "筛选", heavenlyFateFilter: "天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
+    filters: "筛选", heavenlyFateFilter: "已选择的天衍仙命", unchosenHeavenlyFateFilter: "出现但未选择的天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -45,7 +45,7 @@
     actionKinds: { move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
     previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", unrecordedReroll: "Reroll not captured", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon", andOtherCards: (count) => `and ${count} other cards`,
-    filters: "Filters", heavenlyFateFilter: "Heavenly Derivation Fates", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
+    filters: "Filters", heavenlyFateFilter: "Chosen Heavenly Derivation Fates", unchosenHeavenlyFateFilter: "Offered but not chosen", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
   };
   const vocabulary = {
     phases: {
@@ -706,23 +706,25 @@
   ]);
   const catalogItemForId = (id) => catalog.find((candidate) =>
     candidate.id === (legacyRecordingAliases.get(id) ?? id));
-  const replayFilters = { fates: new Set(), career: 0, opponents: new Set() };
+  const replayFilters = { fates: new Set(), unchosenFates: new Set(), career: 0, opponents: new Set() };
   let filteredCatalog = [...catalog];
   const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
     .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
   const filterFates = uniqueFilterEntries(catalog.flatMap((item) => item.linFates ?? []));
+  const filterUnchosenFates = uniqueFilterEntries(catalog.flatMap((item) => item.linUnchosenFates ?? []));
   const filterOpponents = uniqueFilterEntries(catalog.flatMap((item) => item.humanOpponentCharacters ?? []));
   const filterCareers = [...new Set(catalog.map((item) => numericPrefix(item.linCareer)).filter((value) => value > 0))]
     .sort((first, second) => first - second);
 
   function filterCount() {
-    return replayFilters.fates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0);
+    return replayFilters.fates.size + replayFilters.unchosenFates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0);
   }
 
   function renderRecordingFilters() {
     const checkbox = (kind, entry, checked) => `<label><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
     filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
       <fieldset><legend>${esc(copy.heavenlyFateFilter)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>
+      <fieldset><legend>${esc(copy.unchosenHeavenlyFateFilter)}</legend><div class="recording-filter-options">${filterUnchosenFates.map((entry) => checkbox("unchosenFates", entry, replayFilters.unchosenFates.has(Number(entry.id)))).join("")}</div></fieldset>
       <fieldset><legend>${esc(copy.sideJobFilter)}</legend><select data-career-filter><option value="0">${esc(copy.anySideJob)}</option>${filterCareers.map((career) => `<option value="${career}"${replayFilters.career === career ? " selected" : ""}>${esc(careerName(career))}</option>`).join("")}</select></fieldset>
       <fieldset><legend>${esc(copy.opponentFilter)}</legend><div class="recording-filter-options">${filterOpponents.map((entry) => checkbox("opponents", entry, replayFilters.opponents.has(Number(entry.id)))).join("")}</div></fieldset>`;
     filterToggle.innerHTML = `☷${filterCount() ? `<span>${filterCount()}</span>` : ""}`;
@@ -738,7 +740,7 @@
       renderRecordingFilters();
     });
     filterPopover.querySelector("[data-clear-filters]")?.addEventListener("click", () => {
-      replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
+      replayFilters.fates.clear(); replayFilters.unchosenFates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
       applyRecordingFilters();
       renderRecordingFilters();
     });
@@ -748,6 +750,7 @@
     filteredCatalog = catalog.filter((item) =>
       (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
       && [...replayFilters.fates].every((id) => (item.linFates ?? []).some((entry) => Number(entry.id) === id))
+      && [...replayFilters.unchosenFates].every((id) => (item.linUnchosenFates ?? []).some((entry) => Number(entry.id) === id))
       && [...replayFilters.opponents].every((id) => (item.humanOpponentCharacters ?? []).some((entry) => Number(entry.id) === id)));
     const currentId = activeCatalogItem?.id || select.value;
     select.innerHTML = filteredCatalog.length
@@ -788,7 +791,7 @@
       ?? catalog[0];
     if (!item) return;
     if (!filteredCatalog.some((candidate) => candidate.id === item.id)) {
-      replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
+      replayFilters.fates.clear(); replayFilters.unchosenFates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
       applyRecordingFilters({ navigate: false });
       renderRecordingFilters();
     }
