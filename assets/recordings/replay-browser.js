@@ -616,11 +616,55 @@
     link.href = target.href;
   }
 
+  function filterNumbers(params, name) {
+    return new Set(params.getAll(name)
+      .flatMap((value) => value.split(","))
+      .map(Number)
+      .filter((value) => Number.isInteger(value) && value > 0));
+  }
+
+  function filterStateFromParams(params) {
+    return {
+      fates: filterNumbers(params, "fates"),
+      unchosenFates: filterNumbers(params, "unchosenFates"),
+      career: Math.max(0, Number.parseInt(params.get("career") ?? "0", 10) || 0),
+      opponents: filterNumbers(params, "opponents"),
+    };
+  }
+
+  function replaceFilterState(nextState) {
+    replayFilters.fates = nextState.fates;
+    replayFilters.unchosenFates = nextState.unchosenFates;
+    replayFilters.career = nextState.career;
+    replayFilters.opponents = nextState.opponents;
+  }
+
+  function writeFilterState(url) {
+    for (const [name, values] of [
+      ["fates", replayFilters.fates],
+      ["unchosenFates", replayFilters.unchosenFates],
+      ["opponents", replayFilters.opponents],
+    ]) {
+      url.searchParams.delete(name);
+      if (values.size) url.searchParams.set(name, [...values].sort((first, second) => first - second).join(","));
+    }
+    url.searchParams.delete("career");
+    if (replayFilters.career > 0) url.searchParams.set("career", String(replayFilters.career));
+    return url;
+  }
+
+  function syncFilterLocation() {
+    const url = writeFilterState(new URL(location.href));
+    history.replaceState(history.state, "", url);
+    updateLanguageLink(url);
+  }
+
   function syncLocation(mode = "replace") {
     if (!recording || !activeCatalogItem) return;
     const url = new URL(location.href);
     url.searchParams.set("recording", activeCatalogItem.id);
     url.searchParams.set("step", String(index + 1));
+    writeFilterState(url);
     history[mode === "push" ? "pushState" : "replaceState"](
       { recordingId: activeCatalogItem.id, step: index + 1 },
       "",
@@ -633,6 +677,7 @@
     const url = new URL(location.href);
     url.searchParams.set("recording", item.id);
     url.searchParams.delete("step");
+    writeFilterState(url);
     history[mode === "push" ? "pushState" : "replaceState"](
       { recordingId: item.id }, "", url,
     );
@@ -706,7 +751,7 @@
   ]);
   const catalogItemForId = (id) => catalog.find((candidate) =>
     candidate.id === (legacyRecordingAliases.get(id) ?? id));
-  const replayFilters = { fates: new Set(), unchosenFates: new Set(), career: 0, opponents: new Set() };
+  const replayFilters = filterStateFromParams(new URLSearchParams(location.search));
   let filteredCatalog = [...catalog];
   const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
     .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
@@ -760,6 +805,7 @@
     const currentStillVisible = filteredCatalog.some((item) => item.id === currentId);
     if (currentStillVisible) select.value = currentId;
     else if (navigate && activeCatalogItem && filteredCatalog.length) navigateToRecording(filteredCatalog[0]);
+    syncFilterLocation();
   }
 
   renderRecordingFilters();
@@ -786,15 +832,14 @@
   });
   addEventListener("popstate", () => {
     const requested = requestedLocation();
-    const item = catalogItemForId(requested.recordingId)
+    replaceFilterState(filterStateFromParams(new URLSearchParams(location.search)));
+    applyRecordingFilters({ navigate: false });
+    renderRecordingFilters();
+    let item = catalogItemForId(requested.recordingId)
       ?? catalog.find((candidate) => candidate.targetUid === preferredTargetUid)
       ?? catalog[0];
     if (!item) return;
-    if (!filteredCatalog.some((candidate) => candidate.id === item.id)) {
-      replayFilters.fates.clear(); replayFilters.unchosenFates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
-      applyRecordingFilters({ navigate: false });
-      renderRecordingFilters();
-    }
+    if (!filteredCatalog.some((candidate) => candidate.id === item.id) && filteredCatalog.length) item = filteredCatalog[0];
     select.value = item.id;
     if (recording && activeCatalogItem?.id === item.id) {
       setIndex(requested.stepIndex ?? states.findIndex((state) => state.round > 0), false);
