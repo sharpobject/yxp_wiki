@@ -643,7 +643,7 @@
   text-align: center;
 }
 
-.dao-yun-row { align-items: end; gap: 5px; }
+.dao-yun-row { flex-wrap: wrap; align-items: end; gap: 5px; }
 .dao-yun-choice { position: relative; flex: 0 0 31px; width: 31px; color: #e7d6a0; text-align: center; }
 .dao-round { display: block; margin-bottom: 2px; font-size: 7px; font-weight: 850; line-height: 1; white-space: nowrap; }
 .dao-pentagon {
