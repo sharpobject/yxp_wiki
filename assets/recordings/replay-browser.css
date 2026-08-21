@@ -646,6 +646,17 @@
 .dao-yun-row { flex-wrap: wrap; align-items: end; gap: 5px; }
 .dao-yun-choice { position: relative; flex: 0 0 31px; width: 31px; color: #e7d6a0; text-align: center; }
 .dao-round { display: block; margin-bottom: 2px; font-size: 7px; font-weight: 850; line-height: 1; white-space: nowrap; }
+.dao-round-badge {
+  z-index: 4;
+  top: 20px;
+  right: -2px;
+  bottom: auto;
+  min-width: 13px;
+  padding: 0 2px;
+  font-size: 7px;
+  line-height: 1.2;
+  pointer-events: none;
+}
 .dao-pentagon {
   position: relative;
   display: block;
@@ -682,7 +693,7 @@
   max-width: none;
   height: auto;
 }
-.dao-yun-choice .trait-popover { top: 42px; text-align: left; }
+.dao-yun-choice .trait-popover { top: 34px; text-align: left; }
 .dao-multiplier { display: block; margin-top: 1px; color: #f1d58d; font-size: 8px; font-weight: 900; line-height: 1; }
 
 .card-selection-row { align-items: end; gap: 5px; }
@@ -1306,6 +1317,7 @@
   }
   .dao-yun-row { gap: 3px; }
   .dao-yun-choice { flex-basis: 28px; width: 28px; }
+  .dao-round-badge { top: 18px; min-width: 12px; padding: 0 2px; font-size: 7px; }
   .dao-pentagon { width: 27px; height: 28px; }
   .card-selection-row { gap: 3px; }
   .card-selection-choice { flex-basis: 28px; width: 28px; }

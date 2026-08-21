@@ -293,7 +293,7 @@
     const name = localizedInfo(info) || choice.selected;
     const multiplier = Number(choice.multiplier) > 1
       ? `<span class="dao-multiplier">${esc(choice.multiplier)}x</span>` : "";
-    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-round">${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</span><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span>${multiplier}<div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
+    return `<div class="dao-yun-choice" tabindex="0"><span class="dao-pentagon"><span class="dao-art"><img data-asset-fallback src="${cardAsset(choice.selected)}" alt="${esc(name)}"></span></span><span class="trait-count dao-round-badge">${esc(choice.roundOrPhase)}</span>${multiplier}<div class="trait-popover"><strong>${esc(name)}</strong><p>${esc(copy.chosen)} · ${copy.round}${esc(choice.roundOrPhase)}${copy.roundSuffix}</p>${offerHistory(choice, "card", { showFinalLabel: false })}</div></div>`;
   }
 
   function cardSelectionChoice(choice) {
