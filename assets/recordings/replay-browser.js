@@ -341,17 +341,32 @@
     if (!overlay) { host.hidden = true; host.innerHTML = ""; return; }
     const showRerolls = overlay.kind === "heavenly-derivation" && Number(overlay.roundOrPhase) !== 3;
     const canReroll = showRerolls && overlay.rerollsRemaining > 0;
-    const selectedOptionIndex = overlay.selected == null
+    const optionIds = overlay.options.map((reference) => Number(reference.id));
+    const recordedCardSelection = overlay.kind === "card-selection" && overlay.selected == null
+      ? states.slice(index + 1).flatMap((futureState) => futureState.privatePlayer?.cardSelections ?? [])
+        .find((history) => Number(history.roundOrPhase) === Number(overlay.roundOrPhase)
+          && (history.offers ?? []).some((offer) => JSON.stringify(offer.map(Number)) === JSON.stringify(optionIds)))
+      : null;
+    const recordedSelected = Number(overlay.selected ?? recordedCardSelection?.selected) || 0;
+    const selectedOptionIndex = !recordedSelected
       ? -1
-      : overlay.options.findIndex((reference) => reference.id === overlay.selected);
+      : overlay.options.findIndex((reference) => Number(reference.id) === recordedSelected);
     let displayedOptions = overlay.options.map((reference, optionIndex) => ({ reference, optionIndex }));
     let omittedCardCount = 0;
     if (overlay.kind === "card-selection" && overlay.options.length > 6) {
       displayedOptions = displayedOptions.slice(0, 4);
       if (selectedOptionIndex >= 0 && !displayedOptions.some(({ optionIndex }) => optionIndex === selectedOptionIndex)) {
-        displayedOptions[displayedOptions.length - 1] = { reference: overlay.options[selectedOptionIndex], optionIndex: selectedOptionIndex };
+        displayedOptions.push({ reference: overlay.options[selectedOptionIndex], optionIndex: selectedOptionIndex });
       }
-      omittedCardCount = overlay.options.length - displayedOptions.length;
+      if (displayedOptions.length < 5) {
+        const fifth = overlay.options.map((reference, optionIndex) => ({ reference, optionIndex }))
+          .find(({ optionIndex }) => !displayedOptions.some((entry) => entry.optionIndex === optionIndex));
+        if (fifth) displayedOptions.push(fifth);
+      }
+      // Treat the selected card as a highlighted callout alongside the four
+      // preview cards. The summary count continues to describe every other
+      // choice beyond those four previews.
+      omittedCardCount = overlay.options.length - (selectedOptionIndex >= 0 ? 4 : displayedOptions.length);
     }
     const options = displayedOptions.map(({ reference, optionIndex }) => {
       const selected = optionIndex === selectedOptionIndex;
