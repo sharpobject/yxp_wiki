@@ -13,157 +13,188 @@
         {
           "cardId": 83,
           "nameEnglish": "Red Bean Zongzi",
-          "nameChinese": "红豆粽"
+          "nameChinese": "红豆粽",
+          "phase": 1
         },
         {
           "cardId": 84,
           "nameEnglish": "Jujube Zongzi",
-          "nameChinese": "红枣粽"
+          "nameChinese": "红枣粽",
+          "phase": 1
         },
         {
           "cardId": 85,
           "nameEnglish": "Honey Zongzi",
-          "nameChinese": "蜂蜜粽"
-        },
-        {
-          "cardId": 86,
-          "nameEnglish": "Mung Bean Zongzi",
-          "nameChinese": "绿豆粽"
-        },
-        {
-          "cardId": 87,
-          "nameEnglish": "Candied Jujube Zongzi",
-          "nameChinese": "蜜枣粽"
-        },
-        {
-          "cardId": 88,
-          "nameEnglish": "Jujube Paste Zongzi",
-          "nameChinese": "枣泥粽"
-        },
-        {
-          "cardId": 89,
-          "nameEnglish": "Alkaline Water Zongzi",
-          "nameChinese": "碱水粽"
-        },
-        {
-          "cardId": 90,
-          "nameEnglish": "Lotus Seeds Zongzi",
-          "nameChinese": "莲子粽"
-        },
-        {
-          "cardId": 91,
-          "nameEnglish": "Bean Paste Zongzi",
-          "nameChinese": "豆沙粽"
-        },
-        {
-          "cardId": 92,
-          "nameEnglish": "Preserved Fruit Zongzi",
-          "nameChinese": "蜜饯果粽"
-        },
-        {
-          "cardId": 93,
-          "nameEnglish": "Crystal Ice Zongzi",
-          "nameChinese": "水晶冰粽"
-        },
-        {
-          "cardId": 94,
-          "nameEnglish": "Fresh Fruit Zongzi",
-          "nameChinese": "鲜果宝粽"
-        },
-        {
-          "cardId": 95,
-          "nameEnglish": "Mixed Grain Zongzi",
-          "nameChinese": "八宝杂粮粽"
-        },
-        {
-          "cardId": 96,
-          "nameEnglish": "Spirit Zongzi",
-          "nameChinese": "仙风归灵粽"
-        },
-        {
-          "cardId": 97,
-          "nameEnglish": "Water Combined Zongzi",
-          "nameChinese": "百川琉璃粽"
+          "nameChinese": "蜂蜜粽",
+          "phase": 1
         },
         {
           "cardId": 98,
           "nameEnglish": "Salted Meat Zongzi",
-          "nameChinese": "咸肉粽"
+          "nameChinese": "咸肉粽",
+          "phase": 1
         },
         {
           "cardId": 99,
           "nameEnglish": "Mushroom Zongzi",
-          "nameChinese": "香菇粽"
+          "nameChinese": "香菇粽",
+          "phase": 1
         },
         {
           "cardId": 100,
           "nameEnglish": "Fresh Meat Zongzi",
-          "nameChinese": "鲜肉粽"
-        },
-        {
-          "cardId": 101,
-          "nameEnglish": "Roasted Meat Zongzi",
-          "nameChinese": "烧肉粽"
-        },
-        {
-          "cardId": 102,
-          "nameEnglish": "Spicy Zongzi",
-          "nameChinese": "麻辣粽"
-        },
-        {
-          "cardId": 103,
-          "nameEnglish": "Preserved Meat Zongzi",
-          "nameChinese": "腊肉粽"
-        },
-        {
-          "cardId": 104,
-          "nameEnglish": "Sour Bamboo Shoots Zongzi",
-          "nameChinese": "酸笋粽"
-        },
-        {
-          "cardId": 105,
-          "nameEnglish": "Chestnut Zongzi",
-          "nameChinese": "板栗粽"
-        },
-        {
-          "cardId": 106,
-          "nameEnglish": "Pungent Zongzi",
-          "nameChinese": "香辣粽"
-        },
-        {
-          "cardId": 107,
-          "nameEnglish": "Salted Egg Yolk Zongzi",
-          "nameChinese": "咸蛋黄粽"
-        },
-        {
-          "cardId": 108,
-          "nameEnglish": "Seafood Zongzi",
-          "nameChinese": "海鲜肉粽"
-        },
-        {
-          "cardId": 109,
-          "nameEnglish": "Pickled Mustard Zongzi",
-          "nameChinese": "梅菜肉粽"
-        },
-        {
-          "cardId": 110,
-          "nameEnglish": "Assorted Meat Zongzi",
-          "nameChinese": "秘制三鲜粽"
-        },
-        {
-          "cardId": 111,
-          "nameEnglish": "Double Plum Zongzi",
-          "nameChinese": "梅香玉露粽"
-        },
-        {
-          "cardId": 112,
-          "nameEnglish": "Shura Zongzi",
-          "nameChinese": "修罗镇魂粽"
+          "nameChinese": "鲜肉粽",
+          "phase": 1
         },
         {
           "cardId": 113,
           "nameEnglish": "Pure Rice Zongzi",
-          "nameChinese": "白粽"
+          "nameChinese": "白粽",
+          "phase": 1
+        },
+        {
+          "cardId": 86,
+          "nameEnglish": "Mung Bean Zongzi",
+          "nameChinese": "绿豆粽",
+          "phase": 2
+        },
+        {
+          "cardId": 87,
+          "nameEnglish": "Candied Jujube Zongzi",
+          "nameChinese": "蜜枣粽",
+          "phase": 2
+        },
+        {
+          "cardId": 88,
+          "nameEnglish": "Jujube Paste Zongzi",
+          "nameChinese": "枣泥粽",
+          "phase": 2
+        },
+        {
+          "cardId": 101,
+          "nameEnglish": "Roasted Meat Zongzi",
+          "nameChinese": "烧肉粽",
+          "phase": 2
+        },
+        {
+          "cardId": 102,
+          "nameEnglish": "Spicy Zongzi",
+          "nameChinese": "麻辣粽",
+          "phase": 2
+        },
+        {
+          "cardId": 103,
+          "nameEnglish": "Preserved Meat Zongzi",
+          "nameChinese": "腊肉粽",
+          "phase": 2
+        },
+        {
+          "cardId": 89,
+          "nameEnglish": "Alkaline Water Zongzi",
+          "nameChinese": "碱水粽",
+          "phase": 3
+        },
+        {
+          "cardId": 90,
+          "nameEnglish": "Lotus Seeds Zongzi",
+          "nameChinese": "莲子粽",
+          "phase": 3
+        },
+        {
+          "cardId": 91,
+          "nameEnglish": "Bean Paste Zongzi",
+          "nameChinese": "豆沙粽",
+          "phase": 3
+        },
+        {
+          "cardId": 104,
+          "nameEnglish": "Sour Bamboo Shoots Zongzi",
+          "nameChinese": "酸笋粽",
+          "phase": 3
+        },
+        {
+          "cardId": 105,
+          "nameEnglish": "Chestnut Zongzi",
+          "nameChinese": "板栗粽",
+          "phase": 3
+        },
+        {
+          "cardId": 106,
+          "nameEnglish": "Pungent Zongzi",
+          "nameChinese": "香辣粽",
+          "phase": 3
+        },
+        {
+          "cardId": 92,
+          "nameEnglish": "Preserved Fruit Zongzi",
+          "nameChinese": "蜜饯果粽",
+          "phase": 4
+        },
+        {
+          "cardId": 93,
+          "nameEnglish": "Crystal Ice Zongzi",
+          "nameChinese": "水晶冰粽",
+          "phase": 4
+        },
+        {
+          "cardId": 94,
+          "nameEnglish": "Fresh Fruit Zongzi",
+          "nameChinese": "鲜果宝粽",
+          "phase": 4
+        },
+        {
+          "cardId": 107,
+          "nameEnglish": "Salted Egg Yolk Zongzi",
+          "nameChinese": "咸蛋黄粽",
+          "phase": 4
+        },
+        {
+          "cardId": 108,
+          "nameEnglish": "Seafood Zongzi",
+          "nameChinese": "海鲜肉粽",
+          "phase": 4
+        },
+        {
+          "cardId": 109,
+          "nameEnglish": "Pickled Mustard Zongzi",
+          "nameChinese": "梅菜肉粽",
+          "phase": 4
+        },
+        {
+          "cardId": 95,
+          "nameEnglish": "Mixed Grain Zongzi",
+          "nameChinese": "八宝杂粮粽",
+          "phase": 5
+        },
+        {
+          "cardId": 96,
+          "nameEnglish": "Spirit Zongzi",
+          "nameChinese": "仙风归灵粽",
+          "phase": 5
+        },
+        {
+          "cardId": 97,
+          "nameEnglish": "Water Combined Zongzi",
+          "nameChinese": "百川琉璃粽",
+          "phase": 5
+        },
+        {
+          "cardId": 110,
+          "nameEnglish": "Assorted Meat Zongzi",
+          "nameChinese": "秘制三鲜粽",
+          "phase": 5
+        },
+        {
+          "cardId": 111,
+          "nameEnglish": "Double Plum Zongzi",
+          "nameChinese": "梅香玉露粽",
+          "phase": 5
+        },
+        {
+          "cardId": 112,
+          "nameEnglish": "Shura Zongzi",
+          "nameChinese": "修罗镇魂粽",
+          "phase": 5
         }
       ]
     },
@@ -241,271 +272,271 @@
           "cardId": 224,
           "nameEnglish": "Furnace",
           "nameChinese": "炼丹炉",
+          "phase": 1,
           "productId": 1,
           "price": 4,
-          "weight": 100,
-          "phase": 1
+          "weight": 100
         },
         {
           "cardId": 225,
           "nameEnglish": "Terra Spirit Elixir",
           "nameChinese": "地灵丹",
+          "phase": 1,
           "productId": 2,
           "price": 4,
-          "weight": 100,
-          "phase": 1
+          "weight": 100
         },
         {
           "cardId": 226,
           "nameEnglish": "Cloud Elixir",
           "nameChinese": "飞云丹",
+          "phase": 2,
           "productId": 3,
           "price": 6,
-          "weight": 100,
-          "phase": 2
+          "weight": 100
         },
         {
           "cardId": 227,
           "nameEnglish": "Bodybuilding Elixir",
           "nameChinese": "锻体丹",
+          "phase": 2,
           "productId": 4,
           "price": 6,
-          "weight": 100,
-          "phase": 2
+          "weight": 100
         },
         {
           "cardId": 228,
           "nameEnglish": "Hexagram Furnace",
           "nameChinese": "八卦炉",
+          "phase": 3,
           "productId": 5,
           "price": 10,
-          "weight": 100,
-          "phase": 3
+          "weight": 100
         },
         {
           "cardId": 229,
           "nameEnglish": "Resurrection Elixir",
           "nameChinese": "还魂丹",
+          "phase": 3,
           "productId": 6,
           "price": 10,
-          "weight": 100,
-          "phase": 3
+          "weight": 100
         },
         {
           "cardId": 230,
           "nameEnglish": "Talent Elixir",
           "nameChinese": "洗髓丹",
+          "phase": 4,
           "productId": 7,
           "price": 14,
-          "weight": 100,
-          "phase": 4
+          "weight": 100
         },
         {
           "cardId": 231,
           "nameEnglish": "Great Recover Elixir",
           "nameChinese": "大还丹",
+          "phase": 4,
           "productId": 8,
           "price": 14,
-          "weight": 100,
-          "phase": 4
+          "weight": 100
         },
         {
           "cardId": 232,
           "nameEnglish": "Ice Spirit Guard Elixir",
           "nameChinese": "冰灵护体丹",
+          "phase": 5,
           "productId": 9,
           "price": 22,
-          "weight": 60,
-          "phase": 5
+          "weight": 60
         },
         {
           "cardId": 233,
           "nameEnglish": "Furnace of Void",
           "nameChinese": "太虚熔炉",
+          "phase": 5,
           "productId": 10,
           "price": 22,
-          "weight": 60,
-          "phase": 5
+          "weight": 60
         },
         {
           "cardId": 234,
           "nameEnglish": "Thunder Fulu",
           "nameChinese": "奔雷符",
+          "phase": 1,
           "productId": 11,
           "price": 4,
-          "weight": 100,
-          "phase": 1
+          "weight": 100
         },
         {
           "cardId": 235,
           "nameEnglish": "Guard Spirit Fulu",
           "nameChinese": "护灵符",
+          "phase": 1,
           "productId": 12,
           "price": 4,
-          "weight": 100,
-          "phase": 1
+          "weight": 100
         },
         {
           "cardId": 236,
           "nameEnglish": "Fire Cloud Fulu",
           "nameChinese": "火云符",
+          "phase": 2,
           "productId": 13,
           "price": 6,
-          "weight": 100,
-          "phase": 2
+          "weight": 100
         },
         {
           "cardId": 237,
           "nameEnglish": "Calm Incantation",
           "nameChinese": "清心咒",
+          "phase": 2,
           "productId": 14,
           "price": 6,
-          "weight": 100,
-          "phase": 2
+          "weight": 100
         },
         {
           "cardId": 238,
           "nameEnglish": "Spirit Absorb Fulu",
           "nameChinese": "吸灵符",
+          "phase": 3,
           "productId": 15,
           "price": 10,
-          "weight": 100,
-          "phase": 3
+          "weight": 100
         },
         {
           "cardId": 239,
           "nameEnglish": "Ice Incantation",
           "nameChinese": "寒冰咒",
+          "phase": 3,
           "productId": 16,
           "price": 10,
-          "weight": 100,
-          "phase": 3
+          "weight": 100
         },
         {
           "cardId": 240,
           "nameEnglish": "Weaken Fulu",
           "nameChinese": "弱体符",
+          "phase": 4,
           "productId": 17,
           "price": 14,
-          "weight": 100,
-          "phase": 4
+          "weight": 100
         },
         {
           "cardId": 241,
           "nameEnglish": "Spiritage Incantation",
           "nameChinese": "聚气咒",
+          "phase": 4,
           "productId": 18,
           "price": 14,
-          "weight": 100,
-          "phase": 4
+          "weight": 100
         },
         {
           "cardId": 242,
           "nameEnglish": "Soul Requiem Fulu",
           "nameChinese": "镇魂封元符",
+          "phase": 5,
           "productId": 19,
           "price": 22,
-          "weight": 60,
-          "phase": 5
+          "weight": 60
         },
         {
           "cardId": 243,
           "nameEnglish": "Divine Walk Fulu",
           "nameChinese": "千里神行符",
+          "phase": 5,
           "productId": 20,
           "price": 22,
-          "weight": 60,
-          "phase": 5
+          "weight": 60
         },
         {
           "cardId": 244,
           "nameEnglish": "Black Silver Armor",
           "nameChinese": "玄银甲",
+          "phase": 1,
           "productId": 21,
           "price": 6,
-          "weight": 100,
-          "phase": 1
+          "weight": 100
         },
         {
           "cardId": 245,
           "nameEnglish": "Thorns Spear",
           "nameChinese": "刺尖枪",
+          "phase": 1,
           "productId": 22,
           "price": 6,
-          "weight": 100,
-          "phase": 1
+          "weight": 100
         },
         {
           "cardId": 246,
           "nameEnglish": "Dew Jade Vase",
           "nameChinese": "玉露瓶",
+          "phase": 2,
           "productId": 23,
           "price": 8,
-          "weight": 100,
-          "phase": 2
+          "weight": 100
         },
         {
           "cardId": 247,
           "nameEnglish": "Nameless Ancient Sword",
           "nameChinese": "无名古剑",
+          "phase": 2,
           "productId": 24,
           "price": 8,
-          "weight": 100,
-          "phase": 2
+          "weight": 100
         },
         {
           "cardId": 248,
           "nameEnglish": "Requiem Jade Lotus",
           "nameChinese": "养魂玉莲",
+          "phase": 3,
           "productId": 25,
           "price": 12,
-          "weight": 100,
-          "phase": 3
+          "weight": 100
         },
         {
           "cardId": 249,
           "nameEnglish": "Blood Crystal of Wolf King",
           "nameChinese": "狼皇血晶",
+          "phase": 3,
           "productId": 26,
           "price": 12,
-          "weight": 100,
-          "phase": 3
+          "weight": 100
         },
         {
           "cardId": 250,
           "nameEnglish": "Carefree Guqin",
           "nameChinese": "逍遥古琴",
+          "phase": 4,
           "productId": 27,
           "price": 16,
-          "weight": 100,
-          "phase": 4
+          "weight": 100
         },
         {
           "cardId": 251,
           "nameEnglish": "Primordial Spirit-Suppression Orb",
           "nameChinese": "混元封神珠",
+          "phase": 4,
           "productId": 28,
           "price": 16,
-          "weight": 100,
-          "phase": 4
+          "weight": 100
         },
         {
           "cardId": 252,
           "nameEnglish": "Dark Crystal Heart Shield",
           "nameChinese": "玄晶护心镜",
+          "phase": 5,
           "productId": 29,
           "price": 36,
-          "weight": 40,
-          "phase": 5
+          "weight": 40
         },
         {
           "cardId": 253,
           "nameEnglish": "Nether Seal Evil Signet",
           "nameChinese": "九冥镇魔印",
+          "phase": 5,
           "productId": 30,
           "price": 36,
-          "weight": 40,
-          "phase": 5
+          "weight": 40
         }
       ]
     },
@@ -517,502 +548,287 @@
       "nameChinese": "木桩试炼",
       "sourceConfig": "TA21CardConfig",
       "poolType": "daily-sect-rotation",
-      "commonCards": [
-        {
-          "cardId": 2000010,
-          "nameEnglish": "Spiritage Elixir",
-          "nameChinese": "聚灵丹"
-        },
-        {
-          "cardId": 2000015,
-          "nameEnglish": "Enlightenment Elixir",
-          "nameChinese": "悟道丹"
-        },
-        {
-          "cardId": 3000013,
-          "nameEnglish": "Divine Walk Fulu",
-          "nameChinese": "千里神行符"
-        },
-        {
-          "cardId": 5000008,
-          "nameEnglish": "Craze Dance Tune",
-          "nameChinese": "狂舞曲"
-        },
-        {
-          "cardId": 6000013,
-          "nameEnglish": "Finishing Touch",
-          "nameChinese": "画龙点睛"
-        }
-      ],
       "sectPools": [
         {
           "sectId": 1,
           "sectEnglish": "Cloud Spirit Sword Sect",
           "sectChinese": "云灵剑宗",
-          "commonCards": [
-            {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            }
-          ],
-          "sectSpecificCards": [
-            {
-              "cardId": 1000001,
-              "nameEnglish": "Cloud Sword - Touch Sky",
-              "nameChinese": "云剑•探云"
-            },
-            {
-              "cardId": 1000002,
-              "nameEnglish": "Cloud Sword - Fleche",
-              "nameChinese": "云剑•飞刺"
-            },
-            {
-              "cardId": 1000047,
-              "nameEnglish": "Rhyme Spirit Sword",
-              "nameChinese": "韵灵剑"
-            },
-            {
-              "cardId": 1000009,
-              "nameEnglish": "Thunder Sword",
-              "nameChinese": "震雷剑"
-            },
-            {
-              "cardId": 1000010,
-              "nameEnglish": "Sword Slash",
-              "nameChinese": "剑劈"
-            },
-            {
-              "cardId": 1000013,
-              "nameEnglish": "Wind Sword",
-              "nameChinese": "骤风剑"
-            },
-            {
-              "cardId": 1000015,
-              "nameEnglish": "Cloud Sword - Riddle",
-              "nameChinese": "云剑•极意"
-            },
-            {
-              "cardId": 1000014,
-              "nameEnglish": "Cloud Sword - Conceal",
-              "nameChinese": "云剑•无锋"
-            },
-            {
-              "cardId": 1000024,
-              "nameEnglish": "Spiritage Sword",
-              "nameChinese": "引气剑"
-            },
-            {
-              "cardId": 1000019,
-              "nameEnglish": "Giant Whale Spirit Sword",
-              "nameChinese": "巨鲸灵剑"
-            },
-            {
-              "cardId": 1000017,
-              "nameEnglish": "Contemplate Spirits Rhythm",
-              "nameChinese": "凝意诀"
-            },
-            {
-              "cardId": 1000055,
-              "nameEnglish": "Giant Ape Spirit Sword",
-              "nameChinese": "巨猿灵剑"
-            },
-            {
-              "cardId": 1000022,
-              "nameEnglish": "Unrestrained Sword - One",
-              "nameChinese": "狂剑•一式"
-            },
-            {
-              "cardId": 1000028,
-              "nameEnglish": "Cloud Sword - Necessity",
-              "nameChinese": "云剑•无妄"
-            },
-            {
-              "cardId": 151,
-              "nameEnglish": "Unrestrained Sword - Nebula Cloud",
-              "nameChinese": "狂剑•星云"
-            },
-            {
-              "cardId": 1000031,
-              "nameEnglish": "Cloud Dance Rhythm",
-              "nameChinese": "云舞诀"
-            },
-            {
-              "cardId": 1000029,
-              "nameEnglish": "Giant Roc Spirit Sword",
-              "nameChinese": "巨鹏灵剑"
-            },
-            {
-              "cardId": 1000046,
-              "nameEnglish": "Mirror Flower Sword Formation",
-              "nameChinese": "镜花剑阵"
-            },
-            {
-              "cardId": 1000032,
-              "nameEnglish": "Tri-Peak Sword",
-              "nameChinese": "三峰剑"
-            },
-            {
-              "cardId": 1000056,
-              "nameEnglish": "One Heart One Sword",
-              "nameChinese": "一心一剑"
-            },
-            {
-              "cardId": 1000062,
-              "nameEnglish": "Synergy Sword Formation",
-              "nameChinese": "合势剑阵"
-            },
-            {
-              "cardId": 1000039,
-              "nameEnglish": "Cloud Sword - Flash Wind",
-              "nameChinese": "云剑•闪风"
-            },
-            {
-              "cardId": 1000040,
-              "nameEnglish": "Cloud Sword - Moon Shade",
-              "nameChinese": "云剑•月影"
-            },
-            {
-              "cardId": 1000065,
-              "nameEnglish": "CentiBird Spirit Sword Rhythm",
-              "nameChinese": "百鸟灵剑诀"
-            },
-            {
-              "cardId": 1000059,
-              "nameEnglish": "Egret Spirit Sword",
-              "nameChinese": "白鹭灵剑"
-            },
-            {
-              "cardId": 1000036,
-              "nameEnglish": "Giant Kun Spirit Sword",
-              "nameChinese": "巨鲲灵剑"
-            },
-            {
-              "cardId": 1000037,
-              "nameEnglish": "Flow Cloud Chaos Sword",
-              "nameChinese": "流云乱剑"
-            },
-            {
-              "cardId": 1000035,
-              "nameEnglish": "Unrestrained Sword - Two",
-              "nameChinese": "狂剑•二式"
-            },
-            {
-              "cardId": 1000041,
-              "nameEnglish": "Moon Water Sword Formation",
-              "nameChinese": "水月剑阵"
-            },
-            {
-              "cardId": 48,
-              "nameEnglish": "Azure Dragon Sword Formation",
-              "nameChinese": "青龙剑阵"
-            },
-            {
-              "cardId": 1000050,
-              "nameEnglish": "Sword Intent Flow",
-              "nameChinese": "剑意流转"
-            },
-            {
-              "cardId": 1000042,
-              "nameEnglish": "Cloud Sword - Dragon Roam",
-              "nameChinese": "云剑•游龙"
-            },
-            {
-              "cardId": 49,
-              "nameEnglish": "Beast Spirit Sword Formation",
-              "nameChinese": "百兽灵剑阵"
-            },
-            {
-              "cardId": 1000043,
-              "nameEnglish": "Flying Spirit Shade Sword",
-              "nameChinese": "飞灵闪影剑"
-            },
-            {
-              "cardId": 1000025,
-              "nameEnglish": "Rule Sky Sword Formation",
-              "nameChinese": "御空剑阵"
-            },
-            {
-              "cardId": 1000064,
-              "nameEnglish": "Chain Sword Formation",
-              "nameChinese": "连环剑阵"
-            },
-            {
-              "cardId": 1000044,
-              "nameEnglish": "Sword Intent Surge",
-              "nameChinese": "剑意激荡"
-            },
-            {
-              "cardId": 1000053,
-              "nameEnglish": "Apex Sword Citta-Dharma",
-              "nameChinese": "凌剑心法"
-            },
-            {
-              "cardId": 1000057,
-              "nameEnglish": "Step Moon Into Cloud",
-              "nameChinese": "步月登云"
-            },
-            {
-              "cardId": 50,
-              "nameEnglish": "Dragon Devours Clouds",
-              "nameChinese": "狂龙吞云"
-            },
-            {
-              "cardId": 1000061,
-              "nameEnglish": "Unrestrained Sword - Twin Dragons",
-              "nameChinese": "狂剑•双龙"
-            }
-          ],
           "playableCards": [
             {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            },
-            {
               "cardId": 1000001,
               "nameEnglish": "Cloud Sword - Touch Sky",
-              "nameChinese": "云剑•探云"
+              "nameChinese": "云剑•探云",
+              "phase": 1
             },
             {
               "cardId": 1000002,
               "nameEnglish": "Cloud Sword - Fleche",
-              "nameChinese": "云剑•飞刺"
+              "nameChinese": "云剑•飞刺",
+              "phase": 1
             },
             {
               "cardId": 1000047,
               "nameEnglish": "Rhyme Spirit Sword",
-              "nameChinese": "韵灵剑"
+              "nameChinese": "韵灵剑",
+              "phase": 1
             },
             {
               "cardId": 1000009,
               "nameEnglish": "Thunder Sword",
-              "nameChinese": "震雷剑"
+              "nameChinese": "震雷剑",
+              "phase": 1
             },
             {
               "cardId": 1000010,
               "nameEnglish": "Sword Slash",
-              "nameChinese": "剑劈"
+              "nameChinese": "剑劈",
+              "phase": 1
             },
             {
               "cardId": 1000013,
               "nameEnglish": "Wind Sword",
-              "nameChinese": "骤风剑"
+              "nameChinese": "骤风剑",
+              "phase": 1
             },
             {
               "cardId": 1000015,
               "nameEnglish": "Cloud Sword - Riddle",
-              "nameChinese": "云剑•极意"
+              "nameChinese": "云剑•极意",
+              "phase": 2
             },
             {
               "cardId": 1000014,
               "nameEnglish": "Cloud Sword - Conceal",
-              "nameChinese": "云剑•无锋"
+              "nameChinese": "云剑•无锋",
+              "phase": 2
             },
             {
               "cardId": 1000024,
               "nameEnglish": "Spiritage Sword",
-              "nameChinese": "引气剑"
+              "nameChinese": "引气剑",
+              "phase": 2
             },
             {
               "cardId": 1000019,
               "nameEnglish": "Giant Whale Spirit Sword",
-              "nameChinese": "巨鲸灵剑"
+              "nameChinese": "巨鲸灵剑",
+              "phase": 2
             },
             {
               "cardId": 1000017,
               "nameEnglish": "Contemplate Spirits Rhythm",
-              "nameChinese": "凝意诀"
+              "nameChinese": "凝意诀",
+              "phase": 2
             },
             {
               "cardId": 1000055,
               "nameEnglish": "Giant Ape Spirit Sword",
-              "nameChinese": "巨猿灵剑"
+              "nameChinese": "巨猿灵剑",
+              "phase": 2
             },
             {
               "cardId": 1000022,
               "nameEnglish": "Unrestrained Sword - One",
-              "nameChinese": "狂剑•一式"
+              "nameChinese": "狂剑•一式",
+              "phase": 2
             },
             {
               "cardId": 1000028,
               "nameEnglish": "Cloud Sword - Necessity",
-              "nameChinese": "云剑•无妄"
+              "nameChinese": "云剑•无妄",
+              "phase": 3
             },
             {
               "cardId": 151,
               "nameEnglish": "Unrestrained Sword - Nebula Cloud",
-              "nameChinese": "狂剑•星云"
+              "nameChinese": "狂剑•星云",
+              "phase": 3
             },
             {
               "cardId": 1000031,
               "nameEnglish": "Cloud Dance Rhythm",
-              "nameChinese": "云舞诀"
+              "nameChinese": "云舞诀",
+              "phase": 3
             },
             {
               "cardId": 1000029,
               "nameEnglish": "Giant Roc Spirit Sword",
-              "nameChinese": "巨鹏灵剑"
+              "nameChinese": "巨鹏灵剑",
+              "phase": 3
             },
             {
               "cardId": 1000046,
               "nameEnglish": "Mirror Flower Sword Formation",
-              "nameChinese": "镜花剑阵"
+              "nameChinese": "镜花剑阵",
+              "phase": 3
             },
             {
               "cardId": 1000032,
               "nameEnglish": "Tri-Peak Sword",
-              "nameChinese": "三峰剑"
+              "nameChinese": "三峰剑",
+              "phase": 3
             },
             {
               "cardId": 1000056,
               "nameEnglish": "One Heart One Sword",
-              "nameChinese": "一心一剑"
+              "nameChinese": "一心一剑",
+              "phase": 3
             },
             {
               "cardId": 1000062,
               "nameEnglish": "Synergy Sword Formation",
-              "nameChinese": "合势剑阵"
+              "nameChinese": "合势剑阵",
+              "phase": 3
+            },
+            {
+              "cardId": 5000008,
+              "nameEnglish": "Craze Dance Tune",
+              "nameChinese": "狂舞曲",
+              "phase": 3
             },
             {
               "cardId": 1000039,
               "nameEnglish": "Cloud Sword - Flash Wind",
-              "nameChinese": "云剑•闪风"
+              "nameChinese": "云剑•闪风",
+              "phase": 4
             },
             {
               "cardId": 1000040,
               "nameEnglish": "Cloud Sword - Moon Shade",
-              "nameChinese": "云剑•月影"
+              "nameChinese": "云剑•月影",
+              "phase": 4
             },
             {
               "cardId": 1000065,
               "nameEnglish": "CentiBird Spirit Sword Rhythm",
-              "nameChinese": "百鸟灵剑诀"
+              "nameChinese": "百鸟灵剑诀",
+              "phase": 4
             },
             {
               "cardId": 1000059,
               "nameEnglish": "Egret Spirit Sword",
-              "nameChinese": "白鹭灵剑"
+              "nameChinese": "白鹭灵剑",
+              "phase": 4
             },
             {
               "cardId": 1000036,
               "nameEnglish": "Giant Kun Spirit Sword",
-              "nameChinese": "巨鲲灵剑"
+              "nameChinese": "巨鲲灵剑",
+              "phase": 4
             },
             {
               "cardId": 1000037,
               "nameEnglish": "Flow Cloud Chaos Sword",
-              "nameChinese": "流云乱剑"
+              "nameChinese": "流云乱剑",
+              "phase": 4
             },
             {
               "cardId": 1000035,
               "nameEnglish": "Unrestrained Sword - Two",
-              "nameChinese": "狂剑•二式"
+              "nameChinese": "狂剑•二式",
+              "phase": 4
             },
             {
               "cardId": 1000041,
               "nameEnglish": "Moon Water Sword Formation",
-              "nameChinese": "水月剑阵"
+              "nameChinese": "水月剑阵",
+              "phase": 4
             },
             {
               "cardId": 48,
               "nameEnglish": "Azure Dragon Sword Formation",
-              "nameChinese": "青龙剑阵"
+              "nameChinese": "青龙剑阵",
+              "phase": 4
             },
             {
               "cardId": 1000050,
               "nameEnglish": "Sword Intent Flow",
-              "nameChinese": "剑意流转"
+              "nameChinese": "剑意流转",
+              "phase": 4
+            },
+            {
+              "cardId": 2000010,
+              "nameEnglish": "Spiritage Elixir",
+              "nameChinese": "聚灵丹",
+              "phase": 4
             },
             {
               "cardId": 1000042,
               "nameEnglish": "Cloud Sword - Dragon Roam",
-              "nameChinese": "云剑•游龙"
+              "nameChinese": "云剑•游龙",
+              "phase": 5
             },
             {
               "cardId": 49,
               "nameEnglish": "Beast Spirit Sword Formation",
-              "nameChinese": "百兽灵剑阵"
+              "nameChinese": "百兽灵剑阵",
+              "phase": 5
             },
             {
               "cardId": 1000043,
               "nameEnglish": "Flying Spirit Shade Sword",
-              "nameChinese": "飞灵闪影剑"
+              "nameChinese": "飞灵闪影剑",
+              "phase": 5
             },
             {
               "cardId": 1000025,
               "nameEnglish": "Rule Sky Sword Formation",
-              "nameChinese": "御空剑阵"
+              "nameChinese": "御空剑阵",
+              "phase": 5
             },
             {
               "cardId": 1000064,
               "nameEnglish": "Chain Sword Formation",
-              "nameChinese": "连环剑阵"
+              "nameChinese": "连环剑阵",
+              "phase": 5
             },
             {
               "cardId": 1000044,
               "nameEnglish": "Sword Intent Surge",
-              "nameChinese": "剑意激荡"
+              "nameChinese": "剑意激荡",
+              "phase": 5
             },
             {
               "cardId": 1000053,
               "nameEnglish": "Apex Sword Citta-Dharma",
-              "nameChinese": "凌剑心法"
+              "nameChinese": "凌剑心法",
+              "phase": 5
             },
             {
               "cardId": 1000057,
               "nameEnglish": "Step Moon Into Cloud",
-              "nameChinese": "步月登云"
+              "nameChinese": "步月登云",
+              "phase": 5
             },
             {
               "cardId": 50,
               "nameEnglish": "Dragon Devours Clouds",
-              "nameChinese": "狂龙吞云"
+              "nameChinese": "狂龙吞云",
+              "phase": 5
             },
             {
               "cardId": 1000061,
               "nameEnglish": "Unrestrained Sword - Twin Dragons",
-              "nameChinese": "狂剑•双龙"
+              "nameChinese": "狂剑•双龙",
+              "phase": 5
+            },
+            {
+              "cardId": 2000015,
+              "nameEnglish": "Enlightenment Elixir",
+              "nameChinese": "悟道丹",
+              "phase": 5
+            },
+            {
+              "cardId": 3000013,
+              "nameEnglish": "Divine Walk Fulu",
+              "nameChinese": "千里神行符",
+              "phase": 5
+            },
+            {
+              "cardId": 6000013,
+              "nameEnglish": "Finishing Touch",
+              "nameChinese": "画龙点睛",
+              "phase": 5
             }
           ]
         },
@@ -1020,450 +836,270 @@
           "sectId": 2,
           "sectEnglish": "Heptastar Pavilion",
           "sectChinese": "七星阁",
-          "commonCards": [
-            {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            }
-          ],
-          "sectSpecificCards": [
-            {
-              "cardId": 4000008,
-              "nameEnglish": "Dotted Around",
-              "nameChinese": "星罗棋布"
-            },
-            {
-              "cardId": 4000010,
-              "nameEnglish": "Astral Move - Flank",
-              "nameChinese": "星弈•夹"
-            },
-            {
-              "cardId": 4000003,
-              "nameEnglish": "Zhen Hexagram",
-              "nameChinese": "震卦"
-            },
-            {
-              "cardId": 4000001,
-              "nameEnglish": "Wind Hexagram",
-              "nameChinese": "巽卦"
-            },
-            {
-              "cardId": 4000004,
-              "nameEnglish": "Palm Thunder",
-              "nameChinese": "掌心雷"
-            },
-            {
-              "cardId": 4000061,
-              "nameEnglish": "Sparrow's Tail",
-              "nameChinese": "揽雀尾"
-            },
-            {
-              "cardId": 4000024,
-              "nameEnglish": "Astral Fleche",
-              "nameChinese": "飞星刺"
-            },
-            {
-              "cardId": 4000015,
-              "nameEnglish": "Water Hexagram",
-              "nameChinese": "坎卦"
-            },
-            {
-              "cardId": 4000030,
-              "nameEnglish": "Falling Thunder",
-              "nameChinese": "落雷术"
-            },
-            {
-              "cardId": 4000019,
-              "nameEnglish": "Cutting Weeds",
-              "nameChinese": "斩草除根"
-            },
-            {
-              "cardId": 4000021,
-              "nameEnglish": "Flower Sentient",
-              "nameChinese": "落花有意"
-            },
-            {
-              "cardId": 4000054,
-              "nameEnglish": "Star Born Rhythm",
-              "nameChinese": "星衍诀"
-            },
-            {
-              "cardId": 142,
-              "nameEnglish": "Astral Move - Extend",
-              "nameChinese": "星弈•拆"
-            },
-            {
-              "cardId": 4000032,
-              "nameEnglish": "Starry Moon",
-              "nameChinese": "众星拱月"
-            },
-            {
-              "cardId": 4000029,
-              "nameEnglish": "Astral Move - Hit",
-              "nameChinese": "星弈•打"
-            },
-            {
-              "cardId": 4000031,
-              "nameEnglish": "White Snake",
-              "nameChinese": "白蛇吐信"
-            },
-            {
-              "cardId": 4000068,
-              "nameEnglish": "Thunder Hexagram Rhythm",
-              "nameChinese": "御雷卦诀"
-            },
-            {
-              "cardId": 4000022,
-              "nameEnglish": "Ruthless Water",
-              "nameChinese": "流水无情"
-            },
-            {
-              "cardId": 4000043,
-              "nameEnglish": "Hunter Becomes Preyer",
-              "nameChinese": "螳螂捕蝉"
-            },
-            {
-              "cardId": 4000033,
-              "nameEnglish": "Drag Moon In Sea",
-              "nameChinese": "海底捞月"
-            },
-            {
-              "cardId": 4000025,
-              "nameEnglish": "Lake Hexagram",
-              "nameChinese": "兑卦"
-            },
-            {
-              "cardId": 4000038,
-              "nameEnglish": "Astral Move - Fly",
-              "nameChinese": "星弈•飞"
-            },
-            {
-              "cardId": 4000014,
-              "nameEnglish": "Six Lines Formacide",
-              "nameChinese": "六爻绝阵"
-            },
-            {
-              "cardId": 4000034,
-              "nameEnglish": "Flame Hexagram",
-              "nameChinese": "离卦"
-            },
-            {
-              "cardId": 4000035,
-              "nameEnglish": "Dance Of The Dragonfly",
-              "nameChinese": "蜻蜓点水"
-            },
-            {
-              "cardId": 4000063,
-              "nameEnglish": "Thunder And Lighting",
-              "nameChinese": "轰雷掣电"
-            },
-            {
-              "cardId": 4000059,
-              "nameEnglish": "Snake in Reflection",
-              "nameChinese": "杯弓蛇影"
-            },
-            {
-              "cardId": 4000056,
-              "nameEnglish": "Flowers And Water",
-              "nameChinese": "落花流水"
-            },
-            {
-              "cardId": 4000062,
-              "nameEnglish": "Star Trail Divination",
-              "nameChinese": "星轨推衍"
-            },
-            {
-              "cardId": 4000051,
-              "nameEnglish": "Astral Move - Dragon Slay",
-              "nameChinese": "星弈•屠龙"
-            },
-            {
-              "cardId": 51,
-              "nameEnglish": "Spiritual Hexagram Divination",
-              "nameChinese": "灵卦术"
-            },
-            {
-              "cardId": 4000045,
-              "nameEnglish": "Polaris Citta-Dharma",
-              "nameChinese": "天元心法"
-            },
-            {
-              "cardId": 4000026,
-              "nameEnglish": "Heaven Hexagram",
-              "nameChinese": "乾卦"
-            },
-            {
-              "cardId": 4000046,
-              "nameEnglish": "Five Thunders",
-              "nameChinese": "五雷轰顶"
-            },
-            {
-              "cardId": 4000041,
-              "nameEnglish": "Strike Twice",
-              "nameChinese": "梅开二度"
-            },
-            {
-              "cardId": 4000067,
-              "nameEnglish": "Propitious Omen",
-              "nameChinese": "紫气东来"
-            },
-            {
-              "cardId": 53,
-              "nameEnglish": "Astral Move - Twin Swallows",
-              "nameChinese": "星弈·双飞燕"
-            },
-            {
-              "cardId": 54,
-              "nameEnglish": "Water Drop Erosion",
-              "nameChinese": "滴水穿石"
-            },
-            {
-              "cardId": 4000066,
-              "nameEnglish": "Hunter Hunting Hunter",
-              "nameChinese": "黄雀在后"
-            }
-          ],
           "playableCards": [
             {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            },
-            {
               "cardId": 4000008,
               "nameEnglish": "Dotted Around",
-              "nameChinese": "星罗棋布"
+              "nameChinese": "星罗棋布",
+              "phase": 1
             },
             {
               "cardId": 4000010,
               "nameEnglish": "Astral Move - Flank",
-              "nameChinese": "星弈•夹"
+              "nameChinese": "星弈•夹",
+              "phase": 1
             },
             {
               "cardId": 4000003,
               "nameEnglish": "Zhen Hexagram",
-              "nameChinese": "震卦"
+              "nameChinese": "震卦",
+              "phase": 1
             },
             {
               "cardId": 4000001,
               "nameEnglish": "Wind Hexagram",
-              "nameChinese": "巽卦"
+              "nameChinese": "巽卦",
+              "phase": 1
             },
             {
               "cardId": 4000004,
               "nameEnglish": "Palm Thunder",
-              "nameChinese": "掌心雷"
+              "nameChinese": "掌心雷",
+              "phase": 1
             },
             {
               "cardId": 4000061,
               "nameEnglish": "Sparrow's Tail",
-              "nameChinese": "揽雀尾"
+              "nameChinese": "揽雀尾",
+              "phase": 1
             },
             {
               "cardId": 4000024,
               "nameEnglish": "Astral Fleche",
-              "nameChinese": "飞星刺"
+              "nameChinese": "飞星刺",
+              "phase": 2
             },
             {
               "cardId": 4000015,
               "nameEnglish": "Water Hexagram",
-              "nameChinese": "坎卦"
+              "nameChinese": "坎卦",
+              "phase": 2
             },
             {
               "cardId": 4000030,
               "nameEnglish": "Falling Thunder",
-              "nameChinese": "落雷术"
+              "nameChinese": "落雷术",
+              "phase": 2
             },
             {
               "cardId": 4000019,
               "nameEnglish": "Cutting Weeds",
-              "nameChinese": "斩草除根"
+              "nameChinese": "斩草除根",
+              "phase": 2
             },
             {
               "cardId": 4000021,
               "nameEnglish": "Flower Sentient",
-              "nameChinese": "落花有意"
+              "nameChinese": "落花有意",
+              "phase": 2
             },
             {
               "cardId": 4000054,
               "nameEnglish": "Star Born Rhythm",
-              "nameChinese": "星衍诀"
+              "nameChinese": "星衍诀",
+              "phase": 2
             },
             {
               "cardId": 142,
               "nameEnglish": "Astral Move - Extend",
-              "nameChinese": "星弈•拆"
+              "nameChinese": "星弈•拆",
+              "phase": 2
             },
             {
               "cardId": 4000032,
               "nameEnglish": "Starry Moon",
-              "nameChinese": "众星拱月"
+              "nameChinese": "众星拱月",
+              "phase": 3
             },
             {
               "cardId": 4000029,
               "nameEnglish": "Astral Move - Hit",
-              "nameChinese": "星弈•打"
+              "nameChinese": "星弈•打",
+              "phase": 3
             },
             {
               "cardId": 4000031,
               "nameEnglish": "White Snake",
-              "nameChinese": "白蛇吐信"
+              "nameChinese": "白蛇吐信",
+              "phase": 3
             },
             {
               "cardId": 4000068,
               "nameEnglish": "Thunder Hexagram Rhythm",
-              "nameChinese": "御雷卦诀"
+              "nameChinese": "御雷卦诀",
+              "phase": 3
             },
             {
               "cardId": 4000022,
               "nameEnglish": "Ruthless Water",
-              "nameChinese": "流水无情"
+              "nameChinese": "流水无情",
+              "phase": 3
             },
             {
               "cardId": 4000043,
               "nameEnglish": "Hunter Becomes Preyer",
-              "nameChinese": "螳螂捕蝉"
+              "nameChinese": "螳螂捕蝉",
+              "phase": 3
             },
             {
               "cardId": 4000033,
               "nameEnglish": "Drag Moon In Sea",
-              "nameChinese": "海底捞月"
+              "nameChinese": "海底捞月",
+              "phase": 3
             },
             {
               "cardId": 4000025,
               "nameEnglish": "Lake Hexagram",
-              "nameChinese": "兑卦"
+              "nameChinese": "兑卦",
+              "phase": 3
+            },
+            {
+              "cardId": 5000008,
+              "nameEnglish": "Craze Dance Tune",
+              "nameChinese": "狂舞曲",
+              "phase": 3
             },
             {
               "cardId": 4000038,
               "nameEnglish": "Astral Move - Fly",
-              "nameChinese": "星弈•飞"
+              "nameChinese": "星弈•飞",
+              "phase": 4
             },
             {
               "cardId": 4000014,
               "nameEnglish": "Six Lines Formacide",
-              "nameChinese": "六爻绝阵"
+              "nameChinese": "六爻绝阵",
+              "phase": 4
             },
             {
               "cardId": 4000034,
               "nameEnglish": "Flame Hexagram",
-              "nameChinese": "离卦"
+              "nameChinese": "离卦",
+              "phase": 4
             },
             {
               "cardId": 4000035,
               "nameEnglish": "Dance Of The Dragonfly",
-              "nameChinese": "蜻蜓点水"
+              "nameChinese": "蜻蜓点水",
+              "phase": 4
             },
             {
               "cardId": 4000063,
               "nameEnglish": "Thunder And Lighting",
-              "nameChinese": "轰雷掣电"
+              "nameChinese": "轰雷掣电",
+              "phase": 4
             },
             {
               "cardId": 4000059,
               "nameEnglish": "Snake in Reflection",
-              "nameChinese": "杯弓蛇影"
+              "nameChinese": "杯弓蛇影",
+              "phase": 4
             },
             {
               "cardId": 4000056,
               "nameEnglish": "Flowers And Water",
-              "nameChinese": "落花流水"
+              "nameChinese": "落花流水",
+              "phase": 4
             },
             {
               "cardId": 4000062,
               "nameEnglish": "Star Trail Divination",
-              "nameChinese": "星轨推衍"
+              "nameChinese": "星轨推衍",
+              "phase": 4
             },
             {
               "cardId": 4000051,
               "nameEnglish": "Astral Move - Dragon Slay",
-              "nameChinese": "星弈•屠龙"
+              "nameChinese": "星弈•屠龙",
+              "phase": 4
             },
             {
               "cardId": 51,
               "nameEnglish": "Spiritual Hexagram Divination",
-              "nameChinese": "灵卦术"
+              "nameChinese": "灵卦术",
+              "phase": 4
+            },
+            {
+              "cardId": 2000010,
+              "nameEnglish": "Spiritage Elixir",
+              "nameChinese": "聚灵丹",
+              "phase": 4
             },
             {
               "cardId": 4000045,
               "nameEnglish": "Polaris Citta-Dharma",
-              "nameChinese": "天元心法"
+              "nameChinese": "天元心法",
+              "phase": 5
             },
             {
               "cardId": 4000026,
               "nameEnglish": "Heaven Hexagram",
-              "nameChinese": "乾卦"
+              "nameChinese": "乾卦",
+              "phase": 5
             },
             {
               "cardId": 4000046,
               "nameEnglish": "Five Thunders",
-              "nameChinese": "五雷轰顶"
+              "nameChinese": "五雷轰顶",
+              "phase": 5
             },
             {
               "cardId": 4000041,
               "nameEnglish": "Strike Twice",
-              "nameChinese": "梅开二度"
+              "nameChinese": "梅开二度",
+              "phase": 5
             },
             {
               "cardId": 4000067,
               "nameEnglish": "Propitious Omen",
-              "nameChinese": "紫气东来"
+              "nameChinese": "紫气东来",
+              "phase": 5
             },
             {
               "cardId": 53,
               "nameEnglish": "Astral Move - Twin Swallows",
-              "nameChinese": "星弈·双飞燕"
+              "nameChinese": "星弈·双飞燕",
+              "phase": 5
             },
             {
               "cardId": 54,
               "nameEnglish": "Water Drop Erosion",
-              "nameChinese": "滴水穿石"
+              "nameChinese": "滴水穿石",
+              "phase": 5
             },
             {
               "cardId": 4000066,
               "nameEnglish": "Hunter Hunting Hunter",
-              "nameChinese": "黄雀在后"
+              "nameChinese": "黄雀在后",
+              "phase": 5
+            },
+            {
+              "cardId": 2000015,
+              "nameEnglish": "Enlightenment Elixir",
+              "nameChinese": "悟道丹",
+              "phase": 5
+            },
+            {
+              "cardId": 3000013,
+              "nameEnglish": "Divine Walk Fulu",
+              "nameChinese": "千里神行符",
+              "phase": 5
+            },
+            {
+              "cardId": 6000013,
+              "nameEnglish": "Finishing Touch",
+              "nameChinese": "画龙点睛",
+              "phase": 5
             }
           ]
         },
@@ -1471,460 +1107,276 @@
           "sectId": 3,
           "sectEnglish": "Five Elements Alliance",
           "sectChinese": "五行道盟",
-          "commonCards": [
-            {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            }
-          ],
-          "sectSpecificCards": [
-            {
-              "cardId": 7000068,
-              "nameEnglish": "Wood Spirit Secret Seal",
-              "nameChinese": "木灵秘印"
-            },
-            {
-              "cardId": 7000009,
-              "nameEnglish": "Fire Spirit Seal",
-              "nameChinese": "火灵印"
-            },
-            {
-              "cardId": 7000010,
-              "nameEnglish": "Fire Spirit - Rush",
-              "nameChinese": "火灵•窜"
-            },
-            {
-              "cardId": 7000001,
-              "nameEnglish": "Metal Spirit Seal",
-              "nameChinese": "金灵印"
-            },
-            {
-              "cardId": 7000002,
-              "nameEnglish": "Metal Spirit - Needle",
-              "nameChinese": "金灵•针"
-            },
-            {
-              "cardId": 7000060,
-              "nameEnglish": "Five Elements Fleche",
-              "nameChinese": "五行刺"
-            },
-            {
-              "cardId": 7000018,
-              "nameEnglish": "Wood Spirit - Recovery",
-              "nameChinese": "木灵•复苏"
-            },
-            {
-              "cardId": 7000017,
-              "nameEnglish": "Wood Spirit - Sparse Shadow",
-              "nameChinese": "木灵•疏影"
-            },
-            {
-              "cardId": 7000021,
-              "nameEnglish": "Fire Spirit - Flame Eater",
-              "nameChinese": "火灵•聚炎"
-            },
-            {
-              "cardId": 7000022,
-              "nameEnglish": "Fire Spirit - Scarlet Flame",
-              "nameChinese": "火灵•赤焰"
-            },
-            {
-              "cardId": 7000019,
-              "nameEnglish": "Water Spirit - Billows",
-              "nameChinese": "水灵•波澜"
-            },
-            {
-              "cardId": 7000037,
-              "nameEnglish": "Water Spirit - Turbulent",
-              "nameChinese": "水灵•汹涌"
-            },
-            {
-              "cardId": 7000014,
-              "nameEnglish": "Cosmos Seal",
-              "nameChinese": "浑天印"
-            },
-            {
-              "cardId": 7000028,
-              "nameEnglish": "Wood Spirit - Forest Guard",
-              "nameChinese": "木灵•巡林"
-            },
-            {
-              "cardId": 7000064,
-              "nameEnglish": "Wood Spirit - Vine",
-              "nameChinese": "木灵•藤蔓"
-            },
-            {
-              "cardId": 7000031,
-              "nameEnglish": "Fire Spirit Formation",
-              "nameChinese": "火灵阵"
-            },
-            {
-              "cardId": 7000032,
-              "nameEnglish": "Fire Spirit - Blast",
-              "nameChinese": "火灵•轰爆"
-            },
-            {
-              "cardId": 7000029,
-              "nameEnglish": "Water Spirit Formation",
-              "nameChinese": "水灵阵"
-            },
-            {
-              "cardId": 7000059,
-              "nameEnglish": "Water Spirit - Spring",
-              "nameChinese": "水灵•泉涌"
-            },
-            {
-              "cardId": 7000067,
-              "nameEnglish": "Five Elements Circulation",
-              "nameChinese": "五行流转"
-            },
-            {
-              "cardId": 7000050,
-              "nameEnglish": "Metal Spirit - Rhythm Water",
-              "nameChinese": "金灵•凝水"
-            },
-            {
-              "cardId": 7000061,
-              "nameEnglish": "Wood Spirit - Fragrant",
-              "nameChinese": "木灵•暗香"
-            },
-            {
-              "cardId": 7000027,
-              "nameEnglish": "Wood Spirit - Thorn",
-              "nameChinese": "木灵•玫刺"
-            },
-            {
-              "cardId": 7000038,
-              "nameEnglish": "Fire Spirit - Flash Fire",
-              "nameChinese": "火灵•瞬燃"
-            },
-            {
-              "cardId": 7000039,
-              "nameEnglish": "Fire Spirit - Heart Fire",
-              "nameChinese": "火灵•灼心"
-            },
-            {
-              "cardId": 7000030,
-              "nameEnglish": "Water Spirit - Great Waves",
-              "nameChinese": "水灵•腾浪"
-            },
-            {
-              "cardId": 136,
-              "nameEnglish": "Harmony of Water and Fire",
-              "nameChinese": "水火交融"
-            },
-            {
-              "cardId": 7000047,
-              "nameEnglish": "Earth Spirit - Rhythm Metal",
-              "nameChinese": "土灵•韵金"
-            },
-            {
-              "cardId": 7000040,
-              "nameEnglish": "Earth Spirit - Steep",
-              "nameChinese": "土灵•绝壁"
-            },
-            {
-              "cardId": 56,
-              "nameEnglish": "Lava Seal",
-              "nameChinese": "熔岩之印"
-            },
-            {
-              "cardId": 55,
-              "nameEnglish": "Wild Crossing Seal",
-              "nameChinese": "野渡之印"
-            },
-            {
-              "cardId": 7000056,
-              "nameEnglish": "Fire Spirit - Blazing Prairie",
-              "nameChinese": "火灵•烈燎原"
-            },
-            {
-              "cardId": 7000043,
-              "nameEnglish": "Wood Spirit - Willow Leaf",
-              "nameChinese": "木灵•柳纷飞"
-            },
-            {
-              "cardId": 58,
-              "nameEnglish": "Wave Cutter Seal",
-              "nameChinese": "斩浪之印"
-            },
-            {
-              "cardId": 7000042,
-              "nameEnglish": "Metal Spirit - Giant Tripod",
-              "nameChinese": "金灵•巨鼎落"
-            },
-            {
-              "cardId": 7000045,
-              "nameEnglish": "Fire Spirit - Burning Sky",
-              "nameChinese": "火灵•焚天焱"
-            },
-            {
-              "cardId": 200,
-              "nameEnglish": "Cosmos Brush",
-              "nameChinese": "浑天运笔"
-            },
-            {
-              "cardId": 57,
-              "nameEnglish": "Boulder Seal",
-              "nameChinese": "滚石之印"
-            },
-            {
-              "cardId": 7000053,
-              "nameEnglish": "Earth Spirit - Combine World",
-              "nameChinese": "土灵•合八荒"
-            },
-            {
-              "cardId": 199,
-              "nameEnglish": "Heavenly Marrow Dance Tune",
-              "nameChinese": "天髓狂舞曲"
-            }
-          ],
           "playableCards": [
             {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            },
-            {
               "cardId": 7000068,
               "nameEnglish": "Wood Spirit Secret Seal",
-              "nameChinese": "木灵秘印"
+              "nameChinese": "木灵秘印",
+              "phase": 1
             },
             {
               "cardId": 7000009,
               "nameEnglish": "Fire Spirit Seal",
-              "nameChinese": "火灵印"
+              "nameChinese": "火灵印",
+              "phase": 1
             },
             {
               "cardId": 7000010,
               "nameEnglish": "Fire Spirit - Rush",
-              "nameChinese": "火灵•窜"
+              "nameChinese": "火灵•窜",
+              "phase": 1
             },
             {
               "cardId": 7000001,
               "nameEnglish": "Metal Spirit Seal",
-              "nameChinese": "金灵印"
+              "nameChinese": "金灵印",
+              "phase": 1
             },
             {
               "cardId": 7000002,
               "nameEnglish": "Metal Spirit - Needle",
-              "nameChinese": "金灵•针"
+              "nameChinese": "金灵•针",
+              "phase": 1
             },
             {
               "cardId": 7000060,
               "nameEnglish": "Five Elements Fleche",
-              "nameChinese": "五行刺"
+              "nameChinese": "五行刺",
+              "phase": 1
             },
             {
               "cardId": 7000018,
               "nameEnglish": "Wood Spirit - Recovery",
-              "nameChinese": "木灵•复苏"
+              "nameChinese": "木灵•复苏",
+              "phase": 2
             },
             {
               "cardId": 7000017,
               "nameEnglish": "Wood Spirit - Sparse Shadow",
-              "nameChinese": "木灵•疏影"
+              "nameChinese": "木灵•疏影",
+              "phase": 2
             },
             {
               "cardId": 7000021,
               "nameEnglish": "Fire Spirit - Flame Eater",
-              "nameChinese": "火灵•聚炎"
+              "nameChinese": "火灵•聚炎",
+              "phase": 2
             },
             {
               "cardId": 7000022,
               "nameEnglish": "Fire Spirit - Scarlet Flame",
-              "nameChinese": "火灵•赤焰"
+              "nameChinese": "火灵•赤焰",
+              "phase": 2
             },
             {
               "cardId": 7000019,
               "nameEnglish": "Water Spirit - Billows",
-              "nameChinese": "水灵•波澜"
+              "nameChinese": "水灵•波澜",
+              "phase": 2
             },
             {
               "cardId": 7000037,
               "nameEnglish": "Water Spirit - Turbulent",
-              "nameChinese": "水灵•汹涌"
+              "nameChinese": "水灵•汹涌",
+              "phase": 2
             },
             {
               "cardId": 7000014,
               "nameEnglish": "Cosmos Seal",
-              "nameChinese": "浑天印"
+              "nameChinese": "浑天印",
+              "phase": 2
             },
             {
               "cardId": 7000028,
               "nameEnglish": "Wood Spirit - Forest Guard",
-              "nameChinese": "木灵•巡林"
+              "nameChinese": "木灵•巡林",
+              "phase": 3
             },
             {
               "cardId": 7000064,
               "nameEnglish": "Wood Spirit - Vine",
-              "nameChinese": "木灵•藤蔓"
+              "nameChinese": "木灵•藤蔓",
+              "phase": 3
             },
             {
               "cardId": 7000031,
               "nameEnglish": "Fire Spirit Formation",
-              "nameChinese": "火灵阵"
+              "nameChinese": "火灵阵",
+              "phase": 3
             },
             {
               "cardId": 7000032,
               "nameEnglish": "Fire Spirit - Blast",
-              "nameChinese": "火灵•轰爆"
+              "nameChinese": "火灵•轰爆",
+              "phase": 3
             },
             {
               "cardId": 7000029,
               "nameEnglish": "Water Spirit Formation",
-              "nameChinese": "水灵阵"
+              "nameChinese": "水灵阵",
+              "phase": 3
             },
             {
               "cardId": 7000059,
               "nameEnglish": "Water Spirit - Spring",
-              "nameChinese": "水灵•泉涌"
+              "nameChinese": "水灵•泉涌",
+              "phase": 3
             },
             {
               "cardId": 7000067,
               "nameEnglish": "Five Elements Circulation",
-              "nameChinese": "五行流转"
+              "nameChinese": "五行流转",
+              "phase": 3
             },
             {
               "cardId": 7000050,
               "nameEnglish": "Metal Spirit - Rhythm Water",
-              "nameChinese": "金灵•凝水"
+              "nameChinese": "金灵•凝水",
+              "phase": 3
+            },
+            {
+              "cardId": 5000008,
+              "nameEnglish": "Craze Dance Tune",
+              "nameChinese": "狂舞曲",
+              "phase": 3
             },
             {
               "cardId": 7000061,
               "nameEnglish": "Wood Spirit - Fragrant",
-              "nameChinese": "木灵•暗香"
+              "nameChinese": "木灵•暗香",
+              "phase": 4
             },
             {
               "cardId": 7000027,
               "nameEnglish": "Wood Spirit - Thorn",
-              "nameChinese": "木灵•玫刺"
+              "nameChinese": "木灵•玫刺",
+              "phase": 4
             },
             {
               "cardId": 7000038,
               "nameEnglish": "Fire Spirit - Flash Fire",
-              "nameChinese": "火灵•瞬燃"
+              "nameChinese": "火灵•瞬燃",
+              "phase": 4
             },
             {
               "cardId": 7000039,
               "nameEnglish": "Fire Spirit - Heart Fire",
-              "nameChinese": "火灵•灼心"
+              "nameChinese": "火灵•灼心",
+              "phase": 4
             },
             {
               "cardId": 7000030,
               "nameEnglish": "Water Spirit - Great Waves",
-              "nameChinese": "水灵•腾浪"
+              "nameChinese": "水灵•腾浪",
+              "phase": 4
             },
             {
               "cardId": 136,
               "nameEnglish": "Harmony of Water and Fire",
-              "nameChinese": "水火交融"
+              "nameChinese": "水火交融",
+              "phase": 4
             },
             {
               "cardId": 7000047,
               "nameEnglish": "Earth Spirit - Rhythm Metal",
-              "nameChinese": "土灵•韵金"
+              "nameChinese": "土灵•韵金",
+              "phase": 4
             },
             {
               "cardId": 7000040,
               "nameEnglish": "Earth Spirit - Steep",
-              "nameChinese": "土灵•绝壁"
+              "nameChinese": "土灵•绝壁",
+              "phase": 4
             },
             {
               "cardId": 56,
               "nameEnglish": "Lava Seal",
-              "nameChinese": "熔岩之印"
+              "nameChinese": "熔岩之印",
+              "phase": 4
             },
             {
               "cardId": 55,
               "nameEnglish": "Wild Crossing Seal",
-              "nameChinese": "野渡之印"
+              "nameChinese": "野渡之印",
+              "phase": 4
+            },
+            {
+              "cardId": 2000010,
+              "nameEnglish": "Spiritage Elixir",
+              "nameChinese": "聚灵丹",
+              "phase": 4
             },
             {
               "cardId": 7000056,
               "nameEnglish": "Fire Spirit - Blazing Prairie",
-              "nameChinese": "火灵•烈燎原"
+              "nameChinese": "火灵•烈燎原",
+              "phase": 5
             },
             {
               "cardId": 7000043,
               "nameEnglish": "Wood Spirit - Willow Leaf",
-              "nameChinese": "木灵•柳纷飞"
+              "nameChinese": "木灵•柳纷飞",
+              "phase": 5
             },
             {
               "cardId": 58,
               "nameEnglish": "Wave Cutter Seal",
-              "nameChinese": "斩浪之印"
+              "nameChinese": "斩浪之印",
+              "phase": 5
             },
             {
               "cardId": 7000042,
               "nameEnglish": "Metal Spirit - Giant Tripod",
-              "nameChinese": "金灵•巨鼎落"
+              "nameChinese": "金灵•巨鼎落",
+              "phase": 5
             },
             {
               "cardId": 7000045,
               "nameEnglish": "Fire Spirit - Burning Sky",
-              "nameChinese": "火灵•焚天焱"
+              "nameChinese": "火灵•焚天焱",
+              "phase": 5
             },
             {
               "cardId": 200,
               "nameEnglish": "Cosmos Brush",
-              "nameChinese": "浑天运笔"
+              "nameChinese": "浑天运笔",
+              "phase": 5
             },
             {
               "cardId": 57,
               "nameEnglish": "Boulder Seal",
-              "nameChinese": "滚石之印"
+              "nameChinese": "滚石之印",
+              "phase": 5
             },
             {
               "cardId": 7000053,
               "nameEnglish": "Earth Spirit - Combine World",
-              "nameChinese": "土灵•合八荒"
+              "nameChinese": "土灵•合八荒",
+              "phase": 5
             },
             {
               "cardId": 199,
               "nameEnglish": "Heavenly Marrow Dance Tune",
-              "nameChinese": "天髓狂舞曲"
+              "nameChinese": "天髓狂舞曲",
+              "phase": 5
+            },
+            {
+              "cardId": 2000015,
+              "nameEnglish": "Enlightenment Elixir",
+              "nameChinese": "悟道丹",
+              "phase": 5
+            },
+            {
+              "cardId": 3000013,
+              "nameEnglish": "Divine Walk Fulu",
+              "nameChinese": "千里神行符",
+              "phase": 5
+            },
+            {
+              "cardId": 6000013,
+              "nameEnglish": "Finishing Touch",
+              "nameChinese": "画龙点睛",
+              "phase": 5
             }
           ]
         },
@@ -1932,460 +1384,276 @@
           "sectId": 4,
           "sectEnglish": "Duan Xuan Sect",
           "sectChinese": "锻玄宗",
-          "commonCards": [
-            {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            }
-          ],
-          "sectSpecificCards": [
-            {
-              "cardId": 10000011,
-              "nameEnglish": "Vigorous Force",
-              "nameChinese": "朝气蓬勃"
-            },
-            {
-              "cardId": 10000004,
-              "nameEnglish": "Exercise Fist",
-              "nameChinese": "锻拳"
-            },
-            {
-              "cardId": 10000005,
-              "nameEnglish": "Mountain-Cleaving Palms",
-              "nameChinese": "劈山掌"
-            },
-            {
-              "cardId": 10000001,
-              "nameEnglish": "Crash Fist - Poke",
-              "nameChinese": "崩拳•戳"
-            },
-            {
-              "cardId": 10000008,
-              "nameEnglish": "Rakshasa Pouncing",
-              "nameChinese": "罗刹扑"
-            },
-            {
-              "cardId": 10000053,
-              "nameEnglish": "Endless Force",
-              "nameChinese": "气势不绝"
-            },
-            {
-              "cardId": 10000016,
-              "nameEnglish": "Exercise Tendons",
-              "nameChinese": "锻筋"
-            },
-            {
-              "cardId": 10000014,
-              "nameEnglish": "Crash Fist - Entangle",
-              "nameChinese": "崩拳•缠"
-            },
-            {
-              "cardId": 10000013,
-              "nameEnglish": "Crash Fist - Shake",
-              "nameChinese": "崩拳•撼"
-            },
-            {
-              "cardId": 10000018,
-              "nameEnglish": "Gale Shadow Claw",
-              "nameChinese": "风冥爪"
-            },
-            {
-              "cardId": 10000019,
-              "nameEnglish": "Ghost Howling",
-              "nameChinese": "夜鬼啸"
-            },
-            {
-              "cardId": 10000022,
-              "nameEnglish": "Strong Force",
-              "nameChinese": "势大力沉"
-            },
-            {
-              "cardId": 10000056,
-              "nameEnglish": "Lying Drunk",
-              "nameChinese": "醉卧逍遥"
-            },
-            {
-              "cardId": 154,
-              "nameEnglish": "Star Sky Forge Bone",
-              "nameChinese": "星辰锻骨诀"
-            },
-            {
-              "cardId": 10000028,
-              "nameEnglish": "Windward Palms",
-              "nameChinese": "迎风掌"
-            },
-            {
-              "cardId": 10000020,
-              "nameEnglish": "Majestic Qi",
-              "nameChinese": "气若悬河"
-            },
-            {
-              "cardId": 10000033,
-              "nameEnglish": "Mighty Force",
-              "nameChinese": "势如破竹"
-            },
-            {
-              "cardId": 10000026,
-              "nameEnglish": "Crash Footwork",
-              "nameChinese": "崩天步"
-            },
-            {
-              "cardId": 10000036,
-              "nameEnglish": "Crash Fist - Subdue Dragon",
-              "nameChinese": "崩拳•降龙"
-            },
-            {
-              "cardId": 10000030,
-              "nameEnglish": "Double Trouble",
-              "nameChinese": "双鬼拍门"
-            },
-            {
-              "cardId": 10000029,
-              "nameEnglish": "Tiger Pouncing",
-              "nameChinese": "饿虎扑食"
-            },
-            {
-              "cardId": 10000061,
-              "nameEnglish": "Break Pots and Sink Boats",
-              "nameChinese": "破釜沉舟"
-            },
-            {
-              "cardId": 10000038,
-              "nameEnglish": "Crane Footwork",
-              "nameChinese": "鹤步"
-            },
-            {
-              "cardId": 10000039,
-              "nameEnglish": "Styx Agility",
-              "nameChinese": "冥影身法"
-            },
-            {
-              "cardId": 10000044,
-              "nameEnglish": "Crash Citta-Dharma",
-              "nameChinese": "崩灭心法"
-            },
-            {
-              "cardId": 10000035,
-              "nameEnglish": "Crash Fist - Continue",
-              "nameChinese": "崩拳•连崩"
-            },
-            {
-              "cardId": 10000025,
-              "nameEnglish": "Crash Fist - Inch Force",
-              "nameChinese": "崩拳•寸劲"
-            },
-            {
-              "cardId": 205,
-              "nameEnglish": "Spiritage And Exercise",
-              "nameChinese": "灵气锻身"
-            },
-            {
-              "cardId": 10000040,
-              "nameEnglish": "Soul Seizing",
-              "nameChinese": "玄手夺魂"
-            },
-            {
-              "cardId": 10000042,
-              "nameEnglish": "Surging Waves",
-              "nameChinese": "冲霄破浪"
-            },
-            {
-              "cardId": 10000060,
-              "nameEnglish": "Crash Fist - Double",
-              "nameChinese": "崩拳•双影"
-            },
-            {
-              "cardId": 10000057,
-              "nameEnglish": "Strength Driven Mad",
-              "nameChinese": "力若疯魔"
-            },
-            {
-              "cardId": 10000045,
-              "nameEnglish": "Crash Fist - Blink",
-              "nameChinese": "崩拳•闪击"
-            },
-            {
-              "cardId": 10000047,
-              "nameEnglish": "Realm-Killing Palms",
-              "nameChinese": "百杀破境掌"
-            },
-            {
-              "cardId": 10000048,
-              "nameEnglish": "Exercise Soul",
-              "nameChinese": "锻神开海"
-            },
-            {
-              "cardId": 10000051,
-              "nameEnglish": "Gather Intense Force",
-              "nameChinese": "威震四方"
-            },
-            {
-              "cardId": 10000052,
-              "nameEnglish": "Vast Universe",
-              "nameChinese": "天地浩荡"
-            },
-            {
-              "cardId": 10000041,
-              "nameEnglish": "Shura Roar",
-              "nameChinese": "修罗吼"
-            },
-            {
-              "cardId": 10000062,
-              "nameEnglish": "Break Cocoon",
-              "nameChinese": "破茧化蝶"
-            },
-            {
-              "cardId": 10000064,
-              "nameEnglish": "Eerie Melody Buries Soul",
-              "nameChinese": "鬼音葬魂"
-            }
-          ],
           "playableCards": [
             {
-              "cardId": 2000010,
-              "nameEnglish": "Spiritage Elixir",
-              "nameChinese": "聚灵丹"
-            },
-            {
-              "cardId": 2000015,
-              "nameEnglish": "Enlightenment Elixir",
-              "nameChinese": "悟道丹"
-            },
-            {
-              "cardId": 3000013,
-              "nameEnglish": "Divine Walk Fulu",
-              "nameChinese": "千里神行符"
-            },
-            {
-              "cardId": 5000008,
-              "nameEnglish": "Craze Dance Tune",
-              "nameChinese": "狂舞曲"
-            },
-            {
-              "cardId": 6000013,
-              "nameEnglish": "Finishing Touch",
-              "nameChinese": "画龙点睛"
-            },
-            {
               "cardId": 10000011,
               "nameEnglish": "Vigorous Force",
-              "nameChinese": "朝气蓬勃"
+              "nameChinese": "朝气蓬勃",
+              "phase": 1
             },
             {
               "cardId": 10000004,
               "nameEnglish": "Exercise Fist",
-              "nameChinese": "锻拳"
+              "nameChinese": "锻拳",
+              "phase": 1
             },
             {
               "cardId": 10000005,
               "nameEnglish": "Mountain-Cleaving Palms",
-              "nameChinese": "劈山掌"
+              "nameChinese": "劈山掌",
+              "phase": 1
             },
             {
               "cardId": 10000001,
               "nameEnglish": "Crash Fist - Poke",
-              "nameChinese": "崩拳•戳"
+              "nameChinese": "崩拳•戳",
+              "phase": 1
             },
             {
               "cardId": 10000008,
               "nameEnglish": "Rakshasa Pouncing",
-              "nameChinese": "罗刹扑"
+              "nameChinese": "罗刹扑",
+              "phase": 1
             },
             {
               "cardId": 10000053,
               "nameEnglish": "Endless Force",
-              "nameChinese": "气势不绝"
+              "nameChinese": "气势不绝",
+              "phase": 1
             },
             {
               "cardId": 10000016,
               "nameEnglish": "Exercise Tendons",
-              "nameChinese": "锻筋"
+              "nameChinese": "锻筋",
+              "phase": 2
             },
             {
               "cardId": 10000014,
               "nameEnglish": "Crash Fist - Entangle",
-              "nameChinese": "崩拳•缠"
+              "nameChinese": "崩拳•缠",
+              "phase": 2
             },
             {
               "cardId": 10000013,
               "nameEnglish": "Crash Fist - Shake",
-              "nameChinese": "崩拳•撼"
+              "nameChinese": "崩拳•撼",
+              "phase": 2
             },
             {
               "cardId": 10000018,
               "nameEnglish": "Gale Shadow Claw",
-              "nameChinese": "风冥爪"
+              "nameChinese": "风冥爪",
+              "phase": 2
             },
             {
               "cardId": 10000019,
               "nameEnglish": "Ghost Howling",
-              "nameChinese": "夜鬼啸"
+              "nameChinese": "夜鬼啸",
+              "phase": 2
             },
             {
               "cardId": 10000022,
               "nameEnglish": "Strong Force",
-              "nameChinese": "势大力沉"
+              "nameChinese": "势大力沉",
+              "phase": 2
             },
             {
               "cardId": 10000056,
               "nameEnglish": "Lying Drunk",
-              "nameChinese": "醉卧逍遥"
+              "nameChinese": "醉卧逍遥",
+              "phase": 2
             },
             {
               "cardId": 154,
               "nameEnglish": "Star Sky Forge Bone",
-              "nameChinese": "星辰锻骨诀"
+              "nameChinese": "星辰锻骨诀",
+              "phase": 3
             },
             {
               "cardId": 10000028,
               "nameEnglish": "Windward Palms",
-              "nameChinese": "迎风掌"
+              "nameChinese": "迎风掌",
+              "phase": 3
             },
             {
               "cardId": 10000020,
               "nameEnglish": "Majestic Qi",
-              "nameChinese": "气若悬河"
+              "nameChinese": "气若悬河",
+              "phase": 3
             },
             {
               "cardId": 10000033,
               "nameEnglish": "Mighty Force",
-              "nameChinese": "势如破竹"
+              "nameChinese": "势如破竹",
+              "phase": 3
             },
             {
               "cardId": 10000026,
               "nameEnglish": "Crash Footwork",
-              "nameChinese": "崩天步"
+              "nameChinese": "崩天步",
+              "phase": 3
             },
             {
               "cardId": 10000036,
               "nameEnglish": "Crash Fist - Subdue Dragon",
-              "nameChinese": "崩拳•降龙"
+              "nameChinese": "崩拳•降龙",
+              "phase": 3
             },
             {
               "cardId": 10000030,
               "nameEnglish": "Double Trouble",
-              "nameChinese": "双鬼拍门"
+              "nameChinese": "双鬼拍门",
+              "phase": 3
             },
             {
               "cardId": 10000029,
               "nameEnglish": "Tiger Pouncing",
-              "nameChinese": "饿虎扑食"
+              "nameChinese": "饿虎扑食",
+              "phase": 3
             },
             {
               "cardId": 10000061,
               "nameEnglish": "Break Pots and Sink Boats",
-              "nameChinese": "破釜沉舟"
+              "nameChinese": "破釜沉舟",
+              "phase": 3
+            },
+            {
+              "cardId": 5000008,
+              "nameEnglish": "Craze Dance Tune",
+              "nameChinese": "狂舞曲",
+              "phase": 3
             },
             {
               "cardId": 10000038,
               "nameEnglish": "Crane Footwork",
-              "nameChinese": "鹤步"
+              "nameChinese": "鹤步",
+              "phase": 4
             },
             {
               "cardId": 10000039,
               "nameEnglish": "Styx Agility",
-              "nameChinese": "冥影身法"
+              "nameChinese": "冥影身法",
+              "phase": 4
             },
             {
               "cardId": 10000044,
               "nameEnglish": "Crash Citta-Dharma",
-              "nameChinese": "崩灭心法"
+              "nameChinese": "崩灭心法",
+              "phase": 4
             },
             {
               "cardId": 10000035,
               "nameEnglish": "Crash Fist - Continue",
-              "nameChinese": "崩拳•连崩"
+              "nameChinese": "崩拳•连崩",
+              "phase": 4
             },
             {
               "cardId": 10000025,
               "nameEnglish": "Crash Fist - Inch Force",
-              "nameChinese": "崩拳•寸劲"
+              "nameChinese": "崩拳•寸劲",
+              "phase": 4
             },
             {
               "cardId": 205,
               "nameEnglish": "Spiritage And Exercise",
-              "nameChinese": "灵气锻身"
+              "nameChinese": "灵气锻身",
+              "phase": 4
             },
             {
               "cardId": 10000040,
               "nameEnglish": "Soul Seizing",
-              "nameChinese": "玄手夺魂"
+              "nameChinese": "玄手夺魂",
+              "phase": 4
             },
             {
               "cardId": 10000042,
               "nameEnglish": "Surging Waves",
-              "nameChinese": "冲霄破浪"
+              "nameChinese": "冲霄破浪",
+              "phase": 4
             },
             {
               "cardId": 10000060,
               "nameEnglish": "Crash Fist - Double",
-              "nameChinese": "崩拳•双影"
+              "nameChinese": "崩拳•双影",
+              "phase": 4
             },
             {
               "cardId": 10000057,
               "nameEnglish": "Strength Driven Mad",
-              "nameChinese": "力若疯魔"
+              "nameChinese": "力若疯魔",
+              "phase": 4
+            },
+            {
+              "cardId": 2000010,
+              "nameEnglish": "Spiritage Elixir",
+              "nameChinese": "聚灵丹",
+              "phase": 4
             },
             {
               "cardId": 10000045,
               "nameEnglish": "Crash Fist - Blink",
-              "nameChinese": "崩拳•闪击"
+              "nameChinese": "崩拳•闪击",
+              "phase": 5
             },
             {
               "cardId": 10000047,
               "nameEnglish": "Realm-Killing Palms",
-              "nameChinese": "百杀破境掌"
+              "nameChinese": "百杀破境掌",
+              "phase": 5
             },
             {
               "cardId": 10000048,
               "nameEnglish": "Exercise Soul",
-              "nameChinese": "锻神开海"
+              "nameChinese": "锻神开海",
+              "phase": 5
             },
             {
               "cardId": 10000051,
               "nameEnglish": "Gather Intense Force",
-              "nameChinese": "威震四方"
+              "nameChinese": "威震四方",
+              "phase": 5
             },
             {
               "cardId": 10000052,
               "nameEnglish": "Vast Universe",
-              "nameChinese": "天地浩荡"
+              "nameChinese": "天地浩荡",
+              "phase": 5
             },
             {
               "cardId": 10000041,
               "nameEnglish": "Shura Roar",
-              "nameChinese": "修罗吼"
+              "nameChinese": "修罗吼",
+              "phase": 5
             },
             {
               "cardId": 10000062,
               "nameEnglish": "Break Cocoon",
-              "nameChinese": "破茧化蝶"
+              "nameChinese": "破茧化蝶",
+              "phase": 5
             },
             {
               "cardId": 10000064,
               "nameEnglish": "Eerie Melody Buries Soul",
-              "nameChinese": "鬼音葬魂"
+              "nameChinese": "鬼音葬魂",
+              "phase": 5
+            },
+            {
+              "cardId": 2000015,
+              "nameEnglish": "Enlightenment Elixir",
+              "nameChinese": "悟道丹",
+              "phase": 5
+            },
+            {
+              "cardId": 3000013,
+              "nameEnglish": "Divine Walk Fulu",
+              "nameChinese": "千里神行符",
+              "phase": 5
+            },
+            {
+              "cardId": 6000013,
+              "nameEnglish": "Finishing Touch",
+              "nameChinese": "画龙点睛",
+              "phase": 5
             }
           ]
         }
@@ -2405,187 +1673,224 @@
         {
           "cardId": 83,
           "nameEnglish": "Red Bean Zongzi",
-          "nameChinese": "红豆粽"
+          "nameChinese": "红豆粽",
+          "phase": 1
         },
         {
           "cardId": 84,
           "nameEnglish": "Jujube Zongzi",
-          "nameChinese": "红枣粽"
+          "nameChinese": "红枣粽",
+          "phase": 1
         },
         {
           "cardId": 85,
           "nameEnglish": "Honey Zongzi",
-          "nameChinese": "蜂蜜粽"
-        },
-        {
-          "cardId": 86,
-          "nameEnglish": "Mung Bean Zongzi",
-          "nameChinese": "绿豆粽"
-        },
-        {
-          "cardId": 87,
-          "nameEnglish": "Candied Jujube Zongzi",
-          "nameChinese": "蜜枣粽"
-        },
-        {
-          "cardId": 88,
-          "nameEnglish": "Jujube Paste Zongzi",
-          "nameChinese": "枣泥粽"
-        },
-        {
-          "cardId": 89,
-          "nameEnglish": "Alkaline Water Zongzi",
-          "nameChinese": "碱水粽"
-        },
-        {
-          "cardId": 90,
-          "nameEnglish": "Lotus Seeds Zongzi",
-          "nameChinese": "莲子粽"
-        },
-        {
-          "cardId": 91,
-          "nameEnglish": "Bean Paste Zongzi",
-          "nameChinese": "豆沙粽"
-        },
-        {
-          "cardId": 92,
-          "nameEnglish": "Preserved Fruit Zongzi",
-          "nameChinese": "蜜饯果粽"
-        },
-        {
-          "cardId": 93,
-          "nameEnglish": "Crystal Ice Zongzi",
-          "nameChinese": "水晶冰粽"
-        },
-        {
-          "cardId": 94,
-          "nameEnglish": "Fresh Fruit Zongzi",
-          "nameChinese": "鲜果宝粽"
-        },
-        {
-          "cardId": 95,
-          "nameEnglish": "Mixed Grain Zongzi",
-          "nameChinese": "八宝杂粮粽"
-        },
-        {
-          "cardId": 96,
-          "nameEnglish": "Spirit Zongzi",
-          "nameChinese": "仙风归灵粽"
-        },
-        {
-          "cardId": 97,
-          "nameEnglish": "Water Combined Zongzi",
-          "nameChinese": "百川琉璃粽"
+          "nameChinese": "蜂蜜粽",
+          "phase": 1
         },
         {
           "cardId": 98,
           "nameEnglish": "Salted Meat Zongzi",
-          "nameChinese": "咸肉粽"
+          "nameChinese": "咸肉粽",
+          "phase": 1
         },
         {
           "cardId": 99,
           "nameEnglish": "Mushroom Zongzi",
-          "nameChinese": "香菇粽"
+          "nameChinese": "香菇粽",
+          "phase": 1
         },
         {
           "cardId": 100,
           "nameEnglish": "Fresh Meat Zongzi",
-          "nameChinese": "鲜肉粽"
-        },
-        {
-          "cardId": 101,
-          "nameEnglish": "Roasted Meat Zongzi",
-          "nameChinese": "烧肉粽"
-        },
-        {
-          "cardId": 102,
-          "nameEnglish": "Spicy Zongzi",
-          "nameChinese": "麻辣粽"
-        },
-        {
-          "cardId": 103,
-          "nameEnglish": "Preserved Meat Zongzi",
-          "nameChinese": "腊肉粽"
-        },
-        {
-          "cardId": 104,
-          "nameEnglish": "Sour Bamboo Shoots Zongzi",
-          "nameChinese": "酸笋粽"
-        },
-        {
-          "cardId": 105,
-          "nameEnglish": "Chestnut Zongzi",
-          "nameChinese": "板栗粽"
-        },
-        {
-          "cardId": 106,
-          "nameEnglish": "Pungent Zongzi",
-          "nameChinese": "香辣粽"
-        },
-        {
-          "cardId": 107,
-          "nameEnglish": "Salted Egg Yolk Zongzi",
-          "nameChinese": "咸蛋黄粽"
-        },
-        {
-          "cardId": 108,
-          "nameEnglish": "Seafood Zongzi",
-          "nameChinese": "海鲜肉粽"
-        },
-        {
-          "cardId": 109,
-          "nameEnglish": "Pickled Mustard Zongzi",
-          "nameChinese": "梅菜肉粽"
-        },
-        {
-          "cardId": 110,
-          "nameEnglish": "Assorted Meat Zongzi",
-          "nameChinese": "秘制三鲜粽"
-        },
-        {
-          "cardId": 111,
-          "nameEnglish": "Double Plum Zongzi",
-          "nameChinese": "梅香玉露粽"
-        },
-        {
-          "cardId": 112,
-          "nameEnglish": "Shura Zongzi",
-          "nameChinese": "修罗镇魂粽"
+          "nameChinese": "鲜肉粽",
+          "phase": 1
         },
         {
           "cardId": 113,
           "nameEnglish": "Pure Rice Zongzi",
-          "nameChinese": "白粽"
+          "nameChinese": "白粽",
+          "phase": 1
         },
         {
-          "cardId": 299,
-          "nameEnglish": "Five Colored Strings",
-          "nameChinese": "五色绳"
+          "cardId": 86,
+          "nameEnglish": "Mung Bean Zongzi",
+          "nameChinese": "绿豆粽",
+          "phase": 2
+        },
+        {
+          "cardId": 87,
+          "nameEnglish": "Candied Jujube Zongzi",
+          "nameChinese": "蜜枣粽",
+          "phase": 2
+        },
+        {
+          "cardId": 88,
+          "nameEnglish": "Jujube Paste Zongzi",
+          "nameChinese": "枣泥粽",
+          "phase": 2
+        },
+        {
+          "cardId": 101,
+          "nameEnglish": "Roasted Meat Zongzi",
+          "nameChinese": "烧肉粽",
+          "phase": 2
+        },
+        {
+          "cardId": 102,
+          "nameEnglish": "Spicy Zongzi",
+          "nameChinese": "麻辣粽",
+          "phase": 2
+        },
+        {
+          "cardId": 103,
+          "nameEnglish": "Preserved Meat Zongzi",
+          "nameChinese": "腊肉粽",
+          "phase": 2
+        },
+        {
+          "cardId": 89,
+          "nameEnglish": "Alkaline Water Zongzi",
+          "nameChinese": "碱水粽",
+          "phase": 3
+        },
+        {
+          "cardId": 90,
+          "nameEnglish": "Lotus Seeds Zongzi",
+          "nameChinese": "莲子粽",
+          "phase": 3
+        },
+        {
+          "cardId": 91,
+          "nameEnglish": "Bean Paste Zongzi",
+          "nameChinese": "豆沙粽",
+          "phase": 3
+        },
+        {
+          "cardId": 104,
+          "nameEnglish": "Sour Bamboo Shoots Zongzi",
+          "nameChinese": "酸笋粽",
+          "phase": 3
+        },
+        {
+          "cardId": 105,
+          "nameEnglish": "Chestnut Zongzi",
+          "nameChinese": "板栗粽",
+          "phase": 3
+        },
+        {
+          "cardId": 106,
+          "nameEnglish": "Pungent Zongzi",
+          "nameChinese": "香辣粽",
+          "phase": 3
+        },
+        {
+          "cardId": 92,
+          "nameEnglish": "Preserved Fruit Zongzi",
+          "nameChinese": "蜜饯果粽",
+          "phase": 4
+        },
+        {
+          "cardId": 93,
+          "nameEnglish": "Crystal Ice Zongzi",
+          "nameChinese": "水晶冰粽",
+          "phase": 4
+        },
+        {
+          "cardId": 94,
+          "nameEnglish": "Fresh Fruit Zongzi",
+          "nameChinese": "鲜果宝粽",
+          "phase": 4
+        },
+        {
+          "cardId": 107,
+          "nameEnglish": "Salted Egg Yolk Zongzi",
+          "nameChinese": "咸蛋黄粽",
+          "phase": 4
+        },
+        {
+          "cardId": 108,
+          "nameEnglish": "Seafood Zongzi",
+          "nameChinese": "海鲜肉粽",
+          "phase": 4
+        },
+        {
+          "cardId": 109,
+          "nameEnglish": "Pickled Mustard Zongzi",
+          "nameChinese": "梅菜肉粽",
+          "phase": 4
         },
         {
           "cardId": 300,
           "nameEnglish": "Zongzi Leaves",
-          "nameChinese": "粽叶"
-        },
-        {
-          "cardId": 301,
-          "nameEnglish": "Heavenly Delicacy Zongzi",
-          "nameChinese": "天髓珍馐粽"
-        },
-        {
-          "cardId": 302,
-          "nameEnglish": "Various Cate Zongzi",
-          "nameChinese": "缤纷玉馔粽"
+          "nameChinese": "粽叶",
+          "phase": 4
         },
         {
           "cardId": 303,
           "nameEnglish": "Osmanthus Zongzi",
-          "nameChinese": "桂花香粽"
+          "nameChinese": "桂花香粽",
+          "phase": 4
         },
         {
           "cardId": 306,
           "nameEnglish": "Ham Zongzi",
-          "nameChinese": "火腿肉粽"
+          "nameChinese": "火腿肉粽",
+          "phase": 4
+        },
+        {
+          "cardId": 95,
+          "nameEnglish": "Mixed Grain Zongzi",
+          "nameChinese": "八宝杂粮粽",
+          "phase": 5
+        },
+        {
+          "cardId": 96,
+          "nameEnglish": "Spirit Zongzi",
+          "nameChinese": "仙风归灵粽",
+          "phase": 5
+        },
+        {
+          "cardId": 97,
+          "nameEnglish": "Water Combined Zongzi",
+          "nameChinese": "百川琉璃粽",
+          "phase": 5
+        },
+        {
+          "cardId": 110,
+          "nameEnglish": "Assorted Meat Zongzi",
+          "nameChinese": "秘制三鲜粽",
+          "phase": 5
+        },
+        {
+          "cardId": 111,
+          "nameEnglish": "Double Plum Zongzi",
+          "nameChinese": "梅香玉露粽",
+          "phase": 5
+        },
+        {
+          "cardId": 112,
+          "nameEnglish": "Shura Zongzi",
+          "nameChinese": "修罗镇魂粽",
+          "phase": 5
+        },
+        {
+          "cardId": 299,
+          "nameEnglish": "Five Colored Strings",
+          "nameChinese": "五色绳",
+          "phase": 5
+        },
+        {
+          "cardId": 301,
+          "nameEnglish": "Heavenly Delicacy Zongzi",
+          "nameChinese": "天髓珍馐粽",
+          "phase": 5
+        },
+        {
+          "cardId": 302,
+          "nameEnglish": "Various Cate Zongzi",
+          "nameChinese": "缤纷玉馔粽",
+          "phase": 5
         }
       ]
     },
@@ -2600,12 +1905,14 @@
         {
           "cardId": 326,
           "nameEnglish": "Angle",
-          "nameChinese": "角度"
+          "nameChinese": "角度",
+          "phase": 1
         },
         {
           "cardId": 327,
           "nameEnglish": "Force",
-          "nameChinese": "力度"
+          "nameChinese": "力度",
+          "phase": 1
         }
       ],
       "noteEnglish": "The fixed pool has Angle and Force card types; their signed values are generated by the server for each round.",
@@ -2623,192 +1930,230 @@
         {
           "cardId": 113,
           "nameEnglish": "Pure Rice Zongzi",
-          "nameChinese": "白粽"
-        },
-        {
-          "cardId": 299,
-          "nameEnglish": "Five Colored Strings",
-          "nameChinese": "五色绳"
-        },
-        {
-          "cardId": 300,
-          "nameEnglish": "Zongzi Leaves",
-          "nameChinese": "粽叶"
+          "nameChinese": "白粽",
+          "phase": 1
         },
         {
           "cardId": 83,
           "nameEnglish": "Red Bean Zongzi",
-          "nameChinese": "红豆粽"
+          "nameChinese": "红豆粽",
+          "phase": 1
         },
         {
           "cardId": 84,
           "nameEnglish": "Jujube Zongzi",
-          "nameChinese": "红枣粽"
+          "nameChinese": "红枣粽",
+          "phase": 1
         },
         {
           "cardId": 85,
           "nameEnglish": "Honey Zongzi",
-          "nameChinese": "蜂蜜粽"
-        },
-        {
-          "cardId": 86,
-          "nameEnglish": "Mung Bean Zongzi",
-          "nameChinese": "绿豆粽"
-        },
-        {
-          "cardId": 87,
-          "nameEnglish": "Candied Jujube Zongzi",
-          "nameChinese": "蜜枣粽"
-        },
-        {
-          "cardId": 88,
-          "nameEnglish": "Jujube Paste Zongzi",
-          "nameChinese": "枣泥粽"
-        },
-        {
-          "cardId": 89,
-          "nameEnglish": "Alkaline Water Zongzi",
-          "nameChinese": "碱水粽"
-        },
-        {
-          "cardId": 90,
-          "nameEnglish": "Lotus Seeds Zongzi",
-          "nameChinese": "莲子粽"
-        },
-        {
-          "cardId": 91,
-          "nameEnglish": "Bean Paste Zongzi",
-          "nameChinese": "豆沙粽"
-        },
-        {
-          "cardId": 92,
-          "nameEnglish": "Preserved Fruit Zongzi",
-          "nameChinese": "蜜饯果粽"
-        },
-        {
-          "cardId": 93,
-          "nameEnglish": "Crystal Ice Zongzi",
-          "nameChinese": "水晶冰粽"
-        },
-        {
-          "cardId": 94,
-          "nameEnglish": "Fresh Fruit Zongzi",
-          "nameChinese": "鲜果宝粽"
-        },
-        {
-          "cardId": 95,
-          "nameEnglish": "Mixed Grain Zongzi",
-          "nameChinese": "八宝杂粮粽"
-        },
-        {
-          "cardId": 97,
-          "nameEnglish": "Water Combined Zongzi",
-          "nameChinese": "百川琉璃粽"
-        },
-        {
-          "cardId": 303,
-          "nameEnglish": "Osmanthus Zongzi",
-          "nameChinese": "桂花香粽"
-        },
-        {
-          "cardId": 395,
-          "nameEnglish": "Myriad Phenomena Alkaline Water Zongzi",
-          "nameChinese": "万象碱水粽"
-        },
-        {
-          "cardId": 397,
-          "nameEnglish": "Refreshing Candied JujubeZongzi",
-          "nameChinese": "沁心蜜枣粽"
+          "nameChinese": "蜂蜜粽",
+          "phase": 1
         },
         {
           "cardId": 98,
           "nameEnglish": "Salted Meat Zongzi",
-          "nameChinese": "咸肉粽"
+          "nameChinese": "咸肉粽",
+          "phase": 1
         },
         {
           "cardId": 99,
           "nameEnglish": "Mushroom Zongzi",
-          "nameChinese": "香菇粽"
+          "nameChinese": "香菇粽",
+          "phase": 1
         },
         {
           "cardId": 100,
           "nameEnglish": "Fresh Meat Zongzi",
-          "nameChinese": "鲜肉粽"
+          "nameChinese": "鲜肉粽",
+          "phase": 1
+        },
+        {
+          "cardId": 86,
+          "nameEnglish": "Mung Bean Zongzi",
+          "nameChinese": "绿豆粽",
+          "phase": 2
+        },
+        {
+          "cardId": 87,
+          "nameEnglish": "Candied Jujube Zongzi",
+          "nameChinese": "蜜枣粽",
+          "phase": 2
+        },
+        {
+          "cardId": 88,
+          "nameEnglish": "Jujube Paste Zongzi",
+          "nameChinese": "枣泥粽",
+          "phase": 2
         },
         {
           "cardId": 101,
           "nameEnglish": "Roasted Meat Zongzi",
-          "nameChinese": "烧肉粽"
+          "nameChinese": "烧肉粽",
+          "phase": 2
         },
         {
           "cardId": 102,
           "nameEnglish": "Spicy Zongzi",
-          "nameChinese": "麻辣粽"
+          "nameChinese": "麻辣粽",
+          "phase": 2
         },
         {
           "cardId": 103,
           "nameEnglish": "Preserved Meat Zongzi",
-          "nameChinese": "腊肉粽"
+          "nameChinese": "腊肉粽",
+          "phase": 2
+        },
+        {
+          "cardId": 89,
+          "nameEnglish": "Alkaline Water Zongzi",
+          "nameChinese": "碱水粽",
+          "phase": 3
+        },
+        {
+          "cardId": 90,
+          "nameEnglish": "Lotus Seeds Zongzi",
+          "nameChinese": "莲子粽",
+          "phase": 3
+        },
+        {
+          "cardId": 91,
+          "nameEnglish": "Bean Paste Zongzi",
+          "nameChinese": "豆沙粽",
+          "phase": 3
         },
         {
           "cardId": 104,
           "nameEnglish": "Sour Bamboo Shoots Zongzi",
-          "nameChinese": "酸笋粽"
+          "nameChinese": "酸笋粽",
+          "phase": 3
         },
         {
           "cardId": 105,
           "nameEnglish": "Chestnut Zongzi",
-          "nameChinese": "板栗粽"
+          "nameChinese": "板栗粽",
+          "phase": 3
         },
         {
           "cardId": 106,
           "nameEnglish": "Pungent Zongzi",
-          "nameChinese": "香辣粽"
+          "nameChinese": "香辣粽",
+          "phase": 3
+        },
+        {
+          "cardId": 300,
+          "nameEnglish": "Zongzi Leaves",
+          "nameChinese": "粽叶",
+          "phase": 4
+        },
+        {
+          "cardId": 92,
+          "nameEnglish": "Preserved Fruit Zongzi",
+          "nameChinese": "蜜饯果粽",
+          "phase": 4
+        },
+        {
+          "cardId": 93,
+          "nameEnglish": "Crystal Ice Zongzi",
+          "nameChinese": "水晶冰粽",
+          "phase": 4
+        },
+        {
+          "cardId": 94,
+          "nameEnglish": "Fresh Fruit Zongzi",
+          "nameChinese": "鲜果宝粽",
+          "phase": 4
+        },
+        {
+          "cardId": 303,
+          "nameEnglish": "Osmanthus Zongzi",
+          "nameChinese": "桂花香粽",
+          "phase": 4
         },
         {
           "cardId": 107,
           "nameEnglish": "Salted Egg Yolk Zongzi",
-          "nameChinese": "咸蛋黄粽"
+          "nameChinese": "咸蛋黄粽",
+          "phase": 4
         },
         {
           "cardId": 108,
           "nameEnglish": "Seafood Zongzi",
-          "nameChinese": "海鲜肉粽"
+          "nameChinese": "海鲜肉粽",
+          "phase": 4
         },
         {
           "cardId": 109,
           "nameEnglish": "Pickled Mustard Zongzi",
-          "nameChinese": "梅菜肉粽"
-        },
-        {
-          "cardId": 111,
-          "nameEnglish": "Double Plum Zongzi",
-          "nameChinese": "梅香玉露粽"
+          "nameChinese": "梅菜肉粽",
+          "phase": 4
         },
         {
           "cardId": 306,
           "nameEnglish": "Ham Zongzi",
-          "nameChinese": "火腿肉粽"
+          "nameChinese": "火腿肉粽",
+          "phase": 4
+        },
+        {
+          "cardId": 299,
+          "nameEnglish": "Five Colored Strings",
+          "nameChinese": "五色绳",
+          "phase": 5
+        },
+        {
+          "cardId": 95,
+          "nameEnglish": "Mixed Grain Zongzi",
+          "nameChinese": "八宝杂粮粽",
+          "phase": 5
+        },
+        {
+          "cardId": 97,
+          "nameEnglish": "Water Combined Zongzi",
+          "nameChinese": "百川琉璃粽",
+          "phase": 5
+        },
+        {
+          "cardId": 395,
+          "nameEnglish": "Myriad Phenomena Alkaline Water Zongzi",
+          "nameChinese": "万象碱水粽",
+          "phase": 5
+        },
+        {
+          "cardId": 397,
+          "nameEnglish": "Refreshing Candied JujubeZongzi",
+          "nameChinese": "沁心蜜枣粽",
+          "phase": 5
+        },
+        {
+          "cardId": 111,
+          "nameEnglish": "Double Plum Zongzi",
+          "nameChinese": "梅香玉露粽",
+          "phase": 5
         },
         {
           "cardId": 393,
           "nameEnglish": "Daoist Rhyme Preserved Meat Zongzi",
-          "nameChinese": "道韵腊肉粽"
+          "nameChinese": "道韵腊肉粽",
+          "phase": 5
         },
         {
           "cardId": 394,
           "nameEnglish": "Heavenly Tribulation Spicy Zongzi",
-          "nameChinese": "天劫麻辣粽"
+          "nameChinese": "天劫麻辣粽",
+          "phase": 5
         },
         {
           "cardId": 398,
           "nameEnglish": "Infinite Fragrant Pungent Zongzi",
-          "nameChinese": "无极香辣粽"
+          "nameChinese": "无极香辣粽",
+          "phase": 5
         },
         {
           "cardId": 399,
           "nameEnglish": "Yi Xian Palace Supreme Zongzi",
-          "nameChinese": "仙府大白粽"
+          "nameChinese": "仙府大白粽",
+          "phase": 6
         }
       ]
     }
