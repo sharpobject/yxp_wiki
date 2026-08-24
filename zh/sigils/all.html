@@ -2061,9 +2061,11 @@ Make an additional 3 ATK after each time you play a card that adds [Physique]. [
     let visible = 0;
     items.forEach(item => {
       const phases = item.dataset.levels.split(' ');
+      const poolMatch = item.dataset.sigilExtra === '1'
+        ? extraFilter.checked
+        : selectedSects.has(item.dataset.sigilSect);
       const show = (!query || normalize(item.dataset.search).includes(query)) &&
-        (phase === 'all' || phases.includes(phase)) && selectedSects.has(item.dataset.sigilSect) &&
-        (extraFilter.checked || item.dataset.sigilExtra !== '1');
+        (phase === 'all' || phases.includes(phase)) && poolMatch;
       item.hidden = !show;
       const image = item.querySelector('[data-sigil-preview]');
       if (image) image.src = phase === 'all' ? image.dataset.defaultSrc : image.getAttribute(`data-level-${phase}`);
