@@ -196,6 +196,18 @@
           "nameChinese": "修罗镇魂粽",
           "phase": 5
         }
+      ],
+      "mechanicsEnglish": [
+        "Each round starts at 1 HP. Reach the round's Max HP within eight card activations or the run ends; phase and Max HP rise automatically between rounds.",
+        "Normal mode uses either the Sweet or Salty pool and is cleared after eight successful rounds. Endless mode mixes both pools and continues until the first failed round.",
+        "The Endless leaderboard compares cleared rounds first, then HP reached in the failed final round. Its ranking value is cleared rounds × 100,000 + final HP.",
+        "The selected character is cosmetic and Immortal Fates have no effect."
+      ],
+      "mechanicsChinese": [
+        "每轮从 1 点生命开始，须在八次卡牌行动内回复至本轮生命上限，否则闯关结束；境界和生命上限会随轮次自动提升。",
+        "常规模式使用甜粽或咸粽牌池，连续通过八轮即通关；无尽模式混合两种牌池，直到首次失败。",
+        "无尽排行榜先比较通过轮数，再比较失败轮中最终达到的生命。排行榜数值为“通过轮数 × 100,000 + 最终生命”。",
+        "所选角色仅影响外观，仙命不生效。"
       ]
     },
     {
@@ -538,6 +550,18 @@
           "price": 36,
           "weight": 40
         }
+      ],
+      "mechanicsEnglish": [
+        "Buy product cards, arrange them in the deck, then open the shop for the round. Card effects generate Coin; some consume Energy, are sold after use, or lose Durability until removed.",
+        "Energy starts and caps at 10 and does not recover automatically. Every empty deck slot acts as Rest and restores 2 Energy during operation.",
+        "After rounds 3, 5, 8, and 12, pay 30, 80, 120, and 240 Coin respectively to upgrade the shop, gain a deck slot, choose a strategy, and unlock the next card phase.",
+        "At the end of round 20 you must hold at least 8,888 Coin. A successful run's leaderboard score is its remaining Coin balance."
+      ],
+      "mechanicsChinese": [
+        "在进货商店购买商品牌并编入卡组，再开始本轮经营。卡牌效果会赚取通宝；部分牌会消耗体力、使用后出售，或每次使用降低耐久直至移除。",
+        "体力初始值和上限均为 10，且不会自动回复。卡组中的每个空格视为一次休息，经营时回复 2 点体力。",
+        "第 3、5、8、12 轮结束后，须依次交付 30、80、120、240 通宝，以升级店铺、增加一个卡组格、自选开店策略并解锁下一境界商品。",
+        "第 20 轮结束时须持有至少 8,888 通宝。成功经营后，剩余通宝即为排行榜得分。"
       ]
     },
     {
@@ -1659,7 +1683,19 @@
         }
       ],
       "noteEnglish": "The client rotates the active sect once per China-time day. The selected character is only an appearance and does not choose the pool.",
-      "noteChinese": "客户端按中国时区每天轮换当前宗门；所选角色仅用于形象，不决定牌池。"
+      "noteChinese": "客户端按中国时区每天轮换当前宗门；所选角色仅用于形象，不决定牌池。",
+      "mechanicsEnglish": [
+        "Use the day's rotating sect pool to deal as much damage as possible to a puppet that never acts. Each battle lasts 12 card activations, and a game contains 10 rounds.",
+        "The game score is cumulative damage across all ten rounds. In two-player games, the result also reports each player's personal damage separately.",
+        "A score of at least 2,000 in solo or 4,000 in two-player mode is required for the daily leaderboard, which resets with the daily pool.",
+        "Breakthroughs happen automatically and Immortal Fates are disabled. In two-player mode, each player may send one eligible sect or side-job card per round to their teammate at the cost of one Exchange Chance."
+      ],
+      "mechanicsChinese": [
+        "使用当日轮换的宗门牌池，尽可能对不会行动的木桩造成伤害。每轮战斗限十二次卡牌行动，一局共十轮。",
+        "本局得分为十轮累计总伤害；双人模式结算时还会分别显示每名玩家的个人伤害。",
+        "单人模式至少 2,000 分、双人模式至少 4,000 分方可进入每日排行榜；排行榜随每日牌池重置。",
+        "境界会自动突破，仙命不生效。双人模式中，每名玩家每轮可消耗一次换牌机会，向队友传递一张符合条件的同门派牌或副职业牌。"
+      ]
     },
     {
       "key": "ta23",
