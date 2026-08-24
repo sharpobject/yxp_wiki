@@ -173,10 +173,60 @@
       "mode": 113,
       "nameEnglish": "Dexterity Contest",
       "nameChinese": "兰夜斗巧",
-      "poolType": "none",
-      "cards": [],
-      "noteEnglish": "This puzzle mode uses numbered tiles rather than combat cards.",
-      "noteChinese": "这是数字拼牌小游戏，不使用战斗卡牌池。"
+      "poolType": "numbered-tiles",
+      "cards": [
+        {
+          "number": 1,
+          "nameEnglish": "Card 1",
+          "nameChinese": "牌 1",
+          "asset": "/assets/events/dexterity-contest/Card_1.webp",
+          "sourceAsset": "Card_1.png"
+        },
+        {
+          "number": 2,
+          "nameEnglish": "Card 2",
+          "nameChinese": "牌 2",
+          "asset": "/assets/events/dexterity-contest/Card_2.webp",
+          "sourceAsset": "Card_2.png"
+        },
+        {
+          "number": 3,
+          "nameEnglish": "Card 3",
+          "nameChinese": "牌 3",
+          "asset": "/assets/events/dexterity-contest/Card_3.webp",
+          "sourceAsset": "Card_3.png"
+        },
+        {
+          "number": 4,
+          "nameEnglish": "Card 4",
+          "nameChinese": "牌 4",
+          "asset": "/assets/events/dexterity-contest/Card_4.webp",
+          "sourceAsset": "Card_4.png"
+        },
+        {
+          "number": 5,
+          "nameEnglish": "Card 5",
+          "nameChinese": "牌 5",
+          "asset": "/assets/events/dexterity-contest/Card_5.webp",
+          "sourceAsset": "Card_5.png"
+        },
+        {
+          "number": 6,
+          "nameEnglish": "Card 6",
+          "nameChinese": "牌 6",
+          "asset": "/assets/events/dexterity-contest/Card_6.webp",
+          "sourceAsset": "Card_6.png"
+        },
+        {
+          "number": 7,
+          "nameEnglish": "Card 7",
+          "nameChinese": "牌 7",
+          "asset": "/assets/events/dexterity-contest/Card_7.webp",
+          "sourceAsset": "Card_7.png"
+        }
+      ],
+      "noteEnglish": "The seven pattern cards are arranged in numerical order to complete the Magpie Bridge.",
+      "noteChinese": "集齐七张不同图案的牌，并按数字顺序排列，即可拼成鹊桥。"
     },
     {
       "key": "ta18",
