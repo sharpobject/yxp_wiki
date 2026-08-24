@@ -92,38 +92,38 @@
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[character]);
   const cardAsset = (id) => {
-    return assetMode === "local" ? `card-images/${id}_${language}.png` : `/yxp_wiki/assets/cards/${id}_${language}.png`;
+    return assetMode === "local" ? `card-images/${id}_${language}.webp` : `/yxp_wiki/assets/cards/${id}_${language}.webp`;
   };
   const specialCardArt = (id) => assetMode === "local"
-    ? `special-card-art/${id}.png`
-    : `/yxp_wiki/assets/recordings/special-cards/${id}.png`;
+    ? `special-card-art/${id}.webp`
+    : `/yxp_wiki/assets/recordings/special-cards/${id}.webp`;
   const characterAsset = (player, kind, defaultOnly = false) => {
     const skinNumber = Number(player?.skinNumber) || 0;
     const suffix = !defaultOnly && skinNumber > 0
       ? kind === "avatar" ? `avatar-${skinNumber}` : `skin-${skinNumber}`
       : kind;
     return assetMode === "local"
-      ? `character-images/${player?.characterId}-${suffix}.png`
-      : `/yxp_wiki/assets/characters/${player?.characterId}-${suffix}.png`;
+      ? `character-images/${player?.characterId}-${suffix}.webp`
+      : `/yxp_wiki/assets/characters/${player?.characterId}-${suffix}.webp`;
   };
   const fateAsset = (entry, kind) => {
-    if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
-    return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
+    if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.webp` : entry.iconFile || `Icon_FateStrategy_${entry.id}.webp`}`;
+    return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.webp` : entry.iconFile || `Icon_FateStrategy_${entry.id}.webp`}`;
   };
   const buffAsset = (id) => {
     if (Number(id) === 10045) {
       return assetMode === "local"
-        ? "fate-icons/Icon_FateStrategy_20.png"
-        : "/yxp_wiki/assets/fates/Icon_FateStrategy_20.png";
+        ? "fate-icons/Icon_FateStrategy_20.webp"
+        : "/yxp_wiki/assets/fates/Icon_FateStrategy_20.webp";
     }
     const iconId = Number(id) === 10047 ? 5 : Number(id);
     return assetMode === "local"
-      ? `buff-icons/Icon_Buff_${iconId}.png`
-      : `/yxp_wiki/assets/recordings/buffs/Icon_Buff_${iconId}.png`;
+      ? `buff-icons/Icon_Buff_${iconId}.webp`
+      : `/yxp_wiki/assets/recordings/buffs/Icon_Buff_${iconId}.webp`;
   };
   const emojiAsset = (id) => assetMode === "local"
-    ? `emoji-images/${id}.png`
-    : `/yxp_wiki/assets/recordings/emojis/${id}.png`;
+    ? `emoji-images/${id}.webp`
+    : `/yxp_wiki/assets/recordings/emojis/${id}.webp`;
   const fateArtwork = (entry = {}, kind, alt = "") => {
     if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
       return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
@@ -132,7 +132,7 @@
         <span class="fate-composite-ink" aria-hidden="true"></span>
       </span>`;
     }
-    if (kind === "fateStrategy" && /^Card_\d+\.png$/.test(entry.iconFile ?? "")) {
+    if (kind === "fateStrategy" && /^Card_\d+\.webp$/.test(entry.iconFile ?? "")) {
       return `<span class="fate-card-crop" role="img" aria-label="${esc(alt)}"><img data-asset-fallback src="${fateAsset(entry, kind)}" alt=""></span>`;
     }
     return `<img data-asset-fallback src="${fateAsset(entry, kind)}" alt="${esc(alt)}">`;
