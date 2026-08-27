@@ -2,14 +2,14 @@
   "encoder": "Pillow WEBP quality=92 method=6 exact=true",
   "files": {
     "assets/cards/-1_en.png": {
-      "pngBytes": 124664,
-      "sha256": "f47dc892db738191d22d97122faa876dec8aaea3bc5139f2d79eeeac04c8fe81",
-      "webpBytes": 31920
+      "pngBytes": 162444,
+      "sha256": "1fb8346d879f1c12c9506ee29ad741024c3e92cc03091bcbfc2e88ebdcd8ebf2",
+      "webpBytes": 42154
     },
     "assets/cards/-1_zh.png": {
-      "pngBytes": 113746,
-      "sha256": "f70ed3959f3f25b9c33602dd248eacbe8c19c017e03d83f310ba4ff8f0e54eeb",
-      "webpBytes": 27962
+      "pngBytes": 151274,
+      "sha256": "54d20f7c8424b6bb1779369bb949d0496ad11faeadcf7b553a44b08d91f6eb55",
+      "webpBytes": 37970
     },
     "assets/cards/0_en.png": {
       "pngBytes": 155065,
@@ -972,14 +972,14 @@
       "webpBytes": 47382
     },
     "assets/cards/10000092_en.png": {
-      "pngBytes": 205961,
-      "sha256": "d5cce73e348bc7f44be705241c100896115ce93ad4079afb1e2b067fc655534d",
-      "webpBytes": 48528
+      "pngBytes": 175620,
+      "sha256": "1cc26301b19dbf89dec057bf2ed35d7f92cf7b93c1d2d2e119e725651294471a",
+      "webpBytes": 48286
     },
     "assets/cards/10000092_zh.png": {
-      "pngBytes": 192423,
-      "sha256": "698cde06fd99389d0acce00f2c686a1cc9424ccde5e6aeaa01ca8f1d141b37b2",
-      "webpBytes": 46890
+      "pngBytes": 158820,
+      "sha256": "03f3c9fdb55937d2bb31940ddaaedec7f71b0721e44e7c4c098b3633d33fb1b6",
+      "webpBytes": 47976
     },
     "assets/cards/10000093_en.png": {
       "pngBytes": 224139,
@@ -2922,14 +2922,14 @@
       "webpBytes": 49550
     },
     "assets/cards/10010092_en.png": {
-      "pngBytes": 213486,
-      "sha256": "eb858c724e9f10d16d71d00a8e7b925da975b0bdc63c8d100646f7a388bff0f2",
-      "webpBytes": 51898
+      "pngBytes": 182624,
+      "sha256": "a99c1f43a6678acc6cb71384e708022f46c91995f6441fb1b565c5f23fd06bd8",
+      "webpBytes": 51814
     },
     "assets/cards/10010092_zh.png": {
-      "pngBytes": 199989,
-      "sha256": "c6cecaf6193239f7151c67d0b68e4a2660682f17ba25d3d6f5e57d8e83d52db9",
-      "webpBytes": 50684
+      "pngBytes": 165361,
+      "sha256": "ef772cc78abb9a01375d636daeadd78811d56ef8256f36f60cc9df0ea1e907a7",
+      "webpBytes": 51462
     },
     "assets/cards/10010093_en.png": {
       "pngBytes": 236696,
@@ -3982,14 +3982,14 @@
       "webpBytes": 60816
     },
     "assets/cards/10020092_en.png": {
-      "pngBytes": 233548,
-      "sha256": "afd4f2bc9b1c3d4d3c61843b1ba6ff2da98213345d0c77c99f32b681e82bd31e",
-      "webpBytes": 61502
+      "pngBytes": 199469,
+      "sha256": "5c675a8ea2c0d8f32be0e5737188a7d878a5e9b2da13b65ef81745cad5b6fb7c",
+      "webpBytes": 61618
     },
     "assets/cards/10020092_zh.png": {
-      "pngBytes": 221393,
-      "sha256": "a13fcee826ecfc9c6d8b5802a8f9c89c059646f5a4b932b6f972bcbb69beabc2",
-      "webpBytes": 60932
+      "pngBytes": 200192,
+      "sha256": "2345ec656d4566b4da4f20419cb04a53a073fb19d8fd3c1c821ea69ea5249c2f",
+      "webpBytes": 60802
     },
     "assets/cards/10020093_en.png": {
       "pngBytes": 250085,
@@ -8022,14 +8022,14 @@
       "webpBytes": 40040
     },
     "assets/cards/10251_en.png": {
-      "pngBytes": 163917,
-      "sha256": "8e71c113b7d13cd94ce1d1b3c245ddb7d5a23184a1e2ac4659f491942d41fbac",
-      "webpBytes": 40636
+      "pngBytes": 130548,
+      "sha256": "40f8ee93d87fa97430a72749012f6f537b734f1b6c4f0ea1c52d69a7635b17c3",
+      "webpBytes": 40626
     },
     "assets/cards/10251_zh.png": {
-      "pngBytes": 144008,
-      "sha256": "9be08f9bc9e7c2a580bb8794de44552b0321ad7bbc422d4888700c46cb959cc2",
-      "webpBytes": 37238
+      "pngBytes": 109437,
+      "sha256": "017055ccff53439328111d05e58a25b8f0dc8646685729b485315e5e30ca5a95",
+      "webpBytes": 36456
     },
     "assets/cards/10258_en.png": {
       "pngBytes": 199603,
@@ -9142,14 +9142,14 @@
       "webpBytes": 54244
     },
     "assets/cards/10391_en.png": {
-      "pngBytes": 220477,
-      "sha256": "4a823dbdd4ee5a2ce440f01815ffa00267aa952db2320d8e86779811e538c412",
-      "webpBytes": 54302
+      "pngBytes": 198826,
+      "sha256": "be97bb0ff720f68d065815666caba07afbff57e93cfc1d21127ec0b40bd408a3",
+      "webpBytes": 54532
     },
     "assets/cards/10391_zh.png": {
-      "pngBytes": 203911,
-      "sha256": "b5cf0b436e5d15ed9ee5a8aaf28619a292f537634c2ac5ae573fbdd23f2e66f8",
-      "webpBytes": 51918
+      "pngBytes": 174127,
+      "sha256": "efba17b6d70b7b026c906c8e86e1615282796fcbff05703930d2bf5e89c37f35",
+      "webpBytes": 52242
     },
     "assets/cards/10392_en.png": {
       "pngBytes": 207444,
@@ -13212,14 +13212,14 @@
       "webpBytes": 57154
     },
     "assets/cards/20251_en.png": {
-      "pngBytes": 162243,
-      "sha256": "f5cf40e7988377b67453b86e0e92fedda6e807244c2dc96c6edb52bdad20d62f",
-      "webpBytes": 39700
+      "pngBytes": 130471,
+      "sha256": "9567d0c707693942e8e7a206db9c280295c7598d80376ed189a5c8c79d077977",
+      "webpBytes": 40600
     },
     "assets/cards/20251_zh.png": {
-      "pngBytes": 143213,
-      "sha256": "157d690c49e3d2496ff6d96a1f4840007aa565a288477dfc146042ca0d118065",
-      "webpBytes": 36304
+      "pngBytes": 109304,
+      "sha256": "fec0354c6491f06415090a7c5c8c59c8f41ea639fd8c7a24db2baded59cf6a61",
+      "webpBytes": 37160
     },
     "assets/cards/20258_en.png": {
       "pngBytes": 221035,
@@ -14022,14 +14022,14 @@
       "webpBytes": 63362
     },
     "assets/cards/20391_en.png": {
-      "pngBytes": 234604,
-      "sha256": "1795db86382a4b3f0374616efe1b5e2fec05b00758b9ff7ee1a13848a3917648",
-      "webpBytes": 61132
+      "pngBytes": 198011,
+      "sha256": "42ffe649699d45f08545efad61f2c5ccc7c2ed3bda3ed1d05dadd2e3e25185f5",
+      "webpBytes": 61148
     },
     "assets/cards/20391_zh.png": {
-      "pngBytes": 220204,
-      "sha256": "b318a5db0733dab983e75f58fee293974c97d310f669c1bcba46f7dcc993729b",
-      "webpBytes": 59142
+      "pngBytes": 183045,
+      "sha256": "c7cd9c89c5adb25085311f0220e977d108b4d0d25074b14e17181f41b2456ff8",
+      "webpBytes": 58914
     },
     "assets/cards/20392_en.png": {
       "pngBytes": 228545,
@@ -14732,14 +14732,14 @@
       "webpBytes": 40732
     },
     "assets/cards/251_en.png": {
-      "pngBytes": 163452,
-      "sha256": "12470b69b3c9d86ee4f345bea9ffb851f09328059b8eefa3cd0d0996bb0c080c",
-      "webpBytes": 40636
+      "pngBytes": 130426,
+      "sha256": "f61120176c12ad808b26560e9558616fd2b6b23ee363e1a93b56db7c13188eb8",
+      "webpBytes": 40618
     },
     "assets/cards/251_zh.png": {
-      "pngBytes": 143437,
-      "sha256": "bc8749399a0c12283599078921cd4967b26a60241f087ee6289a1abfdc912b14",
-      "webpBytes": 37086
+      "pngBytes": 109275,
+      "sha256": "2d8e4772f6741536166a49e8ace8bd7d1407431ad1827bd45dc83c12a4db571e",
+      "webpBytes": 37110
     },
     "assets/cards/252_en.png": {
       "pngBytes": 205623,
@@ -16552,14 +16552,14 @@
       "webpBytes": 47464
     },
     "assets/cards/391_en.png": {
-      "pngBytes": 207626,
-      "sha256": "da622a6280f5c7ded32eda549278e92d2ef889a73d8a3bf4ed0d9020a512a8da",
-      "webpBytes": 49620
+      "pngBytes": 176185,
+      "sha256": "55edd4ec081d7a12a324a2633d475809e13883b434936f7164f49b225cfec03a",
+      "webpBytes": 49598
     },
     "assets/cards/391_zh.png": {
-      "pngBytes": 190967,
-      "sha256": "157f156392eec0cee15d85df06535bc82528d8ecc5939eea69cbe008563e467d",
-      "webpBytes": 46680
+      "pngBytes": 159397,
+      "sha256": "c6ecd55de28f0de67bcd99ac9a386f7610e9d141b7efbb58e101b67cb4e65dab",
+      "webpBytes": 45936
     },
     "assets/cards/392_en.png": {
       "pngBytes": 199865,
@@ -17572,14 +17572,14 @@
       "webpBytes": 50836
     },
     "assets/cards/4000097_en.png": {
-      "pngBytes": 237460,
-      "sha256": "1c11a3c6b2777ba94f6f656ba3ffb0618f8c7fb676eed95b1cce962895f84b74",
-      "webpBytes": 59432
+      "pngBytes": 217162,
+      "sha256": "89dd545625d506f61b4f9962abd1607c11a8f216351d8d28dd16d3bec0e9e60a",
+      "webpBytes": 59420
     },
     "assets/cards/4000097_zh.png": {
-      "pngBytes": 220668,
-      "sha256": "af98c8a074dd35e85cc50638ea10813e1dc5f314e1f8093dfbcc35cc1620bed6",
-      "webpBytes": 56834
+      "pngBytes": 188892,
+      "sha256": "a78df4daec7a5b2015f93fe3650d0f9ffb8adf7455dfe2d4d300bde90928ee19",
+      "webpBytes": 56760
     },
     "assets/cards/4000098_en.png": {
       "pngBytes": 182941,
@@ -18562,14 +18562,14 @@
       "webpBytes": 56382
     },
     "assets/cards/4010097_en.png": {
-      "pngBytes": 249575,
-      "sha256": "0ee53974bf284f3ca7b0063b95e9edb24c408445c5024ec9cb0d89acb049cd9e",
-      "webpBytes": 63804
+      "pngBytes": 218409,
+      "sha256": "0db5652cb65c7ae924ebd1d54100006b958b4e865aa625619451eb6ac4e8cb2e",
+      "webpBytes": 63910
     },
     "assets/cards/4010097_zh.png": {
-      "pngBytes": 233784,
-      "sha256": "df087fc80b59f42347203fa3ea309d659f6ce37a37eb82fbe81681fba0193c2c",
-      "webpBytes": 61430
+      "pngBytes": 200969,
+      "sha256": "6d5cd053d0925d323277eb7c85ba89d7722a582155d464dc0d364a178e0a22fe",
+      "webpBytes": 61570
     },
     "assets/cards/4010098_en.png": {
       "pngBytes": 195503,
@@ -19552,14 +19552,14 @@
       "webpBytes": 65258
     },
     "assets/cards/4020097_en.png": {
-      "pngBytes": 261788,
-      "sha256": "f8fe8c749422bc660a36abeb8511dcf97c679c8370aff80535b3ecd5d5634ee3",
-      "webpBytes": 70810
+      "pngBytes": 239239,
+      "sha256": "d43df1b24c18656b60732d4c6b41cdc377a161fb42d14d4fc510cae8183c4f63",
+      "webpBytes": 70806
     },
     "assets/cards/4020097_zh.png": {
-      "pngBytes": 250047,
-      "sha256": "985c834ca5f1c62900a9c5c01b3f8dbe882b6afbd33603cf0eb325bf0da8c006",
-      "webpBytes": 70950
+      "pngBytes": 212668,
+      "sha256": "20284a8bfb3181c93c1b3303dd5c0d0c6c55369e50f52b13c8db30ebada7c50d",
+      "webpBytes": 70864
     },
     "assets/cards/4020098_en.png": {
       "pngBytes": 210989,
@@ -27796,6 +27796,41 @@
       "sha256": "5d49c6b4062422f18a114aeec77077ea1895406ab07f22def3052633d1b23ba3",
       "webpBytes": 83534
     },
+    "assets/events/dexterity-contest/Card_1.png": {
+      "pngBytes": 30943,
+      "sha256": "75f46ba07d1d7ab2a16b12b1ae2f74623b0363288972f2c3583c8e8d86af6dba",
+      "webpBytes": 10342
+    },
+    "assets/events/dexterity-contest/Card_2.png": {
+      "pngBytes": 29880,
+      "sha256": "afbed7cd331e372f00d381b0f082b1ff06012b88aeeed4609fc50c2383c1e17b",
+      "webpBytes": 11472
+    },
+    "assets/events/dexterity-contest/Card_3.png": {
+      "pngBytes": 31673,
+      "sha256": "49e5ee9d1af47e67d82f45a3941bac8c702b8b50d255663399315f028224dcfa",
+      "webpBytes": 10326
+    },
+    "assets/events/dexterity-contest/Card_4.png": {
+      "pngBytes": 29946,
+      "sha256": "2c7c9302c4e6e6d3d540e4cbf4a4aa59d285f287273579f7ffe1bfe364d4a277",
+      "webpBytes": 11512
+    },
+    "assets/events/dexterity-contest/Card_5.png": {
+      "pngBytes": 37289,
+      "sha256": "292a46e7d2f605f03e6630656aa65ccf62ee7d4b01926d0d80364c36d468745b",
+      "webpBytes": 12716
+    },
+    "assets/events/dexterity-contest/Card_6.png": {
+      "pngBytes": 25266,
+      "sha256": "927891c1c3ff13d4a9325bf4ba1f28fe2da57a17113c8ec89e231f461acdc273",
+      "webpBytes": 8248
+    },
+    "assets/events/dexterity-contest/Card_7.png": {
+      "pngBytes": 36021,
+      "sha256": "5ac284e7d61722a311f0736a6da4a3bb63d57e83a4e99f51ac07f17209cb6bad",
+      "webpBytes": 11320
+    },
     "assets/fates/Card_1.png": {
       "pngBytes": 30943,
       "sha256": "75f46ba07d1d7ab2a16b12b1ae2f74623b0363288972f2c3583c8e8d86af6dba",
@@ -30337,9 +30372,9 @@
       "webpBytes": 5256
     }
   },
-  "pngBytes": 1094741674,
-  "pngFiles": 6067,
+  "pngBytes": 1094288296,
+  "pngFiles": 6074,
   "quality": 92,
   "version": 1,
-  "webpBytes": 289107888
+  "webpBytes": 289206206
 }
