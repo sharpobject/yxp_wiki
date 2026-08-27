@@ -425,6 +425,7 @@
     if (state.privatePlayer?.choiceOverlay) return state.privatePlayer.choiceOverlay;
     const previousState = states[index - 1];
     const privateUid = state.privatePlayer?.uid;
+    if (!privateUid || previousState?.privatePlayer?.uid !== privateUid) return null;
     const currentTalents = state.players?.[privateUid]?.talents ?? [];
     const previousTalentIds = new Set((previousState?.players?.[privateUid]?.talents ?? []).map((reference) => Number(reference.id)));
     const chosenTalent = currentTalents.find((reference) => reference.choiceHistory?.selected
