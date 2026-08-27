@@ -1,5 +1,6 @@
 (() => {
   const $ = (selector) => document.querySelector(selector);
+  document.body.classList.add("recording-browser-page");
   const preferredTargetUid = "65db92284574f980c154b895"; // 愿与林小月长相守
   const catalog = [...(window.RECORDING_CATALOG ?? [])].sort((first, second) =>
     String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
@@ -11,6 +12,28 @@
   const roundSelect = $("#round-select");
   const filterToggle = $("#recording-filter-toggle");
   const filterPopover = $("#recording-filter-popover");
+  const mobileViewport = matchMedia("(max-width: 760px)");
+  const mobileTooltipLayer = document.createElement("div");
+  mobileTooltipLayer.className = "mobile-tooltip-layer";
+  mobileTooltipLayer.hidden = true;
+  mobileTooltipLayer.innerHTML = `<section class="mobile-tooltip-card" role="dialog">
+    <button class="mobile-tooltip-close" type="button" aria-label="Close">×</button>
+    <div class="mobile-tooltip-content"></div>
+  </section>`;
+  document.body.append(mobileTooltipLayer);
+
+  function closeMobileTooltip() {
+    mobileTooltipLayer.hidden = true;
+    mobileTooltipLayer.querySelector(".mobile-tooltip-content").replaceChildren();
+  }
+
+  function openMobileTooltip(trigger) {
+    if (!mobileViewport.matches) return;
+    const popover = trigger.querySelector(".trait-popover");
+    if (!popover) return;
+    mobileTooltipLayer.querySelector(".mobile-tooltip-content").innerHTML = popover.innerHTML;
+    mobileTooltipLayer.hidden = false;
+  }
   const assetMode = document.body.dataset.assetMode || "wiki";
   const recordingBase = document.body.dataset.recordingBase || "data";
   const recordingVersion = document.body.dataset.recordingVersion || "";
@@ -92,38 +115,38 @@
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[character]);
   const cardAsset = (id) => {
-    return assetMode === "local" ? `card-images/${id}_${language}.webp` : `/yxp_wiki/assets/cards/${id}_${language}.webp`;
+    return assetMode === "local" ? `card-images/${id}_${language}.png` : `/yxp_wiki/assets/cards/${id}_${language}.png`;
   };
   const specialCardArt = (id) => assetMode === "local"
-    ? `special-card-art/${id}.webp`
-    : `/yxp_wiki/assets/recordings/special-cards/${id}.webp`;
+    ? `special-card-art/${id}.png`
+    : `/yxp_wiki/assets/recordings/special-cards/${id}.png`;
   const characterAsset = (player, kind, defaultOnly = false) => {
     const skinNumber = Number(player?.skinNumber) || 0;
     const suffix = !defaultOnly && skinNumber > 0
       ? kind === "avatar" ? `avatar-${skinNumber}` : `skin-${skinNumber}`
       : kind;
     return assetMode === "local"
-      ? `character-images/${player?.characterId}-${suffix}.webp`
-      : `/yxp_wiki/assets/characters/${player?.characterId}-${suffix}.webp`;
+      ? `character-images/${player?.characterId}-${suffix}.png`
+      : `/yxp_wiki/assets/characters/${player?.characterId}-${suffix}.png`;
   };
   const fateAsset = (entry, kind) => {
-    if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.webp` : entry.iconFile || `Icon_FateStrategy_${entry.id}.webp`}`;
-    return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.webp` : entry.iconFile || `Icon_FateStrategy_${entry.id}.webp`}`;
+    if (assetMode === "local") return `fate-icons/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
+    return `/yxp_wiki/assets/fates/${kind === "talent" ? `Icon_Talent_${entry.iconId || entry.id}.png` : entry.iconFile || `Icon_FateStrategy_${entry.id}.png`}`;
   };
   const buffAsset = (id) => {
     if (Number(id) === 10045) {
       return assetMode === "local"
-        ? "fate-icons/Icon_FateStrategy_20.webp"
-        : "/yxp_wiki/assets/fates/Icon_FateStrategy_20.webp";
+        ? "fate-icons/Icon_FateStrategy_20.png"
+        : "/yxp_wiki/assets/fates/Icon_FateStrategy_20.png";
     }
     const iconId = Number(id) === 10047 ? 5 : Number(id);
     return assetMode === "local"
-      ? `buff-icons/Icon_Buff_${iconId}.webp`
-      : `/yxp_wiki/assets/recordings/buffs/Icon_Buff_${iconId}.webp`;
+      ? `buff-icons/Icon_Buff_${iconId}.png`
+      : `/yxp_wiki/assets/recordings/buffs/Icon_Buff_${iconId}.png`;
   };
   const emojiAsset = (id) => assetMode === "local"
-    ? `emoji-images/${id}.webp`
-    : `/yxp_wiki/assets/recordings/emojis/${id}.webp`;
+    ? `emoji-images/${id}.png`
+    : `/yxp_wiki/assets/recordings/emojis/${id}.png`;
   const fateArtwork = (entry = {}, kind, alt = "") => {
     if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
       return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
@@ -132,7 +155,7 @@
         <span class="fate-composite-ink" aria-hidden="true"></span>
       </span>`;
     }
-    if (kind === "fateStrategy" && /^Card_\d+\.webp$/.test(entry.iconFile ?? "")) {
+    if (kind === "fateStrategy" && /^Card_\d+\.png$/.test(entry.iconFile ?? "")) {
       return `<span class="fate-card-crop" role="img" aria-label="${esc(alt)}"><img data-asset-fallback src="${fateAsset(entry, kind)}" alt=""></span>`;
     }
     return `<img data-asset-fallback src="${fateAsset(entry, kind)}" alt="${esc(alt)}">`;
@@ -537,6 +560,7 @@
   }
 
   function render() {
+    closeMobileTooltip();
     const state = states[index];
     if (!state) return;
     const battle = recording.steps[index]?.battle;
@@ -830,17 +854,31 @@
     filterToggle.setAttribute("aria-expanded", String(!filterPopover.hidden));
   });
   document.addEventListener("click", (event) => {
+    const tooltipTrigger = event.target.closest(".trait-icon, .battle-buff, .dao-yun-choice, .card-selection-choice");
+    if (tooltipTrigger && mobileViewport.matches) {
+      event.preventDefault();
+      openMobileTooltip(tooltipTrigger);
+      return;
+    }
     if (!filterPopover.hidden && !event.target.closest(".recording-picker-row")) {
       filterPopover.hidden = true;
       filterToggle.setAttribute("aria-expanded", "false");
     }
   });
+  mobileTooltipLayer.addEventListener("click", (event) => {
+    if (event.target === mobileTooltipLayer || event.target.closest(".mobile-tooltip-close")) closeMobileTooltip();
+  });
+  mobileViewport.addEventListener("change", closeMobileTooltip);
   select.addEventListener("change", () => navigateToRecording(catalog.find((item) => item.id === select.value)));
   previous.addEventListener("click", () => setIndex(index - 1));
   next.addEventListener("click", () => setIndex(index + 1));
   timeline.addEventListener("input", (event) => setIndex(event.target.value));
   roundSelect.addEventListener("change", (event) => { if (event.target.value !== "") setIndex(event.target.value); });
   addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !mobileTooltipLayer.hidden) {
+      closeMobileTooltip();
+      return;
+    }
     if (["INPUT", "SELECT"].includes(document.activeElement?.tagName)) return;
     if (event.key === "ArrowLeft") setIndex(index - 1);
     if (event.key === "ArrowRight") setIndex(index + 1);
