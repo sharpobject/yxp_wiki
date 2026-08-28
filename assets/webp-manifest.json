@@ -2,14 +2,14 @@
   "encoder": "Pillow WEBP quality=92 method=6 exact=true",
   "files": {
     "assets/cards/-1_en.png": {
-      "pngBytes": 162444,
-      "sha256": "1fb8346d879f1c12c9506ee29ad741024c3e92cc03091bcbfc2e88ebdcd8ebf2",
-      "webpBytes": 42154
+      "pngBytes": 124664,
+      "sha256": "f47dc892db738191d22d97122faa876dec8aaea3bc5139f2d79eeeac04c8fe81",
+      "webpBytes": 31920
     },
     "assets/cards/-1_zh.png": {
-      "pngBytes": 151274,
-      "sha256": "54d20f7c8424b6bb1779369bb949d0496ad11faeadcf7b553a44b08d91f6eb55",
-      "webpBytes": 37970
+      "pngBytes": 113746,
+      "sha256": "f70ed3959f3f25b9c33602dd248eacbe8c19c017e03d83f310ba4ff8f0e54eeb",
+      "webpBytes": 27962
     },
     "assets/cards/0_en.png": {
       "pngBytes": 155065,
@@ -30372,9 +30372,9 @@
       "webpBytes": 5256
     }
   },
-  "pngBytes": 1094288296,
+  "pngBytes": 1094212988,
   "pngFiles": 6074,
   "quality": 92,
   "version": 1,
-  "webpBytes": 289206206
+  "webpBytes": 289185964
 }
