@@ -1,8 +1,32 @@
-(() => {
+(async () => {
   const $ = (selector) => document.querySelector(selector);
   document.body.classList.add("recording-browser-page");
   const preferredTargetUid = "65db92284574f980c154b895"; // 愿与林小月长相守
-  const catalog = [...(window.RECORDING_CATALOG ?? [])].sort((first, second) =>
+  const assetMode = document.body.dataset.assetMode || "wiki";
+  const recordingBase = document.body.dataset.recordingBase || "data";
+  const recordingVersion = document.body.dataset.recordingVersion || "";
+  const versionedUrl = (filename) => `${recordingBase}/${filename}${recordingVersion
+    ? `?v=${encodeURIComponent(recordingVersion)}` : ""}`;
+  async function loadCompressedJson(url) {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    let text;
+    if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
+      if (typeof DecompressionStream !== "function") throw new Error("this browser cannot decompress recordings");
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("gzip"));
+      text = await new Response(stream).text();
+    } else {
+      text = new TextDecoder().decode(bytes);
+    }
+    return JSON.parse(text);
+  }
+  if (!window.RECORDING_CODEC) throw new Error("recording codec did not load");
+  const decodedCatalog = window.RECORDING_CODEC.unpackCatalog(
+    await loadCompressedJson(versionedUrl("catalog.compact.json.gz")),
+  );
+  const sharedCatalog = decodedCatalog.sharedCatalog;
+  const catalog = [...decodedCatalog.catalog].sort((first, second) =>
     String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
       || String(second.capturedThrough ?? "").localeCompare(String(first.capturedThrough ?? "")));
   const select = $("#recording-select");
@@ -34,9 +58,6 @@
     mobileTooltipLayer.querySelector(".mobile-tooltip-content").innerHTML = popover.innerHTML;
     mobileTooltipLayer.hidden = false;
   }
-  const assetMode = document.body.dataset.assetMode || "wiki";
-  const recordingBase = document.body.dataset.recordingBase || "data";
-  const recordingVersion = document.body.dataset.recordingVersion || "";
   const isChinese = document.documentElement.lang.toLowerCase().startsWith("zh");
   const language = isChinese ? "zh" : "en";
   const copy = isChinese ? {
@@ -765,20 +786,16 @@
     const generation = ++loadGeneration;
     $("#loading").hidden = false;
     $("#viewer").hidden = true;
-    window.REPLAY_RECORDING = null;
-    const old = document.querySelector("script[data-recording]");
-    if (old) old.remove();
-    const script = document.createElement("script");
-    script.dataset.recording = "";
-    script.src = `${recordingBase}/${item.file}${recordingVersion ? `?v=${encodeURIComponent(recordingVersion)}` : ""}`;
-    script.onload = () => {
-      if (generation !== loadGeneration) return;
-      installRecording(window.REPLAY_RECORDING, item, stepIndex, historyMode);
-    };
-    script.onerror = () => {
-      if (generation === loadGeneration) $("#loading").textContent = `${copy.couldNotLoad} ${item.file}`;
-    };
-    document.body.appendChild(script);
+    loadCompressedJson(versionedUrl(item.file))
+      .then((packed) => window.RECORDING_CODEC.unpackRecording(packed, sharedCatalog))
+      .then((data) => {
+        if (generation !== loadGeneration) return;
+        installRecording(data, item, stepIndex, historyMode);
+      })
+      .catch((error) => {
+        console.error(`could not load recording ${item.file}`, error);
+        if (generation === loadGeneration) $("#loading").textContent = `${copy.couldNotLoad} ${item.file}`;
+      });
   }
 
   const recordingLabel = (item) => {
@@ -923,4 +940,9 @@
     loadRecording(initialRecording, { stepIndex: requested.stepIndex });
   }
   else $("#loading").textContent = copy.noRecordings;
-})();
+})().catch((error) => {
+  console.error("could not initialize recording browser", error);
+  const loading = document.querySelector("#loading");
+  if (loading) loading.textContent = document.documentElement.lang.toLowerCase().startsWith("zh")
+    ? "无法载入录像。" : "Could not load recordings.";
+});
