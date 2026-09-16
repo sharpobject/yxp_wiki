@@ -75,7 +75,7 @@ try {
     copy.append(h, tags, p, link); panel.append(img, copy);
     const label = document.createElement('span'); label.textContent = f.name; controls.append(label);
     for (const t of TIERS) {
-      const b = document.createElement('button'); b.className = 'tl-button'; b.dataset.move = t; b.textContent = t === 'pool' ? text('Unrank', '取消排名') : t; controls.append(b);
+      const b = document.createElement('button'); b.className = 'tl-button'; b.dataset.move = t; b.textContent = t === 'pool' ? text('U · Unrank', 'U · 取消排名') : t; controls.append(b);
     }
     const close = document.createElement('button'); close.className = 'tl-button'; close.textContent = '×'; close.setAttribute('aria-label', text('Close selection', '关闭选择')); close.onclick = () => {selected = null; showSelection();}; controls.append(close);
   }
@@ -127,7 +127,19 @@ try {
   window.addEventListener('popstate', () => {({state} = decode(location.search, data)); undo = []; redo = []; selected = null; render();});
   $('#tier-maker').addEventListener('keydown', e => {
     if (e.key === 'Escape') {cancelDrag(); selected = null; showSelection(); return;}
-    const b = e.target.closest('.tl-card'); if (!b || !e.altKey || !e.key.startsWith('Arrow')) return;
+    const b = e.target.closest('.tl-card');
+    if (!e.altKey && !e.ctrlKey && !e.metaKey && !e.repeat &&
+        !e.target.closest('input,textarea,select,[contenteditable]')) {
+      const shortcut = e.key.toUpperCase();
+      const tier = shortcut === 'U' ? 'pool' : shortcut;
+      const id = b ? Number(b.dataset.id) : selected;
+      if (id != null && ['S','A','B','C','D','U'].includes(shortcut)) {
+        e.preventDefault(); selected = id; place(id, tier);
+        $(`.tl-card[data-id="${id}"]`)?.focus({preventScroll:true});
+        return;
+      }
+    }
+    if (!b || e.altKey || e.ctrlKey || e.metaKey || !e.key.startsWith('Arrow')) return;
     e.preventDefault(); const id = Number(b.dataset.id), tier = TIERS.find(t => state.rows[t].includes(id)), index = state.rows[tier].indexOf(id);
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       const next = TIERS[Math.max(0, Math.min(5, TIERS.indexOf(tier) + (e.key === 'ArrowUp' ? -1 : 1)))]; place(id, next);
