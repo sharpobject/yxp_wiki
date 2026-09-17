@@ -34,7 +34,7 @@ try {
   function syncUrl() {
     const query = encode(state);
     history.replaceState(null, '', location.pathname + query);
-    document.title = (state.title || character().name + ' — ' + text('Heavenly Derivation tier list', '天衍万象仙命梯度榜')) + ' — Yi Xian Wiki';
+    document.title = (state.title || character().name + ' — ' + text('Heavenly Derivation tier list', '天衍万象仙命梯度榜')) + ' — ' + text('Yi Xian Card Gallery', '弈仙牌卡牌图鉴');
     const languageLink = document.querySelector('a.lang');
     if (languageLink) {const u = new URL(languageLink.href); u.search = query; languageLink.href = u.href;}
     $('#tl-share-url').value = location.href;
