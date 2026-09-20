@@ -1,7 +1,7 @@
 // Same asset choices, markup and split-card composition as recording viewer fateArtwork.
 export function createFateArtwork(entry, language) {
   const span = className => {const el=document.createElement('span');el.className=className;return el;};
-  const img = src => {const el=new Image();el.src=src;el.alt='';el.draggable=false;return el;};
+  const img = src => {const el=new Image();el.src=window.YxpCards?.sourceUrl(src) ?? src;el.alt='';el.draggable=false;return el;};
   const root=span('hdf-art');root.setAttribute('aria-hidden','true');
   if(entry.compositeCardIds?.length===2){
     const composite=span('fate-composite');

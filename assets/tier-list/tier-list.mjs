@@ -1,4 +1,4 @@
-import {createFateArtwork} from './fate-artwork.mjs?v=3';
+import {createFateArtwork} from './fate-artwork.mjs?v=card-components-1';
 import {TIERS, blank, decode, encode, move, eligibleIds} from './tier-list-model.mjs?v=2';
 const $ = s => document.querySelector(s);
 const lang = $('#tier-maker').dataset.language;
