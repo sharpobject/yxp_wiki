@@ -1,9 +1,11 @@
-import {defaults,decode,encode,normalize} from './model.mjs';
-import {renderCard,loadImage} from './render.mjs';
+import {defaults,decode,encode,normalize} from './model.mjs?v=cff79f7dd8940685';
+import {renderCard,loadImage} from './render.mjs?v=cff79f7dd8940685';
+import {richChars} from './native-layout.mjs?v=cff79f7dd8940685';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
-const initialSearch=location.search;
+const initialSearch=location.search;let drawTimer;
+function scheduleDraw(){clearTimeout(drawTimer);renderSerial++;$('#preview').dataset.ready='false';$('#download').disabled=true;drawTimer=setTimeout(draw,80);}
 const field=(label,name,extra='')=>'<label class="field">'+label+'<input data-field="'+name+'" '+extra+'></label>';
 const select=(label,name,options)=>'<label class="field">'+label+'<select data-field="'+name+'">'+options.map(([v,l])=>'<option value="'+v+'">'+l+'</option>').join('')+'</select></label>';
 function slot(s){
@@ -15,12 +17,12 @@ function buildUI(){
  '<p id="studio-status" class="studio-status" role="status" aria-live="polite"></p><input class="share-url" id="share-url" aria-label="'+t('Share link','分享链接')+'" readonly hidden><div id="warning" class="studio-warning" role="status" hidden></div>'+
  '<div class="studio-grid"><aside class="studio-preview"><span class="preview-label">'+t('Your creation','你的作品')+'</span><canvas id="preview" width="616" height="1016" role="img" aria-label="'+t('Custom card preview','自定义卡牌预览')+'"></canvas><p>'+t('Fan-made card · Yi Xian Pai','弈仙牌 · 同人卡牌')+'</p></aside><div class="studio-editor">'+
  '<section class="studio-panel"><h2><span class="step">01</span>'+t('Card text','卡牌文字')+'</h2><div class="panel-content studio-fields">'+field(t('English name','英文名'),'name','maxlength="100"')+field(t('Chinese name · vertical','中文名 · 竖排'),'cn','maxlength="30"')+
- '<label class="field span-two">'+t('Rules text','效果描述')+'<textarea data-field="text" maxlength="600" rows="4"></textarea></label><div class="span-two"><div class="studio-format"><button data-format="red">'+t('Red text','红色文字')+'</button><button data-format="bold">'+t('Bold text','加粗文字')+'</button></div><p class="hint">'+t('Select text, then apply a style. Line breaks are preserved; text fits automatically.','选中文字后应用样式。保留换行，字号自动调整。')+'</p></div></div></section>'+
+ '<label class="field span-two">'+t('Rules text','效果描述')+'<textarea data-field="text" maxlength="600" rows="4"></textarea></label><div class="span-two"><div class="studio-format"><input type="color" id="text-color" value="#9d1022" aria-label="Text color"><button data-format="color">'+t('Apply color','应用颜色')+'</button><button data-format="bold">'+t('Bold text','加粗文字')+'</button><button data-format="plain">'+t('Plain text','普通文字')+'</button></div><label class="studio-toggle"><input type="checkbox" data-field="autoStyle">'+t('Automatically style game keywords and stats','自动标注游戏关键词与数值')+'</label><p class="hint">'+t('Select text, then apply a style. Explicit styles override automatic formatting. Line breaks are preserved.','选中文字后应用样式。手动样式优先于自动标注，并保留换行。')+'</p></div></div></section>'+
  '<section class="studio-panel"><h2><span class="step">02</span>'+t('Artwork','卡面画作')+'</h2><div class="panel-content"><div class="art-mode"><label class="studio-toggle"><input type="checkbox" data-field="fusion">'+t('Fuse two artworks','融合两幅画作')+'</label><button id="swap" hidden>'+t('Swap A ↔ B','交换 A ↔ B')+'</button></div><div class="art-slots">'+slot('A')+slot('B')+'</div><p class="hint">'+t('Use any card’s art, or upload your own. Uploads stay in this tab and PNG exports; share links omit them.','可使用任意卡牌画作或自行上传。上传的图片仅保留在当前标签页和导出的 PNG 中，不会包含在分享链接里。')+'</p></div></section>'+
  '<section class="studio-panel"><h2><span class="step">03</span>'+t('Frame & details','边框与细节')+'</h2><div class="panel-content studio-fields">'+
  select(t('Phase','境界'),'phase',[[1,t('Qi Refining','炼气')],[2,t('Foundation','筑基')],[3,t('Virtuoso','金丹')],[4,t('Immortality','元婴')],[5,t('Incarnation','化神')],[6,t('Void','返虚')]])+
  select(t('Card level','卡牌等级'),'level',[[0,'1'],[1,'2'],[2,'3']])+
- select(t('Card language','卡面语言'),'language',[['en','English'],['zh','中文']])+
+ select(t('Card language','卡面语言'),'language',[['en','English'],['zh','简体中文'],['tw','繁體中文']])+
  select(t('Watermark','底纹'),'mark',[['none',t('None','无')]])+
  select(t('Cost type','消耗类型'),'costType',[['none',t('None','无')],['qi',t('Qi','灵气')],['hp',t('HP','生命')]])+field(t('Cost','消耗'),'cost','type="number" min="0" max="99"')+
  '<label class="studio-toggle span-two"><input type="checkbox" data-field="dream">'+t('Dream frame','梦境边框')+'</label></div></section>'+
@@ -53,13 +55,12 @@ function sync(){
  const hasUpload=state.a==='upload'||(state.fusion&&state.b==='upload');
  $('#warning').hidden=!hasUpload;$('#warning').textContent=hasUpload?t('Uploaded art is not included in share links. Recipients will see a placeholder. Download the PNG to share the complete card.','分享链接不包含上传的图片，收件人会看到占位图。请下载 PNG 以分享完整卡牌。'):'';
  $('#preview').setAttribute('aria-label',(state.name||state.cn)+' — '+state.text);
- updateURL();draw();
+ updateURL();scheduleDraw();
 }
 async function draw(){
  const serial=++renderSerial,snapshot={...state},canvas=document.createElement('canvas');
  $('#download').disabled=true;
  try{
-  await document.fonts.load('24px YxpCard',snapshot.name+snapshot.cn+snapshot.text+'0123456789');
   const result=await renderCard(canvas,snapshot,catalog,base,uploads);if(serial!==renderSerial)return;
   const target=$('#preview');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);
   $('#download').disabled=false;$('#share').disabled=false;
@@ -114,7 +115,10 @@ function bind(){
   if(button.dataset.upload)$('[data-file="'+button.dataset.upload+'"]').click();
   if(button.dataset.format){
    const el=$('[data-field="text"]'),a=el.selectionStart,b=el.selectionEnd,chosen=el.value.slice(a,b)||t('text','文字');
-   remember();const token=button.dataset.format==='red'?'[color:#9D1022|'+chosen+']':'[b|'+chosen+']';
+   remember();
+   const selection=richChars(chosen),visible=selection.map(c=>c.char).join(''),bold=button.dataset.format==='bold'||(button.dataset.format==='color'&&selection.every(c=>c.bold));
+   const color=button.dataset.format==='color'?$('#text-color').value:(selection[0]?.color||'#3d3935');
+   const token=button.dataset.format==='plain'?'[plain|'+visible+']':'[style:'+color+':'+(bold?'b':'n')+'|'+visible+']';
    state.text=(el.value.slice(0,a)+token+el.value.slice(b)).slice(0,600);changed();el.focus();el.setSelectionRange(a,a+token.length);
   }
  });
@@ -133,16 +137,18 @@ function bind(){
   try{await navigator.clipboard.writeText(url.href);status(omitted?t('Link copied. Uploaded art is omitted; use PNG for the complete card.','链接已复制。上传图片已省略，完整卡牌请使用 PNG。'):t('Share link copied.','分享链接已复制。'));}
   catch{field.focus();field.select();status(t('Copy the selected link to share your card.','复制已选中的链接即可分享卡牌。'));}
  };
- $('#download').onclick=()=>{
+ $('#download').onclick=async()=>{
+  const exported=document.createElement('canvas');$('#download').disabled=true;
+  try{await renderCard(exported,{...state},catalog,base,{...uploads},2);}catch(error){status(t('Export failed. Please retry.','导出失败，请重试。'));$('#download').disabled=false;return;}
+  $('#download').disabled=false;
   const link=document.createElement('a');link.download=(state.name||state.cn||'custom-card').replace(/[^\p{L}\p{N} _-]/gu,'').slice(0,80)+'.png';
-  $('#preview').toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);link.href=url;link.click();setTimeout(()=>URL.revokeObjectURL(url),10000);},'image/png');
+  exported.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);link.href=url;link.click();setTimeout(()=>URL.revokeObjectURL(url),10000);},'image/png');
  };
 }
 try{
- const response=await fetch(new URL('catalog.json',base));if(!response.ok)throw new Error('Catalog unavailable');catalog=await response.json();
+ const response=await fetch(new URL('catalog.json',base),{cache:'no-cache'});if(!response.ok)throw new Error('Catalog unavailable');catalog=await response.json();
  const parsed=decode(initialSearch,catalog);state=parsed.state;
  if(!new URLSearchParams(initialSearch).has('v'))state.language=ui;
  buildUI();bind();status(t('Loading the card font…','正在加载卡牌字体…'));
- for(const row of catalog.fonts)document.fonts.add(new FontFace('YxpCard','url('+new URL(row.file,base).href+')',{unicodeRange:row.range}));
  sync();status(parsed.issues.length?t('Some invalid link settings were reset.','链接中的部分无效设置已重置。'):'');
 }catch(error){root.replaceChildren();const p=document.createElement('p');p.textContent=t('The card studio could not load. Please reload to try again.','卡牌工坊加载失败，请刷新重试。');root.append(p);console.error(error);}

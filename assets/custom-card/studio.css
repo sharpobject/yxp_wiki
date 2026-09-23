@@ -42,3 +42,5 @@
 .studio-status:empty{display:none}
 @media(max-width:820px){#card-studio.studio-view .studio-actions button{font-size:13px;padding:9px 10px}}
 @media(prefers-color-scheme:dark){#card-studio .eyebrow,#card-studio .step{color:#94c2b0}}
+
+#card-studio #text-color{width:2.8rem;height:2.4rem;padding:.2rem;border-radius:.4rem;cursor:pointer}.studio-format{flex-wrap:wrap}
