@@ -1,4 +1,4 @@
-import {richChars,BODY} from './native-layout.mjs?v=cff79f7dd8940685';
+import {richChars,BODY} from './native-layout.mjs?v=cae56a6d7f923ccb';
 const escape=s=>s.replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
 export function autoStyle(text,language,lexicon){
  const parts=text.split(/(\[[^\]]+\])/g),overrides=[];let plain='',offset=0;
@@ -8,7 +8,7 @@ export function autoStyle(text,language,lexicon){
  return result;
 }
 function inferPlain(text,language,lexicon){
- const plain=new Set(['3','ATK','HP','攻','生命','Use','use','使用','Times','次','Spirit','Cloud','Formation','Fist','拳','Unrestrained','概率','卡组','卡組','Force Cap','气势上限','氣勢上限','崩拳']);
+ const plain=new Set(['3','ATK','HP','攻','生命','use','Times','次','Spirit','Cloud','Formation','Unrestrained','概率','卡组','卡組','Force Cap','气势上限','氣勢上限','崩拳']);
  const words=(lexicon[language]||lexicon.zh).filter(w=>!plain.has(w)),parts=text.split(/(\[[^\]]+\])/g);
  const keyword=new RegExp(words.filter(x=>x!=='3').map(escape).join('|'),'gu');
  const numericColors={'DEF':'#9a6212','防':'#9a6212','Qi':'#2c81bf','灵气':'#2c81bf','靈氣':'#2c81bf','Sword Intent':'#cf3521','剑意':'#cf3521','劍意':'#cf3521'},result=[];
@@ -18,14 +18,18 @@ function inferPlain(text,language,lexicon){
   for(const match of part.matchAll(keyword)){
    const start=match.index,term=match[0],end=start+term.length;
    if(/[A-Za-z]/.test(term[0])&&/[A-Za-z]/.test(part[start-1]||''))continue;
-   if(/[A-Za-z]/.test(term.at(-1))&&/[A-Za-z]/.test(part[end]||''))continue;
+   if(/[A-Za-z]/.test(term.at(-1))&&/[A-Za-z]/.test(part[end]||'')&&!(term==='Debuff'&&/^s(?:[^A-Za-z]|$)/.test(part.slice(end))))continue;
    const prefix=part.slice(0,start);
    if((prefix.match(/"/g)||[]).length%2||prefix.lastIndexOf('“')>prefix.lastIndexOf('”')||prefix.lastIndexOf('「')>prefix.lastIndexOf('」'))continue;
    const before=part.slice(0,start),after=part.slice(end);
-   if(/^(Continuous|Growth|持续|持續|成长|成長)$/.test(term)&&/^\s*(?:card|Card|牌)/.test(after))continue;
+   // Action/stance headings are keywords; the same words in prose are not.
+   if(/^(Use|使用|Fist|拳)$/.test(term)&&!/^\s*[:：]/.test(after))continue;
+   if(/^(Continuous|Growth|Post Action|持续|持續|成长|成長|后招|後招)$/.test(term)&&/^\s*(?:card|Card|牌)/.test(after))continue;
    if(/^(击伤|擊傷)$/.test(term)&&/^值/.test(after))continue;
    if(term==='Exchange'&&/^ Card Chance/.test(after))continue;
-   if(/^(Upgrade|升级|升級)$/.test(term)&&!/^[:：]|^(?: next |下\d)/.test(after))continue;
+   if(term==='Upgrade'&&!/^\s*(?:[:：]|(?:the )?next\b|it\b|\d+\s+(?:more|times?\b))/.test(after))continue;
+   if(/^(升级|升級)$/.test(term)&&/合成[，,]?(?:将其|將其)$/.test(before))continue;
+   if(/^(升级|升級)$/.test(term)&&!/^[:：]|^下\d/.test(after)&&!/(?:将其(?:永久)?|將其(?:永久)?|就多|其)$/.test(before))continue;
    if(term==='Qi'&&(/^ cost\b/i.test(after)||/\b(?:costs?|consumes?)\s+(?:up to\s+)?\d+\s*$/i.test(before)))continue;
    if(/^(灵气|靈氣)$/.test(term)&&/(?:无需|無需|消耗|耗)\s*\d*$/.test(before))continue;
    if(/^(持续|持續)$/.test(term)&&/^\d+回合/.test(after))continue;
@@ -38,7 +42,7 @@ function inferPlain(text,language,lexicon){
    const styled=richChars('['+term+']'),index=Array.from(part.slice(0,start)).length;
    for(let i=0;i<styled.length;i++)chars[index+i]=styled[i];
   }
-  for(const m of part.matchAll(/(?:Continuous|持续|持續)\s*:?\s*[\dX]+\s*(Times|次)/g)){
+  for(const m of part.matchAll(/(?:Continuous|持续|持續)\s*:?\s*(?:\d+|X(?:\s*[+]\s*\d+)?)\s*(Times|次)/g)){
    const start=m.index+m[0].lastIndexOf(m[1]),idx=Array.from(part.slice(0,start)).length;
    for(let k=0;k<Array.from(m[1]).length;k++)chars[idx+k].bold=true;
   }
@@ -49,7 +53,7 @@ function inferPlain(text,language,lexicon){
    const paint=(start,len,c)=>{for(let i=offset+Array.from(line.slice(0,start)).length;i<offset+Array.from(line.slice(0,start+len)).length;i++){if(/\d/.test(chars[i].char)){chars[i].color=c;chars[i].bold=false;}}};
    if(atk&&Number(atk[2])!==0)paint(atk[1].length,atk[2].length,'#9d1022');
    if(stat)paint(stat[1].length+stat[2].length+stat[3].length,stat[4].length,numericColors[stat[2]]);
-   const threshold=line.match(/(?:Qi is greater than |(?:灵气|靈氣)>)([1-9]\d*)/);
+   const threshold=line.match(/(?:Qi is greater than |(?:Qi|灵气|靈氣)\s*>\s*)([1-9]\d*)/);
    if(threshold)paint(threshold.index+threshold[0].length-threshold[1].length,threshold[1].length,'#2c81bf');
    offset+=Array.from(line).length+1;
   }
