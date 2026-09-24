@@ -1,6 +1,6 @@
-import {defaults,decode,encode,normalize} from './model.mjs?v=af016d688cd37902';
-import {renderCard,loadImage} from './render.mjs?v=af016d688cd37902';
-import {richChars} from './native-layout.mjs?v=af016d688cd37902';
+import {defaults,decode,encode,normalize} from './model.mjs?v=b490bf891ba2784b';
+import {renderCard,loadImage} from './render.mjs?v=b490bf891ba2784b';
+import {richChars} from './native-layout.mjs?v=b490bf891ba2784b';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
@@ -74,6 +74,7 @@ function sync(){
 async function draw(){
  const serial=++renderSerial,snapshot={...state},canvas=document.createElement('canvas');
  $('#download').disabled=true;
+ $('#studio-status').dataset.renderError='1';status(t('Rendering card… The first load may take a moment.','正在渲染卡牌…首次加载可能需要一些时间。'));
  try{
   const result=await renderCard(canvas,snapshot,catalog,base,{...uploads},2);if(serial!==renderSerial)return;
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));

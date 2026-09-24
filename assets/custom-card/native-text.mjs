@@ -1,4 +1,4 @@
-import {round,richChars,NativeLayout} from './native-layout.mjs?v=af016d688cd37902';
+import {round,richChars,NativeLayout} from './native-layout.mjs?v=b490bf891ba2784b';
 const clamp=x=>Math.max(0,Math.min(255,round(x)));
 export const PROBE='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789御空剑阵禦空劍陣防灵气靈氣造成伤害傷害卡组組再次行动動';
 export function bitmap(w,h){return {width:w,height:h,data:new Uint8ClampedArray(w*h*4)};}
@@ -74,10 +74,13 @@ export class NativeText extends NativeLayout{
   return {layers,description,blockScale:c['DESC_BLOCK_SCALE_'+tag],blockCenter:[(b[0]+b[2])/2,(b[1]+b[3])/2],overflow:overflow||fit.overflow};
  }
 }
-const chunkCache=new Map();let metaPromise;
+const chunkCache=new Map();let metaPromise,corePromise;
 export async function loadNativeText(base,text){
  metaPromise??=fetch(new URL('native-font.json',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Native font unavailable');return r.json();}).catch(e=>{metaPromise=null;throw e;});
- const meta=await metaPromise,groups=new Set(Array.from(text+PROBE+'\ufffd ',c=>Math.floor(c.codePointAt(0)/256))),glyphs={};
+ const meta=await metaPromise;
+ if(meta.core)corePromise??=fetch(new URL(meta.core,base)).then(async r=>{if(!r.ok)throw Error('Native core glyphs unavailable');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();}).catch(e=>{corePromise=null;throw e;});
+ const glyphs=corePromise?{...await corePromise}:{};
+ const groups=new Set(Array.from(text+PROBE+'\ufffd ').filter(c=>!glyphs[c]).map(c=>Math.floor(c.codePointAt(0)/256)));
  await Promise.all([...groups].map(async n=>{
   const name=meta.chunks[n];if(!name)return;
   if(!chunkCache.has(n))chunkCache.set(n,fetch(new URL(name,base)).then(async r=>{if(!r.ok)throw Error('Native glyphs unavailable');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();}).catch(e=>{chunkCache.delete(n);throw e;}));
