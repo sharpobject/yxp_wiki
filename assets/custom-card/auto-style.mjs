@@ -1,9 +1,11 @@
-import {richChars,BODY} from './native-layout.mjs?v=12c012b0fd9ab2a8';
+import {applyPhraseStyles} from './phrase-style.mjs?v=16a1f4162c40880b';
+import {richChars,BODY} from './native-layout.mjs?v=16a1f4162c40880b';
 const escape=s=>s.replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
 export function autoStyle(text,language,lexicon){
  const parts=text.split(/(\[[^\]]+\])/g),overrides=[];let plain='',offset=0;
  for(const part of parts){const chars=richChars(part);if(/^\[[^\]]+\]$/.test(part))overrides.push([offset,chars]);plain+=chars.map(c=>c.char).join('');offset+=chars.length;}
  const result=inferPlain(plain,language,lexicon);
+ applyPhraseStyles(plain,language,lexicon,result);
  for(const [at,chars] of overrides)for(let i=0;i<chars.length;i++)result[at+i]=chars[i];
  return result;
 }
