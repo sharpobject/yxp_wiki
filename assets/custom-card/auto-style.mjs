@@ -1,4 +1,4 @@
-import {richChars,BODY} from './native-layout.mjs?v=cae56a6d7f923ccb';
+import {richChars,BODY} from './native-layout.mjs?v=12c012b0fd9ab2a8';
 const escape=s=>s.replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
 export function autoStyle(text,language,lexicon){
  const parts=text.split(/(\[[^\]]+\])/g),overrides=[];let plain='',offset=0;
@@ -48,6 +48,12 @@ function inferPlain(text,language,lexicon){
   }
   let offset=0;
   for(const line of part.split('\n')){
+   // Exhaust is a purple standalone card label, not the resource-spending verb.
+   const exhaust=line.match(/^(\s*)(Exhaust|耗尽|耗盡)\s*$/u);
+   if(exhaust){
+    const start=offset+Array.from(exhaust[1]).length;
+    for(let i=start;i<start+Array.from(exhaust[2]).length;i++){chars[i].color='#b21d81';chars[i].bold=false;}
+   }
    const atk=line.match(/^(\s*)(\d+(?:[~～-]\d+)?)\s*(?:ATK|攻)/u);
    const stat=line.match(/^(\s*)(DEF|Qi|Sword Intent|防|灵气|靈氣|剑意|劍意)(\s*[+＋-]\s*)(\d+(?:[~～-]\d+)?)/u);
    const paint=(start,len,c)=>{for(let i=offset+Array.from(line.slice(0,start)).length;i<offset+Array.from(line.slice(0,start+len)).length;i++){if(/\d/.test(chars[i].char)){chars[i].color=c;chars[i].bold=false;}}};
