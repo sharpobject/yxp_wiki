@@ -2,13 +2,13 @@
 export const round=x=>{const n=Math.floor(x),f=x-n;return f===.5?(n%2?n+1:n):Math.round(x);};
 export const BODY='#3d3935';
 const colors=new Map([['Continuous','#b21d81'],['持续','#b21d81'],['持續','#b21d81'],['Consumption','#b21d81'],['消耗','#b21d81'],['Injured','#9d1022'],['击伤','#9d1022'],['擊傷','#9d1022'],['Chase','#378e89'],['再次行动','#378e89'],['再次行動','#378e89'],['Growth','#527e1d'],['成长','#527e1d'],['成長','#527e1d']]);
-export function richChars(text){
- text=text.replace(/<(?:color=)?#([a-f\d]{6})>(.*?)<\/color>/gis,(_,c,t)=>'[color:#'+c+'|'+t.replace(/<\/?(?:size|i)(?:=[^>]+)?>/g,'').replace(/^\[([^\]]*)\]$/,'$1')+']').replace(/<\/?(?:color|size|i)(?:=[^>]+)?>/g,'');
+export function richChars(text,parseMarkup=true){
+ if(parseMarkup)text=text.replace(/<(?:color=)?#([a-f\d]{6})>(.*?)<\/color>/gis,(_,c,t)=>'[color:#'+c+'|'+t.replace(/<\/?(?:size|i)(?:=[^>]+)?>/g,'').replace(/^\[([^\]]*)\]$/,'$1')+']').replace(/<\/?(?:color|size|i)(?:=[^>]+)?>/g,'');
  const out=[];let quoted=false;
- for(const token of text.match(/\[[^\]]+\]|\d+|[A-Za-z]+|\s+|./gu)||[]){
+ for(const token of text.match(parseMarkup?/\[[^\]]+\]|\d+|[A-Za-z]+|\s+|./gu:/\d+|[A-Za-z]+|\s+|./gu)||[]){
   if(token==='"')quoted=!quoted;
   let value=token,bold=false,color=quoted?BODY:(colors.get(token)||BODY);
-  if(token.startsWith('[')&&token.endsWith(']')){
+  if(parseMarkup&&token.startsWith('[')&&token.endsWith(']')){
    const inner=token.slice(1,-1);
    const explicit=inner.match(/^style:(#[a-f\d]{6}):(b|n)\|([\s\S]*)$/i);
    if(explicit){for(const char of explicit[3])out.push({char,bold:explicit[2]==='b',color:explicit[1].toLowerCase()});continue;}

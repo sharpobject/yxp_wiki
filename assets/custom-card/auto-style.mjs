@@ -1,5 +1,5 @@
-import {applyPhraseStyles} from './phrase-style.mjs?v=16a1f4162c40880b';
-import {richChars,BODY} from './native-layout.mjs?v=16a1f4162c40880b';
+import {applyPhraseStyles} from './phrase-style.mjs?v=d5f66228c86962b9';
+import {richChars,BODY} from './native-layout.mjs?v=d5f66228c86962b9';
 const escape=s=>s.replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
 export function autoStyle(text,language,lexicon){
  const parts=text.split(/(\[[^\]]+\])/g),overrides=[];let plain='',offset=0;
@@ -11,12 +11,12 @@ export function autoStyle(text,language,lexicon){
 }
 function inferPlain(text,language,lexicon){
  const plain=new Set(['3','ATK','HP','攻','生命','use','Times','次','Spirit','Cloud','Formation','Unrestrained','概率','卡组','卡組','Force Cap','气势上限','氣勢上限','崩拳']);
- const words=(lexicon[language]||lexicon.zh).filter(w=>!plain.has(w)),parts=text.split(/(\[[^\]]+\])/g);
+ const words=(lexicon[language]||lexicon.zh).filter(w=>!plain.has(w)),parts=[text];
  const keyword=new RegExp(words.filter(x=>x!=='3').map(escape).join('|'),'gu');
  const numericColors={'DEF':'#9a6212','防':'#9a6212','Qi':'#2c81bf','灵气':'#2c81bf','靈氣':'#2c81bf','Sword Intent':'#cf3521','剑意':'#cf3521','劍意':'#cf3521'},result=[];
  for(const part of parts){
-  if(/^\[[^\]]+\]$/.test(part)){result.push(...richChars(part));continue;}
-  const chars=richChars(part);
+  // Input here is already decoded: literal brackets must not become markup again.
+  const chars=richChars(part,false);
   for(const match of part.matchAll(keyword)){
    const start=match.index,term=match[0],end=start+term.length;
    if(/[A-Za-z]/.test(term[0])&&/[A-Za-z]/.test(part[start-1]||''))continue;

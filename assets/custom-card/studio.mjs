@@ -1,6 +1,6 @@
-import {defaults,decode,encode,normalize} from './model.mjs?v=16a1f4162c40880b';
-import {renderCard,loadImage} from './render.mjs?v=16a1f4162c40880b';
-import {richChars} from './native-layout.mjs?v=16a1f4162c40880b';
+import {defaults,decode,encode,normalize} from './model.mjs?v=d5f66228c86962b9';
+import {renderCard,loadImage} from './render.mjs?v=d5f66228c86962b9';
+import {richChars} from './native-layout.mjs?v=d5f66228c86962b9';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
