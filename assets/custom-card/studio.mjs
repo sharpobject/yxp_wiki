@@ -1,6 +1,6 @@
-import {defaults,decode,encode,normalize} from './model.mjs?v=d5f66228c86962b9';
-import {renderCard,loadImage} from './render.mjs?v=d5f66228c86962b9';
-import {richChars} from './native-layout.mjs?v=d5f66228c86962b9';
+import {defaults,decode,encode,normalize} from './model.mjs?v=ccfc508721781e34';
+import {renderCard,loadImage} from './render.mjs?v=ccfc508721781e34';
+import {richChars} from './native-layout.mjs?v=ccfc508721781e34';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
@@ -115,11 +115,15 @@ function bind(){
   if(button.dataset.upload)$('[data-file="'+button.dataset.upload+'"]').click();
   if(button.dataset.format){
    const el=$('[data-field="text"]'),a=el.selectionStart,b=el.selectionEnd,chosen=el.value.slice(a,b)||t('text','文字');
-   remember();
    const selection=richChars(chosen),visible=selection.map(c=>c.char).join(''),bold=button.dataset.format==='bold'||(button.dataset.format==='color'&&selection.every(c=>c.bold));
    const color=button.dataset.format==='color'?$('#text-color').value:(selection[0]?.color||'#3d3935');
    const token=button.dataset.format==='plain'?'[plain|'+visible+']':'[style:'+color+':'+(bold?'b':'n')+'|'+visible+']';
-   state.text=(el.value.slice(0,a)+token+el.value.slice(b)).slice(0,600);changed();el.focus();el.setSelectionRange(a,a+token.length);
+   const formatted=el.value.slice(0,a)+token+el.value.slice(b);
+   if(formatted.length>el.maxLength){
+    status(t('This formatting would exceed the 600-character limit. Shorten the text first; your text has been kept unchanged.','应用此样式会超过600字符限制。请先缩短文字；原文已保留。'));
+    el.focus();el.setSelectionRange(a,b);return;
+   }
+   remember();state.text=formatted;changed();el.focus();el.setSelectionRange(a,a+token.length);
   }
  });
  $('#close-library').onclick=()=>$('.art-dialog').close();
