@@ -1,10 +1,10 @@
-import {defaults,decode,encode,normalize} from './model.mjs?v=ccfc508721781e34';
-import {renderCard,loadImage} from './render.mjs?v=ccfc508721781e34';
-import {richChars} from './native-layout.mjs?v=ccfc508721781e34';
+import {defaults,decode,encode,normalize} from './model.mjs?v=af016d688cd37902';
+import {renderCard,loadImage} from './render.mjs?v=af016d688cd37902';
+import {richChars} from './native-layout.mjs?v=af016d688cd37902';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
-const initialSearch=location.search;let drawTimer;
+const initialSearch=location.search;let drawTimer,previewURL;
 function scheduleDraw(){clearTimeout(drawTimer);renderSerial++;$('#preview').dataset.ready='false';$('#download').disabled=true;drawTimer=setTimeout(draw,80);}
 const field=(label,name,extra='')=>'<label class="field">'+label+'<input data-field="'+name+'" '+extra+'></label>';
 const select=(label,name,options)=>'<label class="field">'+label+'<select data-field="'+name+'">'+options.map(([v,l])=>'<option value="'+v+'">'+l+'</option>').join('')+'</select></label>';
@@ -12,15 +12,29 @@ function slot(s){
  return '<div class="art-slot" id="slot-'+s+'"><div class="art-slot-head"><img class="art-thumb" alt=""><div><strong>'+t('Artwork ','画作 ')+s+'</strong><small class="art-name"></small></div></div><div class="art-buttons"><button type="button" data-browse="'+s+'">'+t('Choose art','选择画作')+'</button><button type="button" data-upload="'+s+'">'+t('Upload','上传')+'</button><input type="file" hidden accept="image/png,image/jpeg,image/webp,image/gif" data-file="'+s+'"></div><label class="studio-toggle"><input type="checkbox" data-field="flip'+s+'">'+t('Flip horizontally · Dream','水平翻转 · 梦')+'</label><details><summary>'+t('Adjust crop','调整裁剪')+'</summary>'+[['zoom',t('Zoom','缩放'),1,3],['x',t('Horizontal','水平'),-1,1],['y',t('Vertical','垂直'),-1,1]].map(([key,label,min,max])=>'<label class="crop-field">'+label+'<input aria-label="'+label+' '+s+'" data-field="'+key+s+'" type="range" min="'+min+'" max="'+max+'" step=".01"></label>').join('')+'</details></div>';
 }
 function status(message){$('#studio-status').textContent=message;}
+function textPalette(){
+ const colors=[
+  ['#3d3935','Body text','正文'],
+  ['#9d1022','ATK · Injured','攻击 · 击伤'],
+  ['#9a6212','DEF values','防御数值'],
+  ['#2c81bf','Qi values','灵气数值'],
+  ['#cf3521','Sword Intent values','剑意数值'],
+  ['#378e89','Chase','再次行动'],
+  ['#b21d81','Continuous · Consumption · Exhaust','持续 · 消耗 · 耗尽'],
+  ['#527e1d','Growth','成长'],
+  ['#808080','Flavor text','背景描述']
+ ];
+ return '<fieldset class="studio-palette"><legend>'+t('Text color · game palette','文字颜色 · 游戏配色')+'</legend><div class="palette-options">'+colors.map(([color,en,zh])=>'<label class="palette-choice"><input type="radio" name="text-color" value="'+color+'"'+(color==='#9d1022'?' checked':'')+'><span class="palette-chip"><span class="palette-swatch" style="background:'+color+'" aria-hidden="true"></span><span>'+t(en,zh)+'</span></span></label>').join('')+'</div></fieldset>';
+}
 function buildUI(){
- root.innerHTML='<div class="studio-heading"><div><p class="eyebrow">'+t('Imagine · Compose · Share','想象 · 创作 · 分享')+'</p><h1>'+t('Custom card studio','自定义卡牌工坊')+'</h1><p>'+t('A card that could have been. Make it yours.','把灵感化为一张属于你的卡牌。')+'</p></div><div class="studio-actions"><button id="edit-view" hidden>'+t('Remix this card','编辑这张卡牌')+'</button><button id="download" disabled>'+t('Download PNG','下载 PNG')+'</button><button class="primary" id="share" disabled>'+t('Copy share link','复制分享链接')+'</button></div></div>'+
+ root.innerHTML='<div class="studio-heading"><div><h1>'+t('Custom card studio','自定义卡牌工坊')+'</h1></div><div class="studio-actions"><button id="edit-view" hidden>'+t('Remix this card','编辑这张卡牌')+'</button><button id="download" disabled>'+t('Download PNG','下载 PNG')+'</button><button class="primary" id="share" disabled>'+t('Copy share link','复制分享链接')+'</button></div></div>'+
  '<p id="studio-status" class="studio-status" role="status" aria-live="polite"></p><input class="share-url" id="share-url" aria-label="'+t('Share link','分享链接')+'" readonly hidden><div id="warning" class="studio-warning" role="status" hidden></div>'+
- '<div class="studio-grid"><aside class="studio-preview"><span class="preview-label">'+t('Your creation','你的作品')+'</span><canvas id="preview" width="616" height="1016" role="img" aria-label="'+t('Custom card preview','自定义卡牌预览')+'"></canvas><p>'+t('Fan-made card · Yi Xian Pai','弈仙牌 · 同人卡牌')+'</p></aside><div class="studio-editor">'+
+ '<div class="studio-grid"><aside class="studio-preview"><span class="preview-label">'+t('Your creation','你的作品')+'</span><img id="preview" width="616" height="1016" alt="'+t('Custom card preview','自定义卡牌预览')+'"><p>'+t('Fan-made card · Yi Xian Pai','弈仙牌 · 同人卡牌')+'</p></aside><div class="studio-editor">'+
  '<section class="studio-panel"><h2><span class="step">01</span>'+t('Card text','卡牌文字')+'</h2><div class="panel-content studio-fields">'+field(t('English name','英文名'),'name','maxlength="100"')+field(t('Chinese name · vertical','中文名 · 竖排'),'cn','maxlength="30"')+
- '<label class="field span-two">'+t('Rules text','效果描述')+'<textarea data-field="text" maxlength="600" rows="4"></textarea></label><div class="span-two"><div class="studio-format"><input type="color" id="text-color" value="#9d1022" aria-label="Text color"><button data-format="color">'+t('Apply color','应用颜色')+'</button><button data-format="bold">'+t('Bold text','加粗文字')+'</button><button data-format="plain">'+t('Plain text','普通文字')+'</button></div><label class="studio-toggle"><input type="checkbox" data-field="autoStyle">'+t('Automatically style game keywords and stats','自动标注游戏关键词与数值')+'</label><p class="hint">'+t('Select text, then apply a style. Explicit styles override automatic formatting. Line breaks are preserved.','选中文字后应用样式。手动样式优先于自动标注，并保留换行。')+'</p></div></div></section>'+
- '<section class="studio-panel"><h2><span class="step">02</span>'+t('Artwork','卡面画作')+'</h2><div class="panel-content"><div class="art-mode"><label class="studio-toggle"><input type="checkbox" data-field="fusion">'+t('Fuse two artworks','融合两幅画作')+'</label><button id="swap" hidden>'+t('Swap A ↔ B','交换 A ↔ B')+'</button></div><div class="art-slots">'+slot('A')+slot('B')+'</div><p class="hint">'+t('Use any card’s art, or upload your own. Uploads stay in this tab and PNG exports; share links omit them.','可使用任意卡牌画作或自行上传。上传的图片仅保留在当前标签页和导出的 PNG 中，不会包含在分享链接里。')+'</p></div></section>'+
+ '<label class="field span-two">'+t('Rules text','效果描述')+'<textarea data-field="text" maxlength="600" rows="4"></textarea></label><div class="span-two">'+textPalette()+'<div class="studio-format"><button data-format="color">'+t('Apply color','应用颜色')+'</button><button data-format="bold">'+t('Bold text','加粗文字')+'</button><button data-format="remove">'+t('Remove style','移除样式')+'</button></div><label class="studio-toggle"><input type="checkbox" data-field="autoStyle">'+t('Automatically style game keywords and stats','自动标注游戏关键词与数值')+'</label><p class="hint">'+t('Select text, then apply a style. Explicit styles override automatic formatting. Line breaks are preserved.','选中文字后应用样式。手动样式优先于自动标注，并保留换行。')+'</p></div></div></section>'+
+ '<section class="studio-panel"><h2><span class="step">02</span>'+t('Artwork','卡面画作')+'</h2><div class="panel-content"><div class="art-mode"><label class="studio-toggle"><input type="checkbox" data-field="fusion">'+t('Fuse two artworks','融合两幅画作')+'</label><button id="swap" hidden>'+t('Swap A ↔ B','交换 A ↔ B')+'</button></div><div class="art-slots">'+slot('A')+slot('B')+'</div><p class="hint">'+t('Use any card’s art, or upload your own. Share links won\'t work with uploaded images.','可使用任意卡牌画作或自行上传。上传图片后，分享链接将无法使用。')+'</p></div></section>'+
  '<section class="studio-panel"><h2><span class="step">03</span>'+t('Frame & details','边框与细节')+'</h2><div class="panel-content studio-fields">'+
- select(t('Phase','境界'),'phase',[[1,t('Qi Refining','炼气')],[2,t('Foundation','筑基')],[3,t('Virtuoso','金丹')],[4,t('Immortality','元婴')],[5,t('Incarnation','化神')],[6,t('Void','返虚')]])+
+ select(t('Phase','境界'),'phase',[[1,t('Meditation','炼气')],[2,t('Foundation','筑基')],[3,t('Virtuoso','金丹')],[4,t('Immortality','元婴')],[5,t('Incarnation','化神')],[6,t('Divinity','返虚')]])+
  select(t('Card level','卡牌等级'),'level',[[0,'1'],[1,'2'],[2,'3']])+
  select(t('Card language','卡面语言'),'language',[['en','English'],['zh','简体中文'],['tw','繁體中文']])+
  select(t('Watermark','底纹'),'mark',[['none',t('None','无')]])+
@@ -28,7 +42,7 @@ function buildUI(){
  '<label class="studio-toggle span-two"><input type="checkbox" data-field="dream">'+t('Dream frame','梦境边框')+'</label></div></section>'+
  '<div class="studio-footer"><div class="studio-actions"><button id="undo" disabled>'+t('Undo','撤销')+'</button><button id="redo" disabled>'+t('Redo','重做')+'</button><button id="reset">'+t('Reset','重置')+'</button></div><small>'+t('Your changes live in the URL.','你的修改保存在网址中。')+'</small></div></div></div>'+
  '<dialog class="art-dialog" aria-labelledby="library-title"><div class="dialog-top"><div class="dialog-title"><h2 id="library-title">'+t('Choose artwork','选择画作')+'</h2><button id="close-library" aria-label="'+t('Close art library','关闭画作库')+'">✕</button></div><input id="art-search" type="search" placeholder="'+t('Search English, Chinese, or card ID…','搜索英文名、中文名或卡牌 ID…')+'" aria-label="'+t('Search artwork','搜索画作')+'"><p class="hint" id="result-count"></p></div><div class="art-library"></div><button class="library-more" id="library-more">'+t('Show more','显示更多')+'</button></dialog>';
- const marks={SectBottom_1:t('Cloud Spirit Sword Sect','云灵剑宗'),SectBottom_2:t('Heptastar Pavilion','七星阁'),SectBottom_3:t('Five Elements Alliance','五行道盟'),SectBottom_4:t('Duan Xuan Sect','锻玄宗'),SectBottom_5:t('Pure Nothingness Sect','无极道宗'),CareerBottom_1:t('Elixirist','炼丹师'),CareerBottom_2:t('Fuluist','符咒师'),CareerBottom_3:t('Musician','琴师'),CareerBottom_4:t('Painter','画师'),CareerBottom_5:t('Formation Master','阵法师'),CareerBottom_6:t('Plant Master','灵植师'),CareerBottom_7:t('Fortune Teller','命理师'),artifact:t('Artifact','法宝'),pet:t('Spiritual pet','灵宠')};
+ const marks={SectBottom_1:t('Cloud Spirit Sword Sect','云灵剑宗'),SectBottom_2:t('Heptastar Pavilion','七星阁'),SectBottom_3:t('Five Elements Alliance','五行道盟'),SectBottom_4:t('Duan Xuan Sect','锻玄宗'),SectBottom_5:t('Pure Nothingness Sect','无极道宗'),CareerBottom_1:t('Elixirist','炼丹师'),CareerBottom_2:t('Fuluist','符咒师'),CareerBottom_3:t('Musician','琴师'),CareerBottom_4:t('Painter','画师'),CareerBottom_5:t('Formation Master','阵法师'),CareerBottom_6:t('Plant Master','灵植师'),CareerBottom_7:t('Fortune Teller','命理师'),artifact:t('Talisman','法宝'),pet:t('Spiritual pet','灵宠')};
  for(const key of Object.keys(catalog.marks)){const option=document.createElement('option');option.value=key;option.textContent=marks[key]||key;$('[data-field="mark"]').append(option);}
 }
 function snapshot(){return {state:{...state},uploads:{...uploads}};}
@@ -53,16 +67,23 @@ function sync(){
  }
  $('#undo').disabled=!undo.length;$('#redo').disabled=!redo.length;
  const hasUpload=state.a==='upload'||(state.fusion&&state.b==='upload');
- $('#warning').hidden=!hasUpload;$('#warning').textContent=hasUpload?t('Uploaded art is not included in share links. Recipients will see a placeholder. Download the PNG to share the complete card.','分享链接不包含上传的图片，收件人会看到占位图。请下载 PNG 以分享完整卡牌。'):'';
- $('#preview').setAttribute('aria-label',(state.name||state.cn)+' — '+state.text);
+ $('#warning').hidden=!hasUpload;$('#warning').textContent=hasUpload?t('Share links won\'t work with uploaded images.','上传图片后，分享链接将无法使用。'):'';
+ $('#preview').alt=(state.name||state.cn)+' — '+state.text;
  updateURL();scheduleDraw();
 }
 async function draw(){
  const serial=++renderSerial,snapshot={...state},canvas=document.createElement('canvas');
  $('#download').disabled=true;
  try{
-  const result=await renderCard(canvas,snapshot,catalog,base,uploads);if(serial!==renderSerial)return;
-  const target=$('#preview');target.width=canvas.width;target.height=canvas.height;target.getContext('2d').drawImage(canvas,0,0);
+  const result=await renderCard(canvas,snapshot,catalog,base,{...uploads},2);if(serial!==renderSerial)return;
+  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
+  if(serial!==renderSerial)return;if(!blob)throw new Error('Preview image could not be encoded');
+  const url=URL.createObjectURL(blob),prepared=new Image();prepared.src=url;
+  try{await prepared.decode();}catch(error){URL.revokeObjectURL(url);throw error;}
+  if(serial!==renderSerial){URL.revokeObjectURL(url);return;}
+  const target=$('#preview'),previousURL=previewURL;previewURL=url;
+  target.width=canvas.width;target.height=canvas.height;target.src=url;
+  if(previousURL)URL.revokeObjectURL(previousURL);
   $('#download').disabled=false;$('#share').disabled=false;
   target.dataset.ready='true';
   if(result.overflow){$('#studio-status').dataset.renderError='1';status(t('Text is too long to fit. Shorten the rules or name.','文字过长，请缩短效果描述或卡名。'));}
@@ -115,9 +136,10 @@ function bind(){
   if(button.dataset.upload)$('[data-file="'+button.dataset.upload+'"]').click();
   if(button.dataset.format){
    const el=$('[data-field="text"]'),a=el.selectionStart,b=el.selectionEnd,chosen=el.value.slice(a,b)||t('text','文字');
+   if(button.dataset.format==='remove'&&a===b)return;
    const selection=richChars(chosen),visible=selection.map(c=>c.char).join(''),bold=button.dataset.format==='bold'||(button.dataset.format==='color'&&selection.every(c=>c.bold));
-   const color=button.dataset.format==='color'?$('#text-color').value:(selection[0]?.color||'#3d3935');
-   const token=button.dataset.format==='plain'?'[plain|'+visible+']':'[style:'+color+':'+(bold?'b':'n')+'|'+visible+']';
+   const color=button.dataset.format==='color'?$('.studio-palette input:checked').value:(selection[0]?.color||'#3d3935');
+   const token=button.dataset.format==='remove'?visible:'[style:'+color+':'+(bold?'b':'n')+'|'+visible+']';
    const formatted=el.value.slice(0,a)+token+el.value.slice(b);
    if(formatted.length>el.maxLength){
     status(t('This formatting would exceed the 600-character limit. Shorten the text first; your text has been kept unchanged.','应用此样式会超过600字符限制。请先缩短文字；原文已保留。'));
