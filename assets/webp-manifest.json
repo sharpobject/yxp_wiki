@@ -23222,9 +23222,9 @@
       "webpBytes": 47514
     },
     "assets/cards/7000106_en.png": {
-      "pngBytes": 196163,
-      "sha256": "c0018f319251b1952cb1434ca6be90964cf077956f6d8b71e1f7ad84264b84ec",
-      "webpBytes": 51998
+      "pngBytes": 202503,
+      "sha256": "0440f0484efec97be2d7bc3b61079132437a91ebfd13c99a1b7f6d9e75f67935",
+      "webpBytes": 53408
     },
     "assets/cards/7000106_zh.png": {
       "pngBytes": 179372,
@@ -24342,9 +24342,9 @@
       "webpBytes": 52294
     },
     "assets/cards/7010106_en.png": {
-      "pngBytes": 209701,
-      "sha256": "08b085c48c195c8f2c5895ac9cd6c058150017d0413fd705a14c7ca7ca6b8c0d",
-      "webpBytes": 57394
+      "pngBytes": 215546,
+      "sha256": "4605ed5fc4909543958b938abe7ca6ebd503744709469b164623a8cdb4e602de",
+      "webpBytes": 58450
     },
     "assets/cards/7010106_zh.png": {
       "pngBytes": 192915,
@@ -25452,9 +25452,9 @@
       "webpBytes": 62224
     },
     "assets/cards/7020106_en.png": {
-      "pngBytes": 225181,
-      "sha256": "4c35c6c05fcd7c76fa008a0859eb7032fc024b17b43b24c8ee2cd81f37465305",
-      "webpBytes": 63282
+      "pngBytes": 231028,
+      "sha256": "dbd1f5ad598d18876004440ecc26558270f386452d735f48dfd23bbf0e1e8827",
+      "webpBytes": 64250
     },
     "assets/cards/7020106_zh.png": {
       "pngBytes": 211501,
@@ -31757,9 +31757,9 @@
       "webpBytes": 5256
     }
   },
-  "pngBytes": 1156019354,
+  "pngBytes": 1156037386,
   "pngFiles": 6351,
   "quality": 92,
   "version": 1,
-  "webpBytes": 303591420
+  "webpBytes": 303594854
 }
