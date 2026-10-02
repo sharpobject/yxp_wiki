@@ -1,7 +1,7 @@
-import './scene-resample.mjs?v=34b95f88dd60d238';
-import './scene-render.mjs?v=34b95f88dd60d238';
-import {loadNativeText,bitmap,composite} from './native-text.mjs?v=34b95f88dd60d238';
-import {autoStyle,markup} from './auto-style.mjs?v=34b95f88dd60d238';
+import './scene-resample.mjs?v=49fcca4ec53aad1a';
+import './scene-render.mjs?v=49fcca4ec53aad1a';
+import {loadNativeText,bitmap,composite} from './native-text.mjs?v=49fcca4ec53aad1a';
+import {autoStyle,markup} from './auto-style.mjs?v=49fcca4ec53aad1a';
 const Scene=globalThis.CardScene,resample=globalThis.CardResample;
 const cache=new Map();
 export function loadImage(url){
