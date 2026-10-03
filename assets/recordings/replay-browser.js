@@ -144,6 +144,7 @@
   const cardAsset = (id) => {
     return assetMode === "local" ? `card-images/${id}_${language}.png` : (window.YxpCards?.source(`${id}_${language}`) ?? `/yxp_wiki/assets/cards/${id}_${language}.webp`);
   };
+  const fateCardArt = id => assetMode === "local" ? `fate-card-art/${id}.webp` : `/yxp_wiki/assets/fate-card-art/${id}.webp`;
   const specialCardArt = (id) => assetMode === "local"
     ? `special-card-art/${id}.png`
     : `/yxp_wiki/assets/recordings/special-cards/${id}.webp`;
@@ -187,8 +188,8 @@
   const fateArtwork = (entry = {}, kind, alt = "") => {
     if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
       return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
-        <span class="fate-composite-card first"><img data-asset-fallback src="${cardAsset(entry.compositeCardIds[0])}" alt=""></span>
-        <span class="fate-composite-card second"><img data-asset-fallback src="${cardAsset(entry.compositeCardIds[1])}" alt=""></span>
+        <span class="fate-composite-card first"><img data-asset-fallback src="${fateCardArt(entry.compositeCardIds[0])}" alt=""></span>
+        <span class="fate-composite-card second"><img data-asset-fallback src="${fateCardArt(entry.compositeCardIds[1])}" alt=""></span>
         <span class="fate-composite-ink" aria-hidden="true"></span>
       </span>`;
     }

@@ -1,50 +1,12 @@
 /* Composite geometry and cropping reused from replay_browser/replay-browser.css. */
-.fate-composite {
-  position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  border-radius: 50%;
-  background: #172019;
-}
-.fate-composite-card {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 57%;
-  overflow: hidden;
-}
-.fate-composite-card.first {
-  left: 0;
-  clip-path: polygon(0 0, 100% 0, 77% 100%, 0 100%);
-}
-.fate-composite-card.second {
-  right: 0;
-  clip-path: polygon(23% 0, 100% 0, 100% 100%, 0 100%);
-}
-.fate-composite .fate-composite-card img {
-  position: absolute;
-  top: -42%;
-  left: 50%;
-  width: 310%;
-  max-width: none;
-  height: auto;
-  border-radius: 0;
-  transform: translateX(-50%);
-}
-.fate-composite-ink {
-  position: absolute;
-  z-index: 2;
-  top: -9%;
-  left: 46%;
-  width: 10%;
-  height: 118%;
-  clip-path: polygon(40% 0, 100% 4%, 72% 20%, 91% 38%, 63% 54%, 82% 70%, 44% 87%, 61% 100%, 0 96%, 24% 79%, 8% 61%, 34% 43%, 15% 25%);
-  background: linear-gradient(90deg, #2b241d, #060706 42%, #191713 72%, #050606);
-  filter: drop-shadow(0 0 1px rgba(238, 223, 184, .48));
-  transform: rotate(8deg);
-}
+/* Native FateStrategyIconItem: 176px icon minus 26px mask inset = 150px. */
+.fate-composite {position:relative;display:block;width:100%;height:100%;overflow:hidden;background:#172019;mask:url("fusion-mask.svg") center/100% 100% no-repeat;-webkit-mask:url("fusion-mask.svg") center/100% 100% no-repeat}
+.fate-composite-card {position:absolute;overflow:hidden;clip-path:none}
+.fate-composite-card.first{left:-29.07877604%;top:-9.65307617%;width:80%;height:120%;right:auto;bottom:auto;transform-origin:100.0% 50.0%;transform:rotate(20.00000779deg)}
+.fate-composite .fate-composite-card.first img{position:absolute;left:22.91666667%;top:11.11111111%;width:104.16666667%;height:83.33333333%;max-width:none;border-radius:0;object-fit:fill;transform:rotate(-19.9999977deg);transform-origin:50% 50%}
+.fate-composite-card.second{left:52.41227214%;top:-13.68033854%;width:80%;height:120%;right:auto;bottom:auto;transform-origin:0.0% 50.0%;transform:rotate(20.00000779deg)}
+.fate-composite .fate-composite-card.second img{position:absolute;left:-27.08333333%;top:5.55555556%;width:104.16666667%;height:83.33333333%;max-width:none;border-radius:0;object-fit:fill;transform:rotate(-19.9999977deg);transform-origin:50% 50%}
+.fate-composite-ink{position:absolute;z-index:2;left:20.33333333%;top:-10.40000025%;width:54.66666667%;height:138%;background:url("fusion-divider.webp") center / 100% 100% no-repeat;pointer-events:none}
 .fate-card-crop {
   position: relative;
   display: block;
@@ -87,5 +49,5 @@
 
 .hdf-art{position:relative;display:block;flex:0 0 var(--fate-size,64px);width:var(--fate-size,64px);height:var(--fate-size,64px);border:1px solid #5aa3a0;border-radius:50%;background:#172019;box-shadow:0 3px 8px #0007;overflow:hidden}
 .hdf-art>img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%}
-.hdf-art .fate-composite-card img{width:310%;height:auto;max-width:none}
+.hdf-art .fate-composite-card img{width:176.7%;height:auto;max-width:none}
 .hdf-art .fate-card-crop img{width:100%;height:100%;object-fit:cover}
