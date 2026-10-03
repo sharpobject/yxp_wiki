@@ -1,4 +1,4 @@
-import {round,richChars,NativeLayout} from './native-layout.mjs?v=49fcca4ec53aad1a';
+import {round,richChars,NativeLayout} from './native-layout.mjs?v=cd5a60dd8aebcf6a';
 const clamp=x=>Math.max(0,Math.min(255,round(x)));
 export const PROBE='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789御空剑阵禦空劍陣防灵气靈氣造成伤害傷害卡组組再次行动動';
 export function bitmap(w,h){return {width:w,height:h,data:new Uint8ClampedArray(w*h*4)};}
@@ -41,7 +41,7 @@ export class NativeText extends NativeLayout{
    const ch=item.char,g=this.glyph(ch),bold=item.bold;
    if(ch===' '){cursor+=this.m.spaceAdvance*scale+spacing*.01*size;continue;}
    let p=g[4]?g[3]:g[3][isolated?(kind==='title'?'t':'v'):(bold?'b':'n')];
-   if(g[4]&&isolated)p=padPlane(p,10);else if(g[4]&&bold)p=padPlane(p,Math.max(1,round(size*.05)),128);
+   if(g[4]&&isolated)p=padPlane(p,10);else if(g[4]&&bold)p=padPlane(p,Math.max(1,round(size*.05)),0);
    const mat=isolated?{...this.m.outline,face_dilate:c[(kind==='title'?'TITLE':'VERTICAL_NAME')+'_FACE_DILATE'],outline_width:c[(kind==='title'?'TITLE':'VERTICAL_NAME')+'_OUTLINE_WIDTH']}:{...this.m.body,face_dilate:c['DESC_FACE_DILATE_'+tag+'_'+(bold?'BOLD':'NORMAL')]};
    const prefix=kind==='title'?'TITLE':'VERTICAL_NAME',faceDistance=isolated?c[prefix+'_FACE_DISTANCE_SCALE']:c['DESC_SDF_DISTANCE_SCALE_'+tag+'_'+(bold?'BOLD':'NORMAL')],outlineDistance=isolated?c[prefix+'_OUTLINE_DISTANCE_SCALE']:faceDistance;
    const left=cursor+(g[1]-p[2])*scale,top=baseline-(g[2]+p[3])*scale,x=isolated?Math.floor(left+phaseX):round(left),y=isolated?Math.floor(top+phaseY):round(top);
@@ -51,6 +51,36 @@ export class NativeText extends NativeLayout{
    if(outline)composite(out,outline,x,y);composite(out,face,x,y);cursor+=g[0]*scale+spacing*.01*size;
   }
   return isolated&&width>extra*2&&height>extra*2?crop(out,extra,extra,width-2*extra,height-2*extra):out;
+ }
+ sigilLayers(state,scale,titleFont){
+  const c=this.c,tag=state.language==='en'?'EN':'CJK',layers=[],description=[],title=state.language==='en'?state.name:state.cn;
+  const spacing=c.KEYIN_NAME_CHARACTER_SPACING_UI,max=c.KEYIN_NAME_TMP_FONT_SIZE_MAX_UI,min=c.KEYIN_NAME_TMP_FONT_SIZE_MIN_UI,[tw,th]=c.KEYIN_NAME_TMP_RECT_UI;
+  const words=title.split(' '),candidates=[[title]];
+  for(let i=1;i<words.length;i++)candidates.push([words.slice(0,i).join(' '),words.slice(i).join(' ')]);
+  const height=(rows,size)=>titleFont.m.lineHeight*size/titleFont.m.pointSize+(rows.length-1)*titleFont.lineHeight(size,c.KEYIN_NAME_LINE_SPACING_UI);
+  const fitted=candidates.map(rows=>({rows,size:Math.max(min,max*Math.min(1,tw/Math.max(1,...rows.map(row=>titleFont.width(row,max,spacing))),th/height(rows,max)))})).sort((a,b)=>b.size-a.size||a.rows.length-b.rows.length||b.rows[0].length-a.rows[0].length)[0];
+  const factor=round(c.KEYIN_NAME_FONT_SIZE_UI*this.m.uiScale[1]*scale)/max,size=Math.max(1,round(fitted.size*factor)),lineHeight=titleFont.lineHeight(fitted.size,c.KEYIN_NAME_LINE_SPACING_UI)*factor,b=c.KEYIN_NAME_RECT.map(v=>v*scale);
+  let y=b[1]+Math.max(0,(b[3]-b[1]-fitted.rows.length*lineHeight)/2);
+  for(const row of fitted.rows){
+   const image=titleFont.line(row,size*4,{kind:'title',spacing,shaderSize:size*4,language:state.language});
+   layers.push({x:(b[0]+b[2]-image.width/4)/2,y:y+(lineHeight-image.height/4)/2,image,downsample:4});y+=lineHeight;
+  }
+  const layout=new NativeLayout({...this.m,spaceAdvance:c.KEYIN_DEFAULT_FONT_SPACE_ADVANCE},this.glyphs),sp=c['KEYIN_DESC_CHARACTER_SPACING_'+tag],maxUi=c['KEYIN_DESC_FONT_SIZE_MAX_'+tag+'_UI'],minUi=c.KEYIN_DESC_FONT_SIZE_MIN_UI,width=c.KEYIN_DESC_TMP_LAYOUT_SIZE_UI[0],available=c['KEYIN_DESC_LAYOUT_HEIGHT_'+tag+'_UI'];
+  const lines=state.text?state.text.split(/\r\n|[\n\r\v\f\u001c-\u001e\u0085\u2028\u2029]/u):[];if(lines.at(-1)===''&&state.text)lines.pop();
+  let lo=minUi,hi=maxUi,ui=maxUi,rows=[],overflow=false;
+  for(let it=0;it<=20;it++){
+   rows=lines.flatMap((line,i)=>{const wrapped=layout.wrap(line,width,ui,sp,tag==='EN'?c.TMP_WRAP_WIDTH_EPSILON:0);return wrapped.map((row,j)=>({row,gap:i<lines.length-1&&j===wrapped.length-1}));});
+   const first=layout.m.lineHeight*ui/layout.m.pointSize,advance=layout.lineHeight(ui,c.KEYIN_DESC_LINE_SPACING_UI)*c['KEYIN_DESC_LINE_HEIGHT_SCALE_'+tag],gap=c.KEYIN_DESC_PARAGRAPH_SPACING_UI*ui*.01*c['KEYIN_DESC_PARAGRAPH_GAP_SCALE_'+tag],total=rows.length?first+(rows.length-1)*advance+rows.slice(0,-1).filter(r=>r.gap).length*gap:0;
+   overflow=total>available+.0001||Math.max(0,...rows.map(r=>layout.rowWidth(r.row,ui,sp)))>width+(tag==='EN'?c.TMP_WRAP_WIDTH_EPSILON:.0001);
+   if(it===20)break;
+   if(overflow){if(ui<=minUi)break;hi=ui;ui=Math.max(Math.floor((ui-Math.max((ui-lo)/2,.05))*20+.5)/20,minUi);}
+   else if(hi-lo>.051&&ui<maxUi){lo=ui;ui=Math.min(Math.floor((ui+Math.max((hi-ui)/2,.05))*20+.5)/20,maxUi);}else break;
+  }
+  const fontSize=Math.max(1,round(ui*this.m.uiScale[1]*scale))+(tag==='CJK'?c.KEYIN_DESC_DRAW_SIZE_OFFSET_CJK:0),advance=round(this.lineHeight(fontSize,c.KEYIN_DESC_LINE_SPACING_UI)),gap=round(Math.max(0,c.KEYIN_DESC_PARAGRAPH_SPACING_UI*fontSize*.01)),box=c['KEYIN_DESC_TEXT_DRAW_RECT_'+tag].map(v=>v*scale),opts={spacing:sp,shaderSize:Math.max(1,round(fontSize/scale)),language:state.language};
+  const probe=this.line(richChars(PROBE),fontSize,opts),bb=bounds(probe),yoffset=bb?round((advance-(bb[3]-bb[1]))/2-bb[1]):0,total=rows.length*advance+rows.slice(0,-1).filter(r=>r.gap).length*gap;
+  y=box[1]+Math.floor((box[3]-box[1]-total)/2);
+  for(const row of rows){const gs=c['DESC_GLYPH_SCALE_'+tag],image=this.line(row.row,fontSize*gs,{...opts,shaderSize:round(opts.shaderSize*gs)});description.push({x:round((box[0]+box[2]-image.width)/2),y:round(y+yoffset),image});y+=advance+(row.gap?gap:0);}
+  return {layers,description,blockScale:c['DESC_BLOCK_SCALE_'+tag],blockCenter:[(box[0]+box[2])/2,(box[1]+box[3])/2],overflow:overflow||Math.max(...fitted.rows.map(row=>titleFont.width(row,fitted.size,spacing)))>tw+.001||height(fitted.rows,fitted.size)>th+.001};
  }
  layers(state,scale=1){
   const c=this.c,offset=Math.ceil(3.6517858482*scale),box=a=>a.map((v,i)=>v*scale+(i%2===0?offset:0)),layers=[];
@@ -74,17 +104,22 @@ export class NativeText extends NativeLayout{
   return {layers,description,blockScale:c['DESC_BLOCK_SCALE_'+tag],blockCenter:[(b[0]+b[2])/2,(b[1]+b[3])/2],overflow:overflow||fit.overflow};
  }
 }
-const chunkCache=new Map();let metaPromise,corePromise;
-export async function loadNativeText(base,text){
- metaPromise??=fetch(new URL('native-font.json',base),{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Native font unavailable');return r.json();}).catch(e=>{metaPromise=null;throw e;});
- const meta=await metaPromise;
- if(meta.core)corePromise??=fetch(new URL(meta.core,base)).then(async r=>{if(!r.ok)throw Error('Native core glyphs unavailable');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();}).catch(e=>{corePromise=null;throw e;});
- const glyphs=corePromise?{...await corePromise}:{};
+const chunkCache=new Map(),metaCache=new Map();
+export async function loadNativeText(base,text,font='default'){
+ const url=new URL(font==='huiwen'?'native-font-huiwen.json':'native-font.json',base).href;
+ if(!metaCache.has(url))metaCache.set(url,fetch(url,{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Native font unavailable');return r.json();}).catch(e=>{metaCache.delete(url);throw e;}));
+ const meta=await metaCache.get(url),glyphs={};
+ async function chunk(name){
+  const url=new URL(name,base).href;
+  if(!chunkCache.has(url))chunkCache.set(url,fetch(url).then(async r=>{if(!r.ok)throw Error('Native glyphs unavailable');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();}).catch(e=>{chunkCache.delete(url);throw e;}));
+  Object.assign(glyphs,await chunkCache.get(url));
+ }
+ if(meta.core)await chunk(meta.core);
  const groups=new Set(Array.from(text+PROBE+'\ufffd ').filter(c=>!glyphs[c]).map(c=>Math.floor(c.codePointAt(0)/256)));
- await Promise.all([...groups].map(async n=>{
-  const name=meta.chunks[n];if(!name)return;
-  if(!chunkCache.has(n))chunkCache.set(n,fetch(new URL(name,base)).then(async r=>{if(!r.ok)throw Error('Native glyphs unavailable');return new Response(r.body.pipeThrough(new DecompressionStream('gzip'))).json();}).catch(e=>{chunkCache.delete(n);throw e;}));
-  Object.assign(glyphs,await chunkCache.get(n));
- }));
+ await Promise.all([...groups].map(n=>meta.chunks[n]?chunk(meta.chunks[n]):null));
+ if(font==='huiwen'){
+  const missing=Array.from(text).filter(c=>!glyphs[c]).join('');
+  if(missing){const fallback=await loadNativeText(base,missing);for(const ch of missing)glyphs[ch]=fallback.glyph(ch);}
+ }
  return new NativeText(meta,glyphs);
 }

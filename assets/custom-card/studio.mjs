@@ -1,6 +1,6 @@
-import {defaults,decode,encode,normalize} from './model.mjs?v=49fcca4ec53aad1a';
-import {renderCard,loadImage} from './render.mjs?v=49fcca4ec53aad1a';
-import {richChars} from './native-layout.mjs?v=49fcca4ec53aad1a';
+import {defaults,decode,encode,normalize} from './model.mjs?v=cd5a60dd8aebcf6a';
+import {renderCard,loadImage} from './render.mjs?v=cd5a60dd8aebcf6a';
+import {richChars} from './native-layout.mjs?v=cd5a60dd8aebcf6a';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
@@ -30,7 +30,7 @@ function buildUI(){
  root.innerHTML='<div class="studio-heading"><div><h1>'+t('Custom card studio','自定义卡牌工坊')+'</h1></div><div class="studio-actions"><button id="edit-view" hidden>'+t('Remix this card','编辑这张卡牌')+'</button><button id="download" disabled>'+t('Download PNG','下载 PNG')+'</button><button class="primary" id="share" disabled>'+t('Copy share link','复制分享链接')+'</button></div></div>'+
  '<p id="studio-status" class="studio-status" role="status" aria-live="polite"></p><input class="share-url" id="share-url" aria-label="'+t('Share link','分享链接')+'" readonly hidden><div id="warning" class="studio-warning" role="status" hidden></div>'+
  '<div class="studio-grid"><aside class="studio-preview"><span class="preview-label">'+t('Your creation','你的作品')+'</span><img id="preview" width="616" height="1016" alt="'+t('Custom card preview','自定义卡牌预览')+'"><p>'+t('Fan-made card · Yi Xian Pai','弈仙牌 · 同人卡牌')+'</p></aside><div class="studio-editor">'+
- '<section class="studio-panel"><h2><span class="step">01</span>'+t('Card text','卡牌文字')+'</h2><div class="panel-content studio-fields">'+field(t('English name','英文名'),'name','maxlength="100"')+field(t('Chinese name · vertical','中文名 · 竖排'),'cn','maxlength="30"')+
+ '<section class="studio-panel"><h2><span class="step">01</span>'+t('Card text','卡牌文字')+'</h2><div class="panel-content studio-fields">'+field(t('English name','英文名'),'name','maxlength="100"')+field(t('Chinese name','中文名'),'cn','maxlength="30"')+
  '<label class="field span-two">'+t('Rules text','效果描述')+'<textarea data-field="text" maxlength="600" rows="4"></textarea></label><div class="span-two">'+textPalette()+'<div class="studio-format"><button data-format="color">'+t('Apply color','应用颜色')+'</button><button data-format="bold">'+t('Bold text','加粗文字')+'</button><button data-format="remove">'+t('Remove style','移除样式')+'</button></div><label class="studio-toggle"><input type="checkbox" data-field="autoStyle">'+t('Automatically style game keywords and stats','自动标注游戏关键词与数值')+'</label><p class="hint">'+t('Select text, then apply a style. Explicit styles override automatic formatting. Line breaks are preserved.','选中文字后应用样式。手动样式优先于自动标注，并保留换行。')+'</p></div></div></section>'+
  '<section class="studio-panel"><h2><span class="step">02</span>'+t('Artwork','卡面画作')+'</h2><div class="panel-content"><div class="art-mode"><label class="studio-toggle"><input type="checkbox" data-field="fusion">'+t('Fuse two artworks','融合两幅画作')+'</label><button id="swap" hidden>'+t('Swap A ↔ B','交换 A ↔ B')+'</button></div><div class="art-slots">'+slot('A')+slot('B')+'</div><p class="hint">'+t('Use any card’s art, or upload your own. Share links won\'t work with uploaded images.','可使用任意卡牌画作或自行上传。上传图片后，分享链接将无法使用。')+'</p></div></section>'+
  '<section class="studio-panel"><h2><span class="step">03</span>'+t('Frame & details','边框与细节')+'</h2><div class="panel-content studio-fields">'+
@@ -39,7 +39,8 @@ function buildUI(){
  select(t('Card language','卡面语言'),'language',[['en','English'],['zh','简体中文'],['tw','繁體中文']])+
  select(t('Watermark','底纹'),'mark',[['none',t('None','无')]])+
  select(t('Cost type','消耗类型'),'costType',[['none',t('None','无')],['qi',t('Qi','灵气')],['hp',t('HP','生命')]])+field(t('Cost','消耗'),'cost','type="number" min="0" max="99"')+
- '<label class="studio-toggle span-two"><input type="checkbox" data-field="dream">'+t('Dream frame','梦境边框')+'</label></div></section>'+
+ select(t('Card type','卡牌类型'),'kind',[['normal',t('Normal','普通')],['dream',t('Dream','梦境')],['sigil',t('Sigil','刻印')]])+
+ field(t('Sigil value','刻印值'),'sigilValue','type="number" min="0" max="3"')+field(t('Max HP','生命上限'),'maxHp','type="number" min="-99" max="99"')+'</div></section>'+
  '<div class="studio-footer"><div class="studio-actions"><button id="undo" disabled>'+t('Undo','撤销')+'</button><button id="redo" disabled>'+t('Redo','重做')+'</button><button id="reset">'+t('Reset','重置')+'</button></div><small>'+t('Your changes live in the URL.','你的修改保存在网址中。')+'</small></div></div></div>'+
  '<dialog class="art-dialog" aria-labelledby="library-title"><div class="dialog-top"><div class="dialog-title"><h2 id="library-title">'+t('Choose artwork','选择画作')+'</h2><button id="close-library" aria-label="'+t('Close art library','关闭画作库')+'">✕</button></div><input id="art-search" type="search" placeholder="'+t('Search English, Chinese, or card ID…','搜索英文名、中文名或卡牌 ID…')+'" aria-label="'+t('Search artwork','搜索画作')+'"><p class="hint" id="result-count"></p></div><div class="art-library"></div><button class="library-more" id="library-more">'+t('Show more','显示更多')+'</button></dialog>';
  const marks={SectBottom_1:t('Cloud Spirit Sword Sect','云灵剑宗'),SectBottom_2:t('Heptastar Pavilion','七星阁'),SectBottom_3:t('Five Elements Alliance','五行道盟'),SectBottom_4:t('Duan Xuan Sect','锻玄宗'),SectBottom_5:t('Pure Nothingness Sect','无极道宗'),CareerBottom_1:t('Elixirist','炼丹师'),CareerBottom_2:t('Fuluist','符咒师'),CareerBottom_3:t('Musician','琴师'),CareerBottom_4:t('Painter','画师'),CareerBottom_5:t('Formation Master','阵法师'),CareerBottom_6:t('Plant Master','灵植师'),CareerBottom_7:t('Fortune Teller','命理师'),artifact:t('Talisman','法宝'),pet:t('Spiritual pet','灵宠')};
@@ -57,7 +58,11 @@ function sync(){
  root.classList.toggle('studio-view',view);$('#edit-view').hidden=!view;
  for(const el of root.querySelectorAll('[data-field]')){const value=state[el.dataset.field];if(el.type==='checkbox')el.checked=value;else el.value=value;}
  $('#slot-B').hidden=!state.fusion;$('#swap').hidden=!state.fusion;$('.art-slots').classList.toggle('fusion',state.fusion);
- $('[data-field="mark"]').disabled=state.dream;$('[data-field="level"]').disabled=state.dream;$('[data-field="cost"]').disabled=state.costType==='none';
+ $('[data-field="kind"]').value=state.sigil?'sigil':state.dream?'dream':'normal';
+ $('[data-field="mark"]').disabled=state.dream;
+ for(const key of ['level','costType','cost'])$('[data-field="'+key+'"]').closest('label').hidden=state.sigil;
+ for(const key of ['sigilValue','maxHp'])$('[data-field="'+key+'"]').closest('label').hidden=!state.sigil;
+ $('[data-field="level"]').disabled=state.dream;$('[data-field="cost"]').disabled=state.costType==='none';
  for(const s of ['A','B']){
   const entry=catalog.cards.find(c=>c.id===state[s.toLowerCase()]),el=$('#slot-'+s);
   const upload=state[s.toLowerCase()]==='upload',record=uploads[s];
@@ -124,7 +129,8 @@ function bind(){
  root.addEventListener('input',e=>{
   const key=e.target.dataset.field;if(!key)return;
   if(editingField!==key){remember();editingField=key;}
-  state[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;
+  if(key==='kind'){state.sigil=e.target.value==='sigil';state.dream=e.target.value==='dream';}
+  else state[key]=e.target.type==='checkbox'?e.target.checked:e.target.value;
   state=normalize(state,catalog).state;status('');$('#share-url').hidden=true;
   // Do not replace a focused text field or move its caret while typing.
   const active=document.activeElement,selection=['text','textarea'].includes(active.type)?[active.selectionStart,active.selectionEnd]:null;

@@ -1,7 +1,7 @@
 /* Shared card scene renderer. All text consists of exported TMP glyph pixels. */
 (function(global){
 'use strict';
-const images=new Map();
+const images=new Map(),tinted=new Map();
 function load(url){
   if(!images.has(url)) images.set(url,typeof Image==='undefined'?fetch(url).then(r=>{if(!r.ok)throw new Error(`Card sprite HTTP ${r.status}`);return r.blob();}).then(createImageBitmap):new Promise((resolve,reject)=>{
     const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>{images.delete(url);reject(new Error(`Card sprite failed: ${url}`));};image.src=url;
@@ -40,11 +40,19 @@ function draw(ctx,node,assets){
   ctx.restore();
 }
 async function render(scene,base,atlas){
+  const prepStart=performance.now();
   const assets=new Map();
   await Promise.all([...leaves(scene)].map(async id=>{
-    if(atlas){const a=atlas[id];if(!a)throw new Error(`Missing sprite ${id}`);assets.set(id,[await load(base+a[0]),a[1],a[2]]);}
+    if(atlas){const a=atlas[id];if(!a)throw new Error(`Missing sprite ${id}`);const image=await load(base+a[0]);
+      if(a[5]){
+        const token=base+a[0]+':'+a.slice(1).toString();
+        let mask=global.NO_TINT_CACHE?null:tinted.get(token);
+        if(!mask){mask=surface(a[3],a[4]);const ctx=mask.getContext('2d');ctx.drawImage(image,a[1],a[2],a[3],a[4],0,0,a[3],a[4]);ctx.globalCompositeOperation='source-in';ctx.fillStyle=`rgb(${a[5].join(',')})`;ctx.fillRect(0,0,a[3],a[4]);if(!global.NO_TINT_CACHE)tinted.set(token,mask);while(tinted.size>2048)tinted.delete(tinted.keys().next().value);}
+        assets.set(id,mask);
+      }else assets.set(id,[image,a[1],a[2]]);}
     else assets.set(id,await load(`${base}sprites/${id}.webp`));
   }));
+  render.lastPrepareMs=performance.now()-prepStart;
   const canvas=surface(...size(scene)),start=performance.now();draw(canvas.getContext('2d'),scene,assets);render.lastDrawMs=performance.now()-start;return canvas;
 }
 function renderPrepared(scene,assets){const canvas=surface(...size(scene));draw(canvas.getContext('2d'),scene,assets);return canvas;}global.CardScene={render,renderPrepared,leaves,surface};

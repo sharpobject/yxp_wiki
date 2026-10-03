@@ -1,7 +1,7 @@
-import './scene-resample.mjs?v=49fcca4ec53aad1a';
-import './scene-render.mjs?v=49fcca4ec53aad1a';
-import {loadNativeText,bitmap,composite} from './native-text.mjs?v=49fcca4ec53aad1a';
-import {autoStyle,markup} from './auto-style.mjs?v=49fcca4ec53aad1a';
+import './scene-resample.mjs?v=cd5a60dd8aebcf6a';
+import './scene-render.mjs?v=cd5a60dd8aebcf6a';
+import {loadNativeText,bitmap,composite} from './native-text.mjs?v=cd5a60dd8aebcf6a';
+import {autoStyle,markup} from './auto-style.mjs?v=cd5a60dd8aebcf6a';
 const Scene=globalThis.CardScene,resample=globalThis.CardResample;
 const cache=new Map();
 export function loadImage(url){
@@ -21,7 +21,7 @@ export async function renderCard(canvas,state,catalog,base,uploads,scale=1){
  const [all,lexicon]=await Promise.all([json(new URL('native-assets.json',base).href),json(new URL('keywords.json',base).href)]);
  const text=state.autoStyle===false?state.text:markup(autoStyle(state.text,state.language,lexicon));
  const native=await loadNativeText(base,state.name+state.cn+text);
- const g=all[scale],assets=new Map(),image=file=>loadImage(new URL(file,base).href),parts=[];
+ const g=state.sigil?all[scale].sigil:all[scale],assets=new Map(),image=file=>loadImage(new URL(file,base).href),parts=[];
  let id=0;
  const leaf=im=>{const key='runtime-'+id++;assets.set(key,im);return ['i',key,im.width,im.height];};
  const getArt=async slot=>state[slot.toLowerCase()]==='upload'?(uploads[slot]?.image||null):image(catalog.cards.find(c=>c.id===state[slot.toLowerCase()]).image);
@@ -41,12 +41,32 @@ export async function renderCard(canvas,state,catalog,base,uploads,scale=1){
   composite(fused,pixels(divider),0,0);
   const c=surface(180,216);c.getContext('2d').putImageData(new ImageData(fused.data,180,216),0,0);art=leaf(c);
  }
- parts.push([g.bleed,0,['t',300*scale,508*scale,...g.artTransform,art,'magic_kernel_sharp_resample_translate']]);
- const fixedRows=[g.frames[state.phase+'-'+(state.dream?'dream':state.level)],!state.dream&&state.mark!=='none'?g.marks[state.mark]:null,state.language==='en'?g.titleBg:null,state.costType!=='none'?g.costs[state.costType][state.cost]:null].filter(Boolean);
- const fixedImages=await Promise.all(fixedRows.map(row=>image(row[2])));
- fixedRows.forEach(([x,y],i)=>parts.push([x,y,leaf(fixedImages[i])]));
- const type=native.layers({...state,text},scale),toCanvas=im=>{const c=surface(im.width,im.height);c.getContext('2d').putImageData(new ImageData(im.data,im.width,im.height),0,0);return c;};
- for(const p of type.layers)parts.push([p.x,p.y,leaf(toCanvas(p.image))]);
+ parts.push([g.bleed,0,['t',...(state.sigil?g.size:[300*scale,508*scale]),...g.artTransform,art,'magic_kernel_sharp_resample_translate']]);
+ const sheetBase=new URL('../card-components/',base),decorations=await json(new URL('decorations.json',sheetBase).href);
+ const fixedRows=state.sigil?[g.frames[state.phase],state.mark!=='none'?g.marks[state.mark]:null,...g.dots[state.phase].slice(0,state.sigilValue),state.maxHp?g.hp[state.phase]:null]:[g.frames[state.phase+'-'+(state.dream?'dream':state.level)],!state.dream&&state.mark!=='none'?g.marks[state.mark]:null,state.language==='en'?g.titleBg:null,state.costType!=='none'?g.costs[state.costType][state.cost]:null];
+ const sharedImage=async name=>{
+  const d=decorations[name];if(!d)throw Error('Missing decoration: '+name);
+  const [file,x,y,w,h]=d.rect,im=await loadImage(new URL(file,sheetBase).href),c=surface(w*scale,h*scale),ctx=c.getContext('2d');
+  for(const [cx,cy,cw,ch] of d.cuts)ctx.drawImage(im,x+cx,y+cy,cw,ch,cx*scale,cy*scale,cw*scale,ch*scale);
+  return {image:c,origin:d.origin.map(v=>v*scale)};
+ };
+ if(state.sigil){
+  const artCanvas=Scene.renderPrepared(['g',...g.size,parts],assets),mask=await sharedImage('sigil-art-mask'),maskCanvas=surface(...g.size);
+  maskCanvas.getContext('2d').drawImage(mask.image,...mask.origin);
+  const ctx=artCanvas.getContext('2d');ctx.globalCompositeOperation='destination-in';ctx.drawImage(maskCanvas,0,0);ctx.globalCompositeOperation='source-over';
+  parts.length=0;parts.push([0,0,leaf(artCanvas)]);
+ }
+ for(const row of fixedRows.filter(Boolean)){
+  if(row.shared){const d=await sharedImage(row.shared),[x,y]=row.offset||[0,0];parts.push([x+d.origin[0],y+d.origin[1],leaf(d.image)]);}
+  else parts.push([row[0],row[1],leaf(await image(row[2]))]);
+ }
+ if(state.sigil&&state.maxHp){
+  const digits=await Promise.all(Array.from(String(state.maxHp),ch=>sharedImage('sigil-hp-digit-'+ch))),gap=scale,w=digits.reduce((n,d)=>n+d.image.width,0)+gap*(digits.length-1),h=Math.max(...digits.map(d=>d.image.height)),b=g.hpRect;
+  let x=(b[0]+b[2]-w)/2;for(const d of digits){parts.push([x,(b[1]+b[3]-d.image.height)/2,leaf(d.image)]);x+=d.image.width+gap;}
+ }
+ const titleNative=state.sigil?await loadNativeText(base,state.language==='en'?state.name:state.cn,'huiwen'):null;
+ const type=state.sigil?native.sigilLayers({...state,text},scale,titleNative):native.layers({...state,text},scale),toCanvas=im=>{const c=surface(im.width,im.height);c.getContext('2d').putImageData(new ImageData(im.data,im.width,im.height),0,0);return c;};
+ for(const p of type.layers){let im=toCanvas(p.image);if(p.downsample){const small=surface(Math.max(1,Math.round(im.width/p.downsample)),Math.max(1,Math.round(im.height/p.downsample))),ctx=small.getContext('2d');ctx.imageSmoothingQuality='high';ctx.drawImage(im,0,0,small.width,small.height);im=small;}parts.push([p.x,p.y,leaf(im)]);}
  let description=['g',...g.size,type.description.map(p=>[p.x,p.y,leaf(toCanvas(p.image))])];
  if(Math.abs(type.blockScale-1)>1e-6){const s=type.blockScale,[cx,cy]=type.blockCenter;description=['t',...g.size,s,s,cx*(1-s),cy*(1-s),description,'magic_kernel_sharp_resample_translate'];}
  parts.push([0,0,description]);
