@@ -1,7 +1,7 @@
 /* Shared card scene renderer. All text consists of exported TMP glyph pixels. */
 (function(global){
 'use strict';
-const images=new Map(),tinted=new Map();
+const images=new Map(),tinted=new Map(),composed=new Map();
 function load(url){
   if(!images.has(url)) images.set(url,typeof Image==='undefined'?fetch(url).then(r=>{if(!r.ok)throw new Error(`Card sprite HTTP ${r.status}`);return r.blob();}).then(createImageBitmap):new Promise((resolve,reject)=>{
     const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>{images.delete(url);reject(new Error(`Card sprite failed: ${url}`));};image.src=url;
@@ -35,15 +35,23 @@ function draw(ctx,node,assets){
   }else if(op==='x'){
     ctx.translate(w,0);ctx.scale(-1,1);draw(ctx,node[3],assets);
   }else if(op==='m'){
-    const layer=surface(w,h),lc=layer.getContext('2d');draw(lc,node[3],assets);const mask=surface(w,h);draw(mask.getContext('2d'),node[4],assets);lc.globalCompositeOperation='destination-in';lc.drawImage(mask,0,0);ctx.drawImage(layer,0,0);
+    const layer=surface(w,h),lc=layer.getContext('2d');draw(lc,node[3],assets);const mask=surface(w,h);draw(mask.getContext('2d'),node[4],assets);const pixels=lc.getImageData(0,0,w,h),alpha=mask.getContext('2d').getImageData(0,0,w,h).data;for(let i=3;i<pixels.data.length;i+=4)pixels.data[i]=alpha[i];lc.putImageData(pixels,0,0);ctx.drawImage(layer,0,0);
   }
   ctx.restore();
 }
-async function render(scene,base,atlas){
+async function render(scene,base,atlas,virtual={}){
+  async function asset(name){
+    if(!virtual[name])return load(base+name);
+    const key=base+name;
+    if(!composed.has(key)){const spec=virtual[name];composed.set(key,render(spec.n,base,spec.s).catch(e=>{composed.delete(key);throw e}));}
+    const promise=composed.get(key);
+    while(composed.size>128)composed.delete(composed.keys().next().value);
+    return promise;
+  }
   const prepStart=performance.now();
   const assets=new Map();
   await Promise.all([...leaves(scene)].map(async id=>{
-    if(atlas){const a=atlas[id];if(!a)throw new Error(`Missing sprite ${id}`);const image=await load(base+a[0]);
+    if(atlas){const a=atlas[id];if(!a)throw new Error(`Missing sprite ${id}`);const image=await asset(a[0]);
       if(a[5]){
         const token=base+a[0]+':'+a.slice(1).toString();
         let mask=global.NO_TINT_CACHE?null:tinted.get(token);

@@ -59,7 +59,7 @@ async function compose(key){
     blob=await new Promise((resolve,reject)=>{const id=++sequence;pending.set(id,{resolve,reject});getWorker().postMessage({id,recipe,base:assets});});
   }else{
     if(!window.CardScene){await script('resample.js');await script('render.js');}
-    const canvas=await CardScene.render(recipe.n,assets,recipe.s);
+    const canvas=await CardScene.render(recipe.n,assets,recipe.s,recipe.v);
     blob=canvas.convertToBlob?await canvas.convertToBlob({type:'image/png'}):await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
   }
   if(store)store.put(storedUrl,new Response(blob,{headers:{'Content-Type':'image/png'}})).then(async()=>{
