@@ -11,7 +11,7 @@
 <nav aria-label="Gallery display"><button id="background">Background: dark</button><button id="size">Size: fit to panel</button></nav>
 <main id="gallery"></main>
 <script>
-const sheets=[["Normal frames + shared decorations", "Watermarks, title plate, numbers and symbols", "b669f26cf1f60b6f8d3949e2"], ["Dream frames", "All six phases", "610bec25455650efed27651e"], ["Sigil frames + decorations", "All six phases, dots, max-HP indicators, numbers and watermarks", "2c0cae5e6d226fe3c92f44e8"], ["English sigil titles", "Individual title glyphs", "e36d4c22cb4945eb41796f12"], ["English titles + rules", "Normal English card text", "c6fafff46667f94815c3ec90"], ["Chinese sigil titles", "Individual title glyphs", "4d5c6d1c60908f7bb2af1881"], ["Chinese card titles", "Shared by both languages", "6ec7db79c253a2e0cb738c67"], ["Chinese rules", "Chinese rules text", "c1fdcae40e884111f9bcccdb"]];
+const sheets=[["Normal frames + shared decorations", "Watermarks, title plate, numbers and symbols", "b669f26cf1f60b6f8d3949e2"], ["Dream frames", "All six phases", "610bec25455650efed27651e"], ["Sigil frames + decorations", "All six phases, dots, max-HP indicators, numbers and watermarks", "634cdcd6c635e8c1eb811a4f"], ["English sigil titles", "Individual title glyphs", "e36d4c22cb4945eb41796f12"], ["English titles + rules", "Normal English card text", "c6fafff46667f94815c3ec90"], ["Chinese sigil titles", "Individual title glyphs", "4d5c6d1c60908f7bb2af1881"], ["Chinese card titles", "Shared by both languages", "6ec7db79c253a2e0cb738c67"], ["Chinese rules", "Chinese rules text", "c1fdcae40e884111f9bcccdb"]];
 for(const [title,description,hash] of sheets){
  const url=`s/${hash}.webp`;
  const article=document.createElement('article');
