@@ -159,7 +159,7 @@
   };
   const careerAsset = (id) => assetMode === "local"
     ? `career-icons/Icon_Career_${id}.png`
-    : `/yxp_wiki/assets/recordings/careers/Icon_Career_${id}.png`;
+    : `/yxp_wiki/assets/recordings/careers/Icon_Career_${id}.webp`;
   const fateAsset = (entry, kind) => {
     if (kind === "talent" && [10199,20199,30199,40199,50199].includes(Number(entry.iconId))) {
       return assetMode === "local" ? `vase-icons/Icon_Talent_${entry.iconId}.webp`
