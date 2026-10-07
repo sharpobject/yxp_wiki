@@ -11,3 +11,9 @@
 .treasure-pool li{padding:5px 7px;border-radius:5px}
 .treasure-pool li:has(a:hover),.treasure-pool li:focus-within{background:#ffd27f18;box-shadow:inset 3px 0 #ffd27f}
 .treasure-pool .offered-level{display:inline-block;padding:0 5px;border:1px solid #b99a5855;border-radius:4px;color:#ffe0a1;font-size:.9em}
+
+/* Fit the complete level/phase comparison within the available tooltip width. */
+#fate-card-preview .preview-cards{display:grid;grid-template-columns:repeat(var(--preview-count),minmax(0,1fr));gap:6px;max-width:none;overflow:visible}
+#fate-card-preview figure{min-width:0}
+#fate-card-preview img{width:100%;height:auto;aspect-ratio:308/508}
+#fate-card-preview figcaption{overflow-wrap:anywhere}
