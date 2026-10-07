@@ -55,7 +55,12 @@ async function render(scene,base,atlas,virtual={}){
       if(a[5]){
         const token=base+a[0]+':'+a.slice(1).toString();
         let mask=global.NO_TINT_CACHE?null:tinted.get(token);
-        if(!mask){mask=surface(a[3],a[4]);const ctx=mask.getContext('2d');ctx.drawImage(image,a[1],a[2],a[3],a[4],0,0,a[3],a[4]);ctx.globalCompositeOperation='source-in';ctx.fillStyle=`rgb(${a[5].join(',')})`;ctx.fillRect(0,0,a[3],a[4]);if(!global.NO_TINT_CACHE)tinted.set(token,mask);while(tinted.size>2048)tinted.delete(tinted.keys().next().value);}
+        if(!mask){
+        mask=surface(a[3],a[4]);
+        // Thousands of cached glyph surfaces must not retain GPU backing. Chrome can
+        // silently lose their pixels under load; the completed face cache then
+        // persists the missing text. Keep these tiny reusable masks in CPU memory.
+        const ctx=mask.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,a[1],a[2],a[3],a[4],0,0,a[3],a[4]);ctx.globalCompositeOperation='source-in';ctx.fillStyle=`rgb(${a[5].join(',')})`;ctx.fillRect(0,0,a[3],a[4]);if(!global.NO_TINT_CACHE)tinted.set(token,mask);while(tinted.size>2048)tinted.delete(tinted.keys().next().value);}
         assets.set(id,mask);
       }else assets.set(id,[image,a[1],a[2]]);}
     else assets.set(id,await load(`${base}sprites/${id}.webp`));
