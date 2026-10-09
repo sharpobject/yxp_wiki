@@ -2,6 +2,21 @@
 (function(global){
 'use strict';
 const images=new Map(),tinted=new Map(),composed=new Map();
+function tintedAtlas(image,key,color,local){
+  if(local.has(key))return local.get(key);
+  let canvas=global.NO_TINT_CACHE?null:tinted.get(key);
+  if(!canvas){
+    canvas=surface(image.width,image.height);
+    const ctx=canvas.getContext('2d');
+    ctx.drawImage(image,0,0);
+    ctx.globalCompositeOperation='source-in';
+    ctx.fillStyle=`rgb(${color.join(',')})`;
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    if(!global.NO_TINT_CACHE)tinted.set(key,canvas);
+  }
+  // Even the no-cache benchmark only tints each sheet/color once per render.
+  local.set(key,canvas);return canvas;
+}
 function load(url){
   if(!images.has(url)) images.set(url,typeof Image==='undefined'?fetch(url).then(r=>{if(!r.ok)throw new Error(`Card sprite HTTP ${r.status}`);return r.blob();}).then(createImageBitmap):new Promise((resolve,reject)=>{
     const image=new Image();image.onload=()=>resolve(image);image.onerror=()=>{images.delete(url);reject(new Error(`Card sprite failed: ${url}`));};image.src=url;
@@ -49,14 +64,13 @@ async function render(scene,base,atlas,virtual={}){
     return promise;
   }
   const prepStart=performance.now();
-  const assets=new Map();
+  const assets=new Map(),localTints=new Map();
   await Promise.all([...leaves(scene)].map(async id=>{
     if(atlas){const a=atlas[id];if(!a)throw new Error(`Missing sprite ${id}`);const image=await asset(a[0]);
       if(a[5]){
-        const token=base+a[0]+':'+a.slice(1).toString();
-        let mask=global.NO_TINT_CACHE?null:tinted.get(token);
-        if(!mask){mask=surface(a[3],a[4]);const ctx=mask.getContext('2d');ctx.drawImage(image,a[1],a[2],a[3],a[4],0,0,a[3],a[4]);ctx.globalCompositeOperation='source-in';ctx.fillStyle=`rgb(${a[5].join(',')})`;ctx.fillRect(0,0,a[3],a[4]);if(!global.NO_TINT_CACHE)tinted.set(token,mask);while(tinted.size>2048)tinted.delete(tinted.keys().next().value);}
-        assets.set(id,mask);
+        const key=base+a[0]+':'+a[5].join(',');
+        const sheet=tintedAtlas(image,key,a[5],localTints);
+        assets.set(id,[sheet,a[1],a[2]]);
       }else assets.set(id,[image,a[1],a[2]]);}
     else assets.set(id,await load(`${base}sprites/${id}.webp`));
   }));
