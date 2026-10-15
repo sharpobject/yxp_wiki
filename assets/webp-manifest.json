@@ -9972,14 +9972,14 @@
       "webpBytes": 55952
     },
     "assets/cards/10400_en.png": {
-      "pngBytes": 216782,
-      "sha256": "edfd8a3b6c750370412ba259339161ef0d8b8e5a993f0e50aa7f464fa3ce7902",
-      "webpBytes": 55258
+      "pngBytes": 214968,
+      "sha256": "0e7614eff2203f3d257d90561ce2bf9197589182a34dd0bd74667a92b95854e4",
+      "webpBytes": 55438
     },
     "assets/cards/10400_zh.png": {
-      "pngBytes": 196884,
-      "sha256": "a9563a5ad68b9f571c1405bd192bb0ac026f22f789d25b4aaee026dbe96565a4",
-      "webpBytes": 51450
+      "pngBytes": 195377,
+      "sha256": "4796ac59ba009bbf43333dd8b81639660beb391fa085783e3eaae82ca0c04904",
+      "webpBytes": 50940
     },
     "assets/cards/10401_en.png": {
       "pngBytes": 209197,
@@ -14862,14 +14862,14 @@
       "webpBytes": 44060
     },
     "assets/cards/20400_en.png": {
-      "pngBytes": 231662,
-      "sha256": "5491bb14d2337f0d9f0e962267776b7154d87f4cc289d3d0ef0dc92911a3a1c4",
-      "webpBytes": 62438
+      "pngBytes": 229711,
+      "sha256": "9ca4a79193d416e02ea88ab057afddf593d73dc276b3f5b88eb52ec76dc062cd",
+      "webpBytes": 62312
     },
     "assets/cards/20400_zh.png": {
-      "pngBytes": 213788,
-      "sha256": "5075ac5cdac40c50c38b3fd24037fc222b24a7e7a7dbbf137bf1c470cde2ddb8",
-      "webpBytes": 59438
+      "pngBytes": 212434,
+      "sha256": "67e9aee9805effbeee2908daeb58977150b3b810d45b2aca546114c205526b82",
+      "webpBytes": 59024
     },
     "assets/cards/20401_en.png": {
       "pngBytes": 225001,
@@ -18682,14 +18682,14 @@
       "webpBytes": 49380
     },
     "assets/cards/400_en.png": {
-      "pngBytes": 203641,
-      "sha256": "83eff96321c58b244a884b2a92fe3abf3c68265cd2463b6c629dc6adde18fe5f",
-      "webpBytes": 50434
+      "pngBytes": 201521,
+      "sha256": "e96564ed9ea33c85482fd608731cdc5d1d873dbbf94dc675f7d42a33a7e6428e",
+      "webpBytes": 50244
     },
     "assets/cards/400_zh.png": {
-      "pngBytes": 182944,
-      "sha256": "7e61d5b70081b4d757c6c27de5392177909504fd1cbef2ef6611ad0435ba9b05",
-      "webpBytes": 45782
+      "pngBytes": 181476,
+      "sha256": "11964c1843daeb675a6b88538e8168d16c80ef823859458a5b224337ebd51abf",
+      "webpBytes": 45534
     },
     "assets/cards/4010001_en.png": {
       "pngBytes": 146053,
@@ -29311,6 +29311,11 @@
       "sha256": "c5a8df367880e96996125feae9fc829b08aac3b8421242960a4f12b227d38b6c",
       "webpBytes": 88272
     },
+    "assets/characters/3000002-skin-3.png": {
+      "pngBytes": 258863,
+      "sha256": "757736c834f8a2f2eccd096497b08e6013750534793f86157990b354c7d70707",
+      "webpBytes": 77102
+    },
     "assets/characters/3000003-avatar.png": {
       "pngBytes": 31127,
       "sha256": "01e5364c949c667059ff4b59f2ac5cb3756ff0980b28a2a1217fc0ebe72e068f",
@@ -32177,9 +32182,9 @@
       "webpBytes": 5256
     }
   },
-  "pngBytes": 1172301139,
-  "pngFiles": 6435,
+  "pngBytes": 1172549788,
+  "pngFiles": 6436,
   "quality": 92,
   "version": 1,
-  "webpBytes": 307885426
+  "webpBytes": 307961220
 }
