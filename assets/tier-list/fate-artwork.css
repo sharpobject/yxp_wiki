@@ -51,3 +51,27 @@
 .hdf-art>img{display:block;width:100%;height:100%;object-fit:contain;border-radius:50%}
 .hdf-art .fate-composite-card img{width:176.7%;height:auto;max-width:none}
 .hdf-art .fate-card-crop img{width:100%;height:100%;object-fit:cover}
+
+/* Fate-list art shares the character portraits' 80% circular footprint.
+   Keep replay/tier-list geometry unchanged; scale the complete composite,
+   including its divider, rather than changing its internal placement. */
+.hdf-art > .fate-card-crop,
+.hdf-art > .fate-composite {
+  inset: 10%;
+  width: auto;
+  height: auto;
+  border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
+}
+.hdf-art > .fate-composite {
+  mask: none;
+  -webkit-mask: none;
+}
+.hdf-art > img[src*="/Icon_Talent_"] {
+  position: absolute;
+  inset: 10%;
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  clip-path: circle(50% at 50% 50%);
+}
