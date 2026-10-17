@@ -6,13 +6,15 @@
   "use strict";
 
   const FORMAT_VERSION = 1;
-  const CATALOG_KINDS = ["cards", "talents", "fateStrategies", "characters"];
+  // New kinds are appended so archived four-kind recordings remain readable.
+  const CATALOG_KINDS = ["cards", "talents", "fateStrategies", "characters", "xianMoStrategies"];
   const CATALOG_ITEM_KEYS = new Set([
     "id", "file", "targetUid", "targetUsername", "targetCharacterId",
     "startingRating", "career", "rounds", "capturedThrough", "linCareer",
     "linFates", "linUnchosenFates", "humanOpponentCharacters", "label",
     "placementStart", "placementEnd", "ratingChange", "ratingKind",
     "gameMode", "firstRound", "cupId", "cupProgress", "cupStage", "practice",
+    "seasonMechanic", "linXianMoFates", "linUnchosenXianMoFates",
   ]);
 
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -108,12 +110,12 @@
   }
 
   function unpackSharedCatalog(packed) {
-    if (!Array.isArray(packed) || packed.length !== CATALOG_KINDS.length) {
+    if (!Array.isArray(packed) || ![4, CATALOG_KINDS.length].includes(packed.length)) {
       throw new Error("invalid shared recording catalog");
     }
     return Object.fromEntries(CATALOG_KINDS.map((kind, kindIndex) => {
       const entries = {};
-      for (const [keys, rows] of packed[kindIndex]) {
+      for (const [keys, rows] of packed[kindIndex] ?? []) {
         for (const row of rows) {
           if (row.length !== keys.length + 1) throw new Error(`invalid ${kind} catalog row`);
           entries[row[0]] = Object.fromEntries(keys.map((key, index) => [key, row[index + 1]]));
@@ -128,13 +130,13 @@
   }
 
   function catalogFromReferences(references, sharedCatalog) {
-    if (!Array.isArray(references) || references.length !== CATALOG_KINDS.length) {
+    if (!Array.isArray(references) || ![4, CATALOG_KINDS.length].includes(references.length)) {
       throw new Error("invalid recording catalog references");
     }
     return Object.fromEntries(CATALOG_KINDS.map((kind, kindIndex) => {
       const sharedEntries = sharedCatalog[kind] ?? {};
       const entries = {};
-      for (const id of references[kindIndex]) {
+      for (const id of references[kindIndex] ?? []) {
         if (!(id in sharedEntries)) throw new Error(`recording references missing ${kind} ${id}`);
         entries[id] = sharedEntries[id];
       }
@@ -183,6 +185,12 @@
     return { id: Number(id), nameEnglish: info.nameEnglish, nameChinese: info.nameChinese };
   }
 
+  function compactXianMoFate(id, sharedCatalog) {
+    const info = sharedCatalog.xianMoStrategies[id];
+    if (!info) throw new Error(`catalog references missing xianmo strategy ${id}`);
+    return { id: Number(id), nameEnglish: info.nameEnglish, nameChinese: info.nameChinese };
+  }
+
   function compactCharacter(id, sharedCatalog) {
     const info = sharedCatalog.characters[id];
     if (!info) throw new Error(`catalog references missing character ${id}`);
@@ -197,6 +205,14 @@
       }
       const groupKey = JSON.stringify([item.targetUid, item.targetUsername, item.targetCharacterId]);
       if (!groups.has(groupKey)) groups.set(groupKey, [item.targetUid, item.targetUsername, item.targetCharacterId, []]);
+      const filterLabels = {};
+      for (const [field, kind] of [["linFates", "fateStrategies"], ["linUnchosenFates", "fateStrategies"],
+        ["linXianMoFates", "xianMoStrategies"], ["linUnchosenXianMoFates", "xianMoStrategies"],
+        ["humanOpponentCharacters", "characters"]]) {
+        const entries = item[field] ?? [];
+        if (entries.some(entry => entry.nameEnglish !== sharedCatalog[kind]?.[entry.id]?.nameEnglish
+          || entry.nameChinese !== sharedCatalog[kind]?.[entry.id]?.nameChinese)) filterLabels[field] = entries;
+      }
       groups.get(groupKey)[3].push([
         item.id,
         item.startingRating,
@@ -217,6 +233,10 @@
         item.placementEnd ?? null,
         item.ratingChange ?? null,
         item.ratingKind ?? "",
+        item.seasonMechanic ?? null,
+        (item.linXianMoFates ?? []).map(({ id }) => id),
+        (item.linUnchosenXianMoFates ?? []).map(({ id }) => id),
+        Object.keys(filterLabels).length ? filterLabels : null,
       ]);
     }
     return [FORMAT_VERSION, packSharedCatalog(sharedCatalog), [...groups.values()]];
@@ -233,7 +253,16 @@
         const [id, startingRating, career, rounds, capturedThrough, linCareer,
           fateIds, unchosenFateIds, opponentIds, gameMode = 0, firstRound = 1,
           cupId = 0, cupProgress = 0, cupStage = "", practice = 0, placementStart = null, placementEnd = null,
-          ratingChange = null, ratingKind = ""] = game;
+          ratingChange = null, ratingKind = "", seasonMechanic = null,
+          xianMoFateIds = [], unchosenXianMoFateIds = [], filterLabels = null] = game;
+        const namedEntries = (ids, lookup, field) => {
+          const entries = ids.map(value => lookup(value, sharedCatalog));
+          const labels = filterLabels?.[field];
+          if (labels == null) return entries;
+          if (!Array.isArray(labels) || labels.length !== ids.length
+            || labels.some((entry, index) => entry?.id !== ids[index])) throw new Error(`invalid catalog filter labels: ${field}`);
+          return labels;
+        };
         catalog.push({
           id,
           file: `${id}.compact.json.gz`,
@@ -245,9 +274,11 @@
           rounds,
           capturedThrough,
           linCareer,
-          linFates: fateIds.map((fateId) => compactFate(fateId, sharedCatalog)),
-          linUnchosenFates: unchosenFateIds.map((fateId) => compactFate(fateId, sharedCatalog)),
-          humanOpponentCharacters: opponentIds.map((characterId) => compactCharacter(characterId, sharedCatalog)),
+          linFates: namedEntries(fateIds, compactFate, "linFates"),
+          linUnchosenFates: namedEntries(unchosenFateIds, compactFate, "linUnchosenFates"),
+          linXianMoFates: namedEntries(xianMoFateIds, compactXianMoFate, "linXianMoFates"),
+          linUnchosenXianMoFates: namedEntries(unchosenXianMoFateIds, compactXianMoFate, "linUnchosenXianMoFates"),
+          humanOpponentCharacters: namedEntries(opponentIds, compactCharacter, "humanOpponentCharacters"),
           gameMode,
           firstRound,
           cupId,
@@ -255,6 +286,7 @@
           cupStage,
           practice: Boolean(practice),
           placementStart, placementEnd, ratingChange, ratingKind,
+          seasonMechanic,
           label: `${targetUsername} · ${rounds} rounds`,
         });
       }

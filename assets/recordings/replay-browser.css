@@ -23,10 +23,20 @@
   text-transform: uppercase;
 }
 
+.recording-pickers {
+  display: grid;
+  gap: 8px;
+  min-width: min(440px, 42vw);
+  max-width: 64%;
+}
+
+/* Older collection pages use the shared viewer without the season wrapper. */
+.recording-intro > .recording-picker { min-width: min(440px, 42vw); max-width: 64%; }
+
 .recording-picker {
   display: grid;
   gap: 3px;
-  min-width: min(440px, 42vw);
+  min-width: 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 800;
@@ -440,6 +450,11 @@
 .trait-icon.heavenly-fate { border-color: #5aa3a0; }
 .trait-icon.locked { filter: grayscale(.8); opacity: .55; }
 .trait-icon img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.fate-skip { display: grid; width: 100%; height: 100%; place-items: center; color: #e5d7ad; font-size: 23px; font-weight: 400; line-height: 1; }
+.selection-icon > .fate-skip { font-size: 42px; }
+.offer-icon > .fate-skip { font-size: 21px; }
+.trait-enchanted-slot { position: absolute; z-index: 2; top: -7px; left: -5px; padding: 1px 3px; border: 1px solid #83b6ce; border-radius: 4px; background: #142b39; color: #d3f2ff; font: 800 9px/1.2 sans-serif; }
+.deck-enchantment-marker { position: absolute; z-index: 6; top: 3px; left: 3px; padding: 2px 4px; border: 1px solid #83b6ce; border-radius: 4px; background: #142b39; color: #d3f2ff; font: 800 10px/1.2 sans-serif; }
 /* Native FateStrategyIconItem: 176px icon minus 26px mask inset = 150px. */
 .fate-composite {position:relative;display:block;width:100%;height:100%;overflow:hidden;background:#172019;mask:url("fusion-mask.svg") center/100% 100% no-repeat;-webkit-mask:url("fusion-mask.svg") center/100% 100% no-repeat}
 .fate-composite-card {position:absolute;overflow:hidden;clip-path:none}
@@ -1002,6 +1017,7 @@
 .card-fallback small { color: #aeb8aa; font-size: 9px; }
 
 .empty-slot {
+  position: relative;
   width: 78px;
   max-width: 84px;
   flex: 0 1 78px;
@@ -1213,7 +1229,8 @@
   .recording-intro { display: block; margin-bottom: 10px; padding: 10px 10px 0; }
   .recording-intro h1 { margin-bottom: 4px; font-size: 26px; line-height: 1.08; }
   .recording-intro .muted { font-size: 13px; line-height: 1.4; }
-  .recording-picker { min-width: 0; margin-top: 11px; }
+  .recording-pickers { min-width: 0; max-width: none; margin-top: 11px; }
+  .recording-intro > .recording-picker { min-width: 0; max-width: none; margin-top: 11px; }
   .recording-picker select { min-height: 42px; padding-right: 28px; }
   .recording-picker-row { grid-template-columns: minmax(0, 1fr) 42px; }
   .recording-filter-popover { right: 0; left: auto; width: min(420px, calc(100vw - 30px)); }

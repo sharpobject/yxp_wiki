@@ -30,6 +30,7 @@
     String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
       || String(second.capturedThrough ?? "").localeCompare(String(first.capturedThrough ?? "")));
   const select = $("#recording-select");
+  const seasonSelect = $("#season-select");
   const timeline = $("#timeline");
   const previous = $("#previous");
   const next = $("#next");
@@ -77,7 +78,7 @@
     selectTalent: "选择仙命", selectDaoYun: "选择卡牌", noActions: "尚无玩家操作。",
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角", cupPreliminary: "天衍杯初赛", cupFinal: "天衍杯决赛", cup: "天衍杯", practice: "练习赛",
-    actionKinds: { draw: "抽牌", gain: "获得卡牌", move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", sideJob: "副职业", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", reroll: "刷新" },
+    actionKinds: { draw: "抽牌", gain: "获得卡牌", move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", sideJob: "副职业", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", seasonalFate: "百家仙命", seasonalFateUse: "使用百家仙命", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
     previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔", andOtherCards: (count) => `另有 ${count} 张牌`,
     filters: "筛选", heavenlyFateFilter: "已选择的天衍仙命", unchosenHeavenlyFateFilter: "出现但未选择的天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
@@ -92,7 +93,7 @@
     selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Card", noActions: "No player action has occurred yet.",
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view", cupPreliminary: "Heavenly Derivation Cup preliminary", cupFinal: "Heavenly Derivation Cup final", cup: "Heavenly Derivation Cup", practice: "Practice",
-    actionKinds: { draw: "Draw", gain: "Gain", move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", sideJob: "Side Job", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", reroll: "reroll" },
+    actionKinds: { draw: "Draw", gain: "Gain", move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", sideJob: "Side Job", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", seasonalFate: "Hundred Schools", seasonalFateUse: "used Hundred Schools", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
     previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon", andOtherCards: (count) => `and ${count} other cards`,
     filters: "Filters", heavenlyFateFilter: "Chosen Heavenly Derivation Fates", unchosenHeavenlyFateFilter: "Offered but not chosen", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
@@ -161,6 +162,11 @@
     ? `career-icons/Icon_Career_${id}.png`
     : `/yxp_wiki/assets/recordings/careers/Icon_Career_${id}.webp`;
   const fateAsset = (entry, kind) => {
+    if (kind === "xianMoStrategy") {
+      const iconFile = entry.iconFile || `Icon_XianMoStrategy_${entry.id}.webp`;
+      return assetMode === "local" ? `hundred-schools-icons/${iconFile.replace(/\.png$/i, ".webp")}`
+        : `/yxp_wiki/assets/hundred-schools/icons/${iconFile.replace(/\.png$/i, ".webp")}`;
+    }
     if (kind === "talent" && [10199,20199,30199,40199,50199].includes(Number(entry.iconId))) {
       return assetMode === "local" ? `vase-icons/Icon_Talent_${entry.iconId}.webp`
         : `/yxp_wiki/assets/recordings/vase-icons/Icon_Talent_${entry.iconId}.webp`;
@@ -186,14 +192,20 @@
     ? `emoji-images/${id}.png`
     : `/yxp_wiki/assets/recordings/emojis/${id}.webp`;
   const fateArtwork = (entry = {}, kind, alt = "") => {
-    if (kind === "fateStrategy" && entry.compositeCardIds?.length === 2) {
+    if (kind === "xianMoStrategy" && entry.isSkip) {
+      return `<span class="fate-skip" role="img" aria-label="${esc(alt || (isChinese ? "跳过" : "Skip"))}">↷</span>`;
+    }
+    if (["fateStrategy", "xianMoStrategy"].includes(kind) && entry.compositeCardIds?.length === 2) {
+      const artwork = kind === "xianMoStrategy" && entry.compositeIconFiles?.length === 2
+        ? entry.compositeIconFiles.map((iconFile) => fateAsset({ iconFile }, kind))
+        : entry.compositeCardIds.map(fateCardArt);
       return `<span class="fate-composite" role="img" aria-label="${esc(alt)}">
-        <span class="fate-composite-card first"><img data-asset-fallback src="${fateCardArt(entry.compositeCardIds[0])}" alt=""></span>
-        <span class="fate-composite-card second"><img data-asset-fallback src="${fateCardArt(entry.compositeCardIds[1])}" alt=""></span>
+        <span class="fate-composite-card first"><img data-asset-fallback src="${artwork[0]}" alt=""></span>
+        <span class="fate-composite-card second"><img data-asset-fallback src="${artwork[1]}" alt=""></span>
         <span class="fate-composite-ink" aria-hidden="true"></span>
       </span>`;
     }
-    if (kind === "fateStrategy" && /^Card_\d+\.(?:png|webp)$/.test(entry.iconFile ?? "")) {
+    if (["fateStrategy", "xianMoStrategy"].includes(kind) && /^Card_\d+\.(?:png|webp)$/.test(entry.iconFile ?? "")) {
       return `<span class="fate-card-crop" role="img" aria-label="${esc(alt)}"><img data-asset-fallback src="${fateAsset(entry, kind)}" alt=""></span>`;
     }
     return `<img data-asset-fallback src="${fateAsset(entry, kind)}" alt="${esc(alt)}">`;
@@ -367,16 +379,33 @@
     return html.replace(/<\/div>$/, `${mark}${origin}</div>`);
   }
 
-  function transitionDeck(transition, owner, previousOwner) {
+  function transitionDeck(transition, owner, previousOwner, enchantments = []) {
     const renderCard = entry => transitionCard(entry, entry.change === "leaving" ? previousOwner : owner);
-    return transition.deck.map(renderCard).join("")
+    return transition.deck.map((entry, position) => deckEnchantmentMarker(renderCard(entry), position + 1, enchantments)).join("")
       + (transition.deckPrevious ? renderCard(transition.deckPrevious) : "");
+  }
+
+  function recordedEnchantedSlot(reference) {
+    const slot = reference?.enchantedSlot;
+    return Number.isInteger(slot) && slot >= 1 && slot <= 8 ? slot : null;
+  }
+
+  function enchantmentSlotText(slot) {
+    return isChinese ? `附魔卡位：${slot}` : `Enchanted deck slot: ${slot}`;
+  }
+
+  function deckEnchantmentMarker(html, slot, references) {
+    const names = references.filter((reference) => recordedEnchantedSlot(reference) === slot)
+      .map((reference) => localizedInfo(recording.catalog.xianMoStrategies?.[reference.id]) || reference.id);
+    if (!names.length) return html;
+    const label = `${enchantmentSlotText(slot)} · ${names.join(" · ")}`;
+    return html.replace(/<\/div>$/, `<span class="deck-enchantment-marker" role="img" aria-label="${esc(label)}" title="${esc(label)}">✦ ${slot}</span></div>`);
   }
 
   function offerHistory(history, kind, { showFinalLabel = true } = {}) {
     if (!history?.offers?.length) return "";
     const final = history.offers.at(-1);
-    const rows = kind === "fateStrategy"
+    const rows = ["fateStrategy", "xianMoStrategy"].includes(kind)
       ? (() => {
         const inferredRolledAway = history.offers.slice(0, -1).flatMap((offer, offerIndex) => {
           const remaining = [...history.offers[offerIndex + 1]];
@@ -423,7 +452,7 @@
         if (!Number(id)) return '<span class="offer-icon unknown" aria-label="?">?</span>';
         const info = kind === "card" ? recording.catalog.cards[id]
           : kind === "talent" ? recording.catalog.talents[id]
-            : recording.catalog.fateStrategies[id];
+            : kind === "xianMoStrategy" ? recording.catalog.xianMoStrategies?.[id] : recording.catalog.fateStrategies[id];
         const selected = !row.previous && Number(id) === Number(history.selected);
         const name = localizedInfo(info) || id;
         const artwork = kind === "card"
@@ -440,7 +469,7 @@
   }
 
   function trait(reference, kind, { hasMyFateMyChoice = false, iconId = null } = {}) {
-    const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
+    const info = kind === "talent" ? recording.catalog.talents[reference.id] : kind === "xianMoStrategy" ? recording.catalog.xianMoStrategies?.[reference.id] : recording.catalog.fateStrategies[reference.id];
     if (!info) return "";
     const runtime = reference.runtime;
     const badgeText = runtime?.kind === "cooldown"
@@ -451,6 +480,18 @@
       : "";
     const name = localizedInfo(info);
     const localizedDescription = localizedInfo(info, "description");
+    const enchantedSlot = kind === "xianMoStrategy" ? recordedEnchantedSlot(reference) : null;
+    const slotDescription = enchantedSlot == null ? "" : enchantmentSlotText(enchantedSlot);
+    const slotBadge = enchantedSlot == null ? "" : `<span class="trait-enchanted-slot" title="${esc(slotDescription)}" aria-label="${esc(slotDescription)}">✦${enchantedSlot}</span>`;
+    const runtimeCardId = kind === "xianMoStrategy" && Number.isInteger(reference.runtimeCardId) && reference.runtimeCardId > 0
+      ? reference.runtimeCardId : null;
+    const runtimeCardName = runtimeCardId == null ? "" : localizedInfo(recording.catalog.cards[runtimeCardId])
+      || (isChinese ? `卡牌 ${runtimeCardId}` : `Card ${runtimeCardId}`);
+    const runtimeCardDescription = runtimeCardId == null ? ""
+      : reference.runtimeCardKind === "stored"
+        ? (isChinese ? `待返回手牌：${runtimeCardName}` : `Pending return to hand: ${runtimeCardName}`)
+        : reference.runtimeCardKind === "selected"
+          ? (isChinese ? `已选择卡牌：${runtimeCardName}` : `Selected card: ${runtimeCardName}`) : "";
     const selectedCareer = kind === "talent" && Math.abs(Number(reference.id)) % 10000 === 188
       ? Number(reference.additionalCareer) || 0 : 0;
     const artwork = selectedCareer
@@ -462,7 +503,7 @@
       || Number(history?.rerollsUsed ?? 0) > 0
       || Number(history?.rerollsRemaining ?? 0) > 0;
     const showFinalLabel = kind === "talent" ? hasMyFateMyChoice : hasHeavenlyDerivationVariables;
-    return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0">${artwork}${badge}<div class="trait-popover"><strong>${esc(name)}</strong>${selectedCareer ? `<p>${esc(careerName(selectedCareer))}</p>` : ""}${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(history, kind, { showFinalLabel })}</div></div>`;
+    return `<div class="trait-icon ${kind === "talent" ? "talent" : "heavenly-fate"}${reference.locked ? " locked" : ""}" tabindex="0">${artwork}${badge}${slotBadge}<div class="trait-popover"><strong>${esc(name)}</strong>${selectedCareer ? `<p>${esc(careerName(selectedCareer))}</p>` : ""}${slotDescription ? `<p>${esc(slotDescription)}</p>` : ""}${runtimeCardDescription ? `<p class="trait-runtime-card">${esc(runtimeCardDescription)}</p>` : ""}${localizedDescription ? `<p>${esc(localizedDescription)}</p>` : ""}${offerHistory(history, kind, { showFinalLabel })}</div></div>`;
   }
 
   function battleBuff(reference) {
@@ -523,7 +564,9 @@
     const talents = (traits.talents ?? []).map((value) => trait(value, "talent", { hasMyFateMyChoice,
       iconId: Number(value.id) === 199 && player.uid === privateOwnerUid
         ? vaseIconId(privatePlayer?.cardStorage?.[199], recording.catalog.cards) : null })).join("");
-    const fates = (traits.fates ?? []).map((value) => trait(value, "fateStrategy")).join("");
+    const seasonal = Number(state.seasonMechanic) === 10;
+    const fates = seasonal ? (traits.xianMoFates ?? []).map(value => trait(value, "xianMoStrategy")).join("")
+      : (traits.fates ?? []).map(value => trait(value, "fateStrategy")).join("");
     const daoYunChoices = player.uid === privateOwnerUid
       ? (privatePlayer?.daoYunChoices ?? []).map(daoYunChoice).join("")
       : "";
@@ -535,7 +578,7 @@
     const showPhysique = numericPrefix(player.sect) === 4 || physique > 0;
     $("#character-panel").innerHTML = `<div class="trait-panel">
         <div class="trait-group"><span class="trait-heading">${esc(copy.immortalFates)}</span><div class="trait-row">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
-        <div class="trait-group"><span class="trait-heading">${esc(copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
+        <div class="trait-group"><span class="trait-heading">${esc(seasonal ? (isChinese ? "百家之道" : "The Dao of Hundred Schools") : copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
         ${player.uid === privateOwnerUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
         ${player.uid === privateOwnerUid && cardSelections ? `<div class="trait-group card-selection-group"><span class="trait-heading">${esc(copy.cardSelections)}</span><div class="trait-row card-selection-row">${cardSelections}</div></div>` : ""}
       </div>
@@ -546,8 +589,10 @@
   function renderChoice(overlay) {
     const host = $("#selection-overlay");
     if (!overlay) { host.hidden = true; host.innerHTML = ""; return; }
-    const showRerolls = overlay.kind === "heavenly-derivation" && Number(overlay.roundOrPhase) !== 3;
-    const canReroll = showRerolls && overlay.rerollsRemaining > 0;
+    const rerollsRemaining = Math.max(0, Number(overlay.rerollsRemaining) || 0);
+    const showRerolls = (overlay.kind === "hundred-schools" && rerollsRemaining > 0)
+      || (overlay.kind === "heavenly-derivation" && Number(overlay.roundOrPhase) !== 3);
+    const canReroll = showRerolls && rerollsRemaining > 0;
     // An offer must not reveal a selection from a later recording step.
     const recordedSelected = Number(overlay.selected) || 0;
     const selectedOptionIndex = !recordedSelected
@@ -578,10 +623,11 @@
         const info = recording.catalog.cards[reference.id] ?? {};
         return `<article class="selection-option card-choice${selected ? " selected" : ""}"><div class="selection-icon"><img data-asset-fallback src="${cardAsset(reference.id)}" alt=""></div><span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(localizedInfo(info) || reference.id)}</strong></article>`;
       }
-      const kind = overlay.kind === "immortal-fate" ? "talent" : "fateStrategy";
-      const info = kind === "talent" ? recording.catalog.talents[reference.id] : recording.catalog.fateStrategies[reference.id];
+      const kind = overlay.kind === "immortal-fate" ? "talent" : overlay.kind === "hundred-schools" ? "xianMoStrategy" : "fateStrategy";
+      const info = kind === "talent" ? recording.catalog.talents[reference.id] : kind === "xianMoStrategy" ? recording.catalog.xianMoStrategies?.[reference.id] : recording.catalog.fateStrategies[reference.id];
       const name = localizedInfo(info) || reference.id;
-      return `<article class="selection-option${selected ? " selected" : ""}"><div class="selection-icon">${fateArtwork(info, kind, name)}</div>${canReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
+      const optionCanReroll = canReroll && !(kind === "xianMoStrategy" && info?.isSkip);
+      return `<article class="selection-option${selected ? " selected" : ""}"><div class="selection-icon">${fateArtwork(info ?? { id: reference.id }, kind, name)}</div>${optionCanReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
     }).concat(omittedCardCount > 0
       ? [`<article class="selection-option card-choice selection-more"><div class="selection-icon"><span>${esc(copy.andOtherCards(omittedCardCount))}</span></div><span class="chosen-mark placeholder">—</span><strong>${esc(copy.andOtherCards(omittedCardCount))}</strong></article>`]
       : []).join("");
@@ -589,19 +635,21 @@
       ? (isChinese ? "选择副职业" : "Select a Side Job")
       : overlay.kind === "additional-side-job"
         ? (isChinese ? "选择兼修副职业" : "Select an Additional Side Job")
+        : overlay.kind === "hundred-schools"
+          ? (isChinese ? "选择百家仙命" : "Select a Hundred Schools Fate")
         : overlay.kind === "heavenly-derivation"
       ? copy.selectHdf
       : overlay.kind === "immortal-fate"
         ? copy.selectTalent
         : copy.selectDaoYun;
-    const roundOrPhase = overlay.kind === "side-job" || overlay.kind === "additional-side-job" || overlay.kind === "heavenly-derivation" || overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection"
+    const roundOrPhase = overlay.kind === "side-job" || overlay.kind === "additional-side-job" || overlay.kind === "hundred-schools" || overlay.kind === "heavenly-derivation" || overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection"
       ? `${copy.round}${esc(overlay.roundOrPhase)}${copy.roundSuffix}`
       : `${esc(phaseName(overlay.roundOrPhase))}`;
     host.dataset.kind = overlay.kind;
     host.innerHTML = `<div class="selection-frame" style="--choice-count:${displayedOptions.length + (omittedCardCount > 0 ? 1 : 0)}">
       <div class="selection-heading"><span class="selection-context">${roundOrPhase}</span><h2>${esc(title)}</h2><span class="selection-heading-spacer" aria-hidden="true"></span></div>
       <div class="selection-options">${options}</div>
-      ${showRerolls ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(overlay.rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
+      ${showRerolls ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
     </div>`;
     host.hidden = false;
   }
@@ -636,6 +684,15 @@
         selected: history.selected,
         options: (history.offers?.at(-1) ?? []).map((id) => ({ id })),
       };
+    }
+    const seasonalChoiceKey = (reference) => `${reference.choiceHistory?.roundOrPhase}:${reference.id}`;
+    const previousSeasonalChoices = new Set((previousState?.privatePlayer?.selectedXianMoStrategies ?? []).map(seasonalChoiceKey));
+    const chosenSeasonal = (state.privatePlayer?.selectedXianMoStrategies ?? []).find(reference => reference.choiceHistory?.selected && !previousSeasonalChoices.has(seasonalChoiceKey(reference)));
+    if (chosenSeasonal) {
+      const history = chosenSeasonal.choiceHistory;
+      return { kind: "hundred-schools", roundOrPhase: history.roundOrPhase,
+        rerollsRemaining: Number(history.rerollsRemaining ?? 0), selected: history.selected,
+        options: (history.offers?.at(-1) ?? []).map(id => ({ id })) };
     }
     const choices = state.privatePlayer?.daoYunChoices ?? [];
     const previousChoices = previousState?.privatePlayer?.daoYunChoices ?? [];
@@ -689,7 +746,7 @@
     host.innerHTML = `<div class="battle-heading"><span>${copy.round}${esc(battle.round)}${copy.roundSuffix}</span><strong>${esc(copy.battleResult)}</strong></div>
       <div class="battle-combatants">${combatants.map((player) => {
         const talents = (player.talents ?? []).map((reference) => trait(reference, "talent")).join("");
-        const fates = (player.fateStrategies ?? []).map((reference) => trait(reference, "fateStrategy")).join("");
+        const fates = (player.fateStrategies ?? []).map(reference => trait(reference, "fateStrategy")).concat((player.xianMoStrategies ?? []).map(reference => trait(reference, "xianMoStrategy"))).join("");
         const buffs = (player.battleBuffs ?? []).map(battleBuff).join("");
         const delta = Number(player.lifeDelta ?? 0);
         const deltaText = delta ? `<span class="battle-destiny-delta ${delta > 0 ? "positive" : "negative"}">${delta > 0 ? "+" : ""}${esc(delta)}</span>` : "";
@@ -727,7 +784,7 @@
       return false;
     }
     const talents = (prior.talents ?? []).map((reference) => trait(reference, "talent")).join("");
-    const fates = (prior.fateStrategies ?? []).map((reference) => trait(reference, "fateStrategy")).join("");
+    const fates = (prior.fateStrategies ?? []).map(reference => trait(reference, "fateStrategy")).concat((prior.xianMoStrategies ?? []).map(reference => trait(reference, "xianMoStrategy"))).join("");
     const physique = Number(prior.physique ?? 0);
     const showPhysique = numericPrefix(opponent.sect) === 4 || physique > 0;
     host.innerHTML = `<div class="opponent-summary">
@@ -764,8 +821,8 @@
     const deck = isOwn ? state.privatePlayer?.deck ?? [] : prior?.deck ?? [];
     const hand = isOwn ? state.privatePlayer?.hand ?? [] : null;
     const traits = isOwn
-      ? { talents: selected?.talents, fates: state.privatePlayer?.selectedFateStrategies }
-      : { talents: prior?.talents, fates: prior?.fateStrategies };
+      ? { talents: selected?.talents, fates: state.privatePlayer?.selectedFateStrategies, xianMoFates: state.privatePlayer?.selectedXianMoStrategies }
+      : { talents: prior?.talents, fates: prior?.fateStrategies, xianMoFates: prior?.xianMoStrategies };
 
     $(".game-stage").dataset.viewMode = battle ? "battle" : isOwn ? "private" : "prior-round";
 
@@ -794,7 +851,7 @@
       $("#board-panel").classList.toggle("has-opponent-preview", hasOpponentPreview);
       $("#deck-label").textContent = isOwn ? copy.deck : copy.previousDeck;
       const transition = isOwn ? cardTransition(states[index - 1], state, recording.steps[index]) : null;
-      $("#deck").innerHTML = (transition ? transitionDeck(transition, selected, states[index - 1]?.players?.[selected?.uid]) : deck.map(id => card(id, true, isOwn ? selected : prior)).join("")) || `<span class="private-hand">${esc(copy.noDeck)}</span>`;
+      $("#deck").innerHTML = (transition ? transitionDeck(transition, selected, states[index - 1]?.players?.[selected?.uid], privatePlayer?.selectedXianMoStrategies ?? []) : deck.map(id => card(id, true, isOwn ? selected : prior)).join("")) || `<span class="private-hand">${esc(copy.noDeck)}</span>`;
       $("#vase").innerHTML = showVase ? transition.vase.map((entry, slot) =>
         `<div class="vase-slot" data-vase-slot="${slot + 1}" aria-label="${isChinese ? "玉瓶格" : "Vase slot"} ${slot + 1}">${transitionCard(entry)}</div>`).join("") : "";
       $("#hand-label").textContent = isOwn ? `${copy.hand} · ${hand?.length ?? 0}` : copy.hand;
@@ -835,6 +892,7 @@
     const requestedStep = Number.parseInt(params.get("step") ?? "", 10);
     return {
       recordingId: params.get("recording") || "",
+      season: params.get("season"),
       stepIndex: Number.isFinite(requestedStep) && requestedStep > 0 ? requestedStep - 1 : null,
     };
   }
@@ -872,6 +930,8 @@
   }
 
   function writeFilterState(url) {
+    if (selectedSeason != null) url.searchParams.set("season", selectedSeason);
+    else url.searchParams.delete("season");
     for (const [name, values] of [
       ["fates", replayFilters.fates],
       ["unchosenFates", replayFilters.unchosenFates],
@@ -916,15 +976,15 @@
     updateLanguageLink(url);
   }
 
-  function navigateToRecording(item) {
+  function navigateToRecording(item, { historyMode = "push" } = {}) {
     if (!item) return;
     select.value = item.id;
-    syncPendingRecordingLocation(item, "push");
+    syncPendingRecordingLocation(item, historyMode);
     loadRecording(item, { historyMode: "replace" });
   }
 
   function setIndex(value, sync = true) {
-    if (!recording) return;
+    if (!recording || $("#viewer").hidden) return;
     index = Math.max(0, Math.min(recording.steps.length - 1, Number(value)));
     render();
     if (sync) syncLocation();
@@ -933,15 +993,23 @@
   function installRecording(data, item, requestedStepIndex, historyMode) {
     recording = data;
     activeCatalogItem = item;
-    const resultSummary = $("#recording-result");
-    if (resultSummary) { resultSummary.textContent = recordingLabel(item); resultSummary.hidden = false; }
     states = hydrateStates(data);
+    const resultSummary = $("#recording-result");
+    if (resultSummary) {
+      const noSeasonalChoices = Number(item.seasonMechanic) === 10 && !states.some(state =>
+        state.privatePlayer?.selectedXianMoStrategies?.length || state.privatePlayer?.choiceOverlay?.kind === "hundred-schools"
+        || Object.values(state.players ?? {}).some(player => player.lastRound?.xianMoStrategies?.length));
+      const note = noSeasonalChoices ? (isChinese ? " · 此录像未包含百家之道选项" : " · Hundred Schools choices were not included in this recording") : "";
+      resultSummary.textContent = recordingLabel(item) + note;
+      resultSummary.hidden = false;
+    }
     const firstRecordedIndex = states.findIndex((state) => state.round > 0);
     index = requestedStepIndex == null ? Math.max(0, firstRecordedIndex) : requestedStepIndex;
     index = Math.max(0, Math.min(data.steps.length - 1, index));
     selectedUid = data.targetUid;
     selectionFollowsPrivate = true;
     timeline.max = data.steps.length - 1;
+    timeline.disabled = roundSelect.disabled = false;
     const firstByRound = new Map();
     states.forEach((state, stateIndex) => { if (state.round && !firstByRound.has(state.round)) firstByRound.set(state.round, stateIndex); });
     roundSelect.innerHTML = `<option value="">${esc(copy.jumpRound)}</option>` + [...firstByRound].map(([round, stateIndex]) => `<option value="${stateIndex}">${copy.round}${round}${copy.roundSuffix}</option>`).join("");
@@ -953,9 +1021,13 @@
 
   function loadRecording(item, { stepIndex = null, historyMode = "replace" } = {}) {
     if (!item) return;
+    closeMobileTooltip();
     const generation = ++loadGeneration;
     $("#loading").hidden = false;
+    $("#loading").textContent = copy.loading;
     $("#viewer").hidden = true;
+    $("#recording-result").hidden = true;
+    previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
     loadCompressedJson(versionedUrl(item.file))
       .then((packed) => window.RECORDING_CODEC.unpackRecording(packed, sharedCatalog))
       .then((data) => {
@@ -994,18 +1066,69 @@
   };
   const legacyRecordingAliases = new Map([
     ["r-8429f9ca71dd2f18", "r-5b2e107c8e668b62"],
+    ["r-36ad1a94e89e3947", "r-0222490fe4a782ee"],
   ]);
   const catalogItemForId = (id) => catalog.find((candidate) =>
     candidate.id === (legacyRecordingAliases.get(id) ?? id));
+  const seasonForItem = (item) => item?.seasonMechanic != null && Number.isInteger(Number(item.seasonMechanic))
+    ? String(Number(item.seasonMechanic)) : "unknown";
+  const availableSeasons = [...new Set(catalog.map(seasonForItem))]
+    .sort((first, second) => first === "unknown" ? 1 : second === "unknown" ? -1 : Number(second) - Number(first));
+  let selectedSeason = null;
   const replayFilters = filterStateFromParams(new URLSearchParams(location.search));
-  let filteredCatalog = [...catalog];
+  let seasonCatalog = [];
+  let filteredCatalog = [];
   const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
     .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
-  const filterFates = uniqueFilterEntries(catalog.flatMap((item) => item.linFates ?? []));
-  const filterUnchosenFates = uniqueFilterEntries(catalog.flatMap((item) => item.linUnchosenFates ?? []));
-  const filterOpponents = uniqueFilterEntries(catalog.flatMap((item) => item.humanOpponentCharacters ?? []));
-  const filterCareers = [...new Set(catalog.map((item) => numericPrefix(item.linCareer)).filter((value) => value > 0))]
-    .sort((first, second) => first - second);
+  let filterFates = [], filterUnchosenFates = [], filterOpponents = [], filterCareers = [];
+
+  function seasonName(season) {
+    const names = {
+      0: ["No season mechanic", "无赛季机制"],
+      1: ["Luck", "气运"],
+      2: ["Life Shop", "命坊"],
+      3: ["Fate Branches", "命运分支"],
+      4: ["Relics", "遗迹法器"],
+      5: ["Resonance Immortal Fate", "共鸣仙命"],
+      6: ["Mirage", "幻景"],
+      7: ["Sigil", "刻印"],
+      8: ["Dream", "梦境"],
+      9: ["Heavenly Derivation Fate", "天衍仙命"],
+      10: ["The Dao of Hundred Schools", "百家之道"],
+      unknown: ["Unknown season mechanic", "未知赛季机制"],
+    };
+    return localizedPair(names[season], isChinese ? `赛季机制 ${season}` : `Season mechanic ${season}`);
+  }
+
+  function seasonFromLocation(requested) {
+    if (availableSeasons.includes(requested.season)) return requested.season;
+    const item = catalogItemForId(requested.recordingId);
+    return item ? seasonForItem(item) : availableSeasons[0] ?? null;
+  }
+
+  function setSeason(season) {
+    selectedSeason = season;
+    seasonCatalog = catalog.filter((item) => seasonForItem(item) === season);
+    const fateField = season === "10" ? "linXianMoFates" : "linFates";
+    const unchosenFateField = season === "10" ? "linUnchosenXianMoFates" : "linUnchosenFates";
+    filterFates = uniqueFilterEntries(seasonCatalog.flatMap((item) => item[fateField] ?? []));
+    filterUnchosenFates = uniqueFilterEntries(seasonCatalog.flatMap((item) => item[unchosenFateField] ?? []));
+    filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap((item) => item.humanOpponentCharacters ?? []));
+    filterCareers = [...new Set(seasonCatalog.map((item) => numericPrefix(item.linCareer)).filter((value) => value > 0))]
+      .sort((first, second) => first - second);
+    // Preserve applicable filters, but never leave an invisible old-season
+    // constraint selected after changing mechanics or opening an older link.
+    for (const [kind, entries] of [["fates", filterFates], ["unchosenFates", filterUnchosenFates], ["opponents", filterOpponents]]) {
+      const available = new Set(entries.map((entry) => Number(entry.id)));
+      replayFilters[kind] = new Set([...replayFilters[kind]].filter((id) => available.has(id)));
+    }
+    if (!filterCareers.includes(replayFilters.career)) replayFilters.career = 0;
+    if (seasonSelect) {
+      seasonSelect.innerHTML = availableSeasons.map((value) => `<option value="${esc(value)}">${esc(seasonName(value))}</option>`).join("");
+      seasonSelect.value = season ?? "";
+      seasonSelect.disabled = !availableSeasons.length;
+    }
+  }
 
   function filterCount() {
     return replayFilters.fates.size + replayFilters.unchosenFates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0);
@@ -1013,9 +1136,11 @@
 
   function renderRecordingFilters() {
     const checkbox = (kind, entry, checked) => `<label><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
+    const fateLabel = selectedSeason === "10" ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
+    const unchosenLabel = selectedSeason === "10" ? (isChinese ? "出现但未选择的百家仙命" : "Offered but not chosen") : copy.unchosenHeavenlyFateFilter;
     filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
-      <fieldset><legend>${esc(copy.heavenlyFateFilter)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>
-      <fieldset><legend>${esc(copy.unchosenHeavenlyFateFilter)}</legend><div class="recording-filter-options">${filterUnchosenFates.map((entry) => checkbox("unchosenFates", entry, replayFilters.unchosenFates.has(Number(entry.id)))).join("")}</div></fieldset>
+      ${filterFates.length ? `<fieldset><legend>${esc(fateLabel)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
+      ${filterUnchosenFates.length ? `<fieldset><legend>${esc(unchosenLabel)}</legend><div class="recording-filter-options">${filterUnchosenFates.map((entry) => checkbox("unchosenFates", entry, replayFilters.unchosenFates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
       <fieldset><legend>${esc(copy.sideJobFilter)}</legend><select data-career-filter><option value="0">${esc(copy.anySideJob)}</option>${filterCareers.map((career) => `<option value="${career}"${replayFilters.career === career ? " selected" : ""}>${esc(careerName(career))}</option>`).join("")}</select></fieldset>
       <fieldset><legend>${esc(copy.opponentFilter)}</legend><div class="recording-filter-options">${filterOpponents.map((entry) => checkbox("opponents", entry, replayFilters.opponents.has(Number(entry.id)))).join("")}</div></fieldset>`;
     filterToggle.innerHTML = `☷${filterCount() ? `<span>${filterCount()}</span>` : ""}`;
@@ -1037,25 +1162,93 @@
     });
   }
 
-  function applyRecordingFilters({ navigate = true } = {}) {
-    filteredCatalog = catalog.filter((item) =>
+  function preferredRecording(items) {
+    return items.find((item) => item.targetUid === preferredTargetUid) ?? items[0];
+  }
+
+  function clearRecording() {
+    // Invalidate an in-flight fetch, otherwise it can restore a now-hidden
+    // recording after a filter or browser-history change.
+    loadGeneration++;
+    recording = activeCatalogItem = null;
+    states = [];
+    $("#viewer").hidden = true;
+    $("#recording-result").hidden = true;
+    $("#loading").hidden = false;
+    $("#loading").textContent = catalog.length ? copy.noMatchingRecordings : copy.noRecordings;
+    previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
+    roundSelect.innerHTML = "";
+    timeline.value = 0;
+    $("#step-label").textContent = "—";
+  }
+
+  function syncEmptyLocation(mode = "replace") {
+    const url = writeFilterState(new URL(location.href));
+    url.searchParams.delete("recording");
+    url.searchParams.delete("step");
+    history[mode === "push" ? "pushState" : "replaceState"]({}, "", url);
+    updateLanguageLink(url);
+  }
+
+  function applyRecordingFilters({ navigate = true, sync = true, historyMode = "push" } = {}) {
+    const fateField = selectedSeason === "10" ? "linXianMoFates" : "linFates";
+    const unchosenFateField = selectedSeason === "10" ? "linUnchosenXianMoFates" : "linUnchosenFates";
+    filteredCatalog = seasonCatalog.filter((item) =>
       (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
-      && [...replayFilters.fates].every((id) => (item.linFates ?? []).some((entry) => Number(entry.id) === id))
-      && [...replayFilters.unchosenFates].every((id) => (item.linUnchosenFates ?? []).some((entry) => Number(entry.id) === id))
+      && [...replayFilters.fates].every((id) => (item[fateField] ?? []).some((entry) => Number(entry.id) === id))
+      && [...replayFilters.unchosenFates].every((id) => (item[unchosenFateField] ?? []).some((entry) => Number(entry.id) === id))
       && [...replayFilters.opponents].every((id) => (item.humanOpponentCharacters ?? []).some((entry) => Number(entry.id) === id)));
-    const currentId = activeCatalogItem?.id || select.value;
+    const currentId = select.value || activeCatalogItem?.id;
     select.innerHTML = filteredCatalog.length
       ? filteredCatalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("")
       : `<option value="">${esc(copy.noMatchingRecordings)}</option>`;
     select.disabled = filteredCatalog.length === 0;
     const currentStillVisible = filteredCatalog.some((item) => item.id === currentId);
     if (currentStillVisible) select.value = currentId;
-    else if (navigate && activeCatalogItem && filteredCatalog.length) navigateToRecording(filteredCatalog[0]);
-    syncFilterLocation();
+    else if (navigate && filteredCatalog.length) navigateToRecording(preferredRecording(filteredCatalog), { historyMode });
+    if (!filteredCatalog.length && navigate) {
+      clearRecording();
+      if (sync) syncEmptyLocation(historyMode);
+    } else if (sync) syncFilterLocation();
   }
 
-  renderRecordingFilters();
-  applyRecordingFilters({ navigate: false });
+  function restoreLocation() {
+    const requested = requestedLocation();
+    replaceFilterState(filterStateFromParams(new URLSearchParams(location.search)));
+    setSeason(seasonFromLocation(requested));
+    applyRecordingFilters({ navigate: false, sync: false });
+    renderRecordingFilters();
+    const requestedItem = catalogItemForId(requested.recordingId);
+    const item = filteredCatalog.find((candidate) => candidate.id === requestedItem?.id)
+      ?? preferredRecording(filteredCatalog);
+    if (!item) {
+      clearRecording();
+      syncEmptyLocation();
+      return;
+    }
+    select.value = item.id;
+    const stepIndex = item.id === requestedItem?.id ? requested.stepIndex : null;
+    if (recording && activeCatalogItem?.id === item.id) {
+      // Also cancel a pending recording request when back/forward returns to
+      // the replay already in memory.
+      loadGeneration++;
+      $("#loading").hidden = true;
+      $("#viewer").hidden = false;
+      $("#recording-result").hidden = false;
+      timeline.disabled = roundSelect.disabled = false;
+      setIndex(stepIndex ?? Math.max(0, states.findIndex((state) => state.round > 0)));
+    } else loadRecording(item, { stepIndex, historyMode: "replace" });
+  }
+
+  seasonSelect?.addEventListener("change", () => {
+    // IDs from different fate catalogs can overlap. A previous mechanic's
+    // fate selection must not silently select another mechanic's fate.
+    replayFilters.fates.clear();
+    replayFilters.unchosenFates.clear();
+    setSeason(seasonSelect.value);
+    applyRecordingFilters();
+    renderRecordingFilters();
+  });
   filterToggle.addEventListener("click", () => {
     filterPopover.hidden = !filterPopover.hidden;
     filterToggle.setAttribute("aria-expanded", String(!filterPopover.hidden));
@@ -1090,22 +1283,7 @@
     if (event.key === "ArrowLeft") setIndex(index - 1);
     if (event.key === "ArrowRight") setIndex(index + 1);
   });
-  addEventListener("popstate", () => {
-    const requested = requestedLocation();
-    replaceFilterState(filterStateFromParams(new URLSearchParams(location.search)));
-    applyRecordingFilters({ navigate: false });
-    renderRecordingFilters();
-    let item = catalogItemForId(requested.recordingId)
-      ?? catalog.find((candidate) => candidate.targetUid === preferredTargetUid)
-      ?? catalog[0];
-    if (!item) return;
-    if (!filteredCatalog.some((candidate) => candidate.id === item.id) && filteredCatalog.length) item = filteredCatalog[0];
-    select.value = item.id;
-    if (recording && activeCatalogItem?.id === item.id) {
-      setIndex(requested.stepIndex ?? states.findIndex((state) => state.round > 0), false);
-      updateLanguageLink(new URL(location.href));
-    } else loadRecording(item, { stepIndex: requested.stepIndex, historyMode: "replace" });
-  });
+  addEventListener("popstate", restoreLocation);
   addEventListener("error", (event) => {
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-character-fallback]")) {
       if (!event.target.dataset.fallbackApplied) {
@@ -1117,15 +1295,7 @@
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-asset-fallback]")) event.target.hidden = true;
     if (event.target instanceof HTMLImageElement && event.target.matches("img[data-emote-art]")) event.target.hidden = true;
   }, true);
-  const requested = requestedLocation();
-  const initialRecording = catalogItemForId(requested.recordingId)
-    ?? catalog.find((item) => item.targetUid === preferredTargetUid)
-    ?? catalog[0];
-  if (initialRecording) {
-    select.value = initialRecording.id;
-    loadRecording(initialRecording, { stepIndex: requested.stepIndex });
-  }
-  else $("#loading").textContent = copy.noRecordings;
+  restoreLocation();
 })().catch((error) => {
   console.error("could not initialize recording browser", error);
   const loading = document.querySelector("#loading");
