@@ -14,7 +14,7 @@
     "linFates", "linUnchosenFates", "humanOpponentCharacters", "label",
     "placementStart", "placementEnd", "ratingChange", "ratingKind",
     "gameMode", "firstRound", "cupId", "cupProgress", "cupStage", "practice",
-    "seasonMechanic", "linXianMoFates", "linUnchosenXianMoFates",
+    "seasonMechanic", "seasonMechanicEnabled", "linXianMoFates", "linUnchosenXianMoFates",
   ]);
 
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -237,6 +237,7 @@
         (item.linXianMoFates ?? []).map(({ id }) => id),
         (item.linUnchosenXianMoFates ?? []).map(({ id }) => id),
         Object.keys(filterLabels).length ? filterLabels : null,
+        item.seasonMechanicEnabled ?? null,
       ]);
     }
     return [FORMAT_VERSION, packSharedCatalog(sharedCatalog), [...groups.values()]];
@@ -254,7 +255,11 @@
           fateIds, unchosenFateIds, opponentIds, gameMode = 0, firstRound = 1,
           cupId = 0, cupProgress = 0, cupStage = "", practice = 0, placementStart = null, placementEnd = null,
           ratingChange = null, ratingKind = "", seasonMechanic = null,
-          xianMoFateIds = [], unchosenXianMoFateIds = [], filterLabels = null] = game;
+          xianMoFateIds = [], unchosenXianMoFateIds = [], filterLabels = null,
+          seasonMechanicEnabled = null] = game;
+        if (seasonMechanicEnabled !== null && typeof seasonMechanicEnabled !== "boolean") {
+          throw new Error("invalid catalog mechanic activation flag");
+        }
         const namedEntries = (ids, lookup, field) => {
           const entries = ids.map(value => lookup(value, sharedCatalog));
           const labels = filterLabels?.[field];
@@ -287,6 +292,7 @@
           practice: Boolean(practice),
           placementStart, placementEnd, ratingChange, ratingKind,
           seasonMechanic,
+          seasonMechanicEnabled,
           label: `${targetUsername} · ${rounds} rounds`,
         });
       }

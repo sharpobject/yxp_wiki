@@ -996,10 +996,12 @@
     states = hydrateStates(data);
     const resultSummary = $("#recording-result");
     if (resultSummary) {
-      const noSeasonalChoices = Number(item.seasonMechanic) === 10 && !states.some(state =>
+      const preseason = seasonForItem(item) === "10-preseason";
+      const noSeasonalChoices = Number(item.seasonMechanic) === 10 && item.seasonMechanicEnabled == null && !states.some(state =>
         state.privatePlayer?.selectedXianMoStrategies?.length || state.privatePlayer?.choiceOverlay?.kind === "hundred-schools"
         || Object.values(state.players ?? {}).some(player => player.lastRound?.xianMoStrategies?.length));
-      const note = noSeasonalChoices ? (isChinese ? " · 此录像未包含百家之道选项" : " · Hundred Schools choices were not included in this recording") : "";
+      const note = preseason ? (isChinese ? " · 本场对局未启用百家之道" : " · Hundred Schools was not enabled in this match")
+        : noSeasonalChoices ? (isChinese ? " · 此录像未包含百家之道选项" : " · Hundred Schools choices were not included in this recording") : "";
       resultSummary.textContent = recordingLabel(item) + note;
       resultSummary.hidden = false;
     }
@@ -1070,10 +1072,16 @@
   ]);
   const catalogItemForId = (id) => catalog.find((candidate) =>
     candidate.id === (legacyRecordingAliases.get(id) ?? id));
-  const seasonForItem = (item) => item?.seasonMechanic != null && Number.isInteger(Number(item.seasonMechanic))
-    ? String(Number(item.seasonMechanic)) : "unknown";
+  const seasonForItem = (item) => {
+    if (item?.seasonMechanic == null || !Number.isInteger(Number(item.seasonMechanic))) return "unknown";
+    if (Number(item.seasonMechanic) === 10 && item.seasonMechanicEnabled === false) return "10-preseason";
+    return String(Number(item.seasonMechanic));
+  };
+  const isHundredSchoolsSeason = (season) => season === "10" || season === "10-preseason";
   const availableSeasons = [...new Set(catalog.map(seasonForItem))]
-    .sort((first, second) => first === "unknown" ? 1 : second === "unknown" ? -1 : Number(second) - Number(first));
+    .sort((first, second) => first === "unknown" ? 1 : second === "unknown" ? -1
+      : Number.parseInt(second, 10) - Number.parseInt(first, 10)
+        || Number(first === "10-preseason") - Number(second === "10-preseason"));
   let selectedSeason = null;
   const replayFilters = filterStateFromParams(new URLSearchParams(location.search));
   let seasonCatalog = [];
@@ -1095,22 +1103,26 @@
       8: ["Dream", "梦境"],
       9: ["Heavenly Derivation Fate", "天衍仙命"],
       10: ["The Dao of Hundred Schools", "百家之道"],
+      "10-preseason": ["Hundred Schools pre-season", "百家之道·季前赛"],
       unknown: ["Unknown season mechanic", "未知赛季机制"],
     };
     return localizedPair(names[season], isChinese ? `赛季机制 ${season}` : `Season mechanic ${season}`);
   }
 
   function seasonFromLocation(requested) {
-    if (availableSeasons.includes(requested.season)) return requested.season;
     const item = catalogItemForId(requested.recordingId);
+    // Existing links used season=10 for both enabled and pre-season matches.
+    // Keep their recording and step when migrating the pre-season category.
+    if (requested.season === "10" && seasonForItem(item) === "10-preseason") return "10-preseason";
+    if (availableSeasons.includes(requested.season)) return requested.season;
     return item ? seasonForItem(item) : availableSeasons[0] ?? null;
   }
 
   function setSeason(season) {
     selectedSeason = season;
     seasonCatalog = catalog.filter((item) => seasonForItem(item) === season);
-    const fateField = season === "10" ? "linXianMoFates" : "linFates";
-    const unchosenFateField = season === "10" ? "linUnchosenXianMoFates" : "linUnchosenFates";
+    const fateField = isHundredSchoolsSeason(season) ? "linXianMoFates" : "linFates";
+    const unchosenFateField = isHundredSchoolsSeason(season) ? "linUnchosenXianMoFates" : "linUnchosenFates";
     filterFates = uniqueFilterEntries(seasonCatalog.flatMap((item) => item[fateField] ?? []));
     filterUnchosenFates = uniqueFilterEntries(seasonCatalog.flatMap((item) => item[unchosenFateField] ?? []));
     filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap((item) => item.humanOpponentCharacters ?? []));
@@ -1136,8 +1148,8 @@
 
   function renderRecordingFilters() {
     const checkbox = (kind, entry, checked) => `<label><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
-    const fateLabel = selectedSeason === "10" ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
-    const unchosenLabel = selectedSeason === "10" ? (isChinese ? "出现但未选择的百家仙命" : "Offered but not chosen") : copy.unchosenHeavenlyFateFilter;
+    const fateLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
+    const unchosenLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "出现但未选择的百家仙命" : "Offered but not chosen") : copy.unchosenHeavenlyFateFilter;
     filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
       ${filterFates.length ? `<fieldset><legend>${esc(fateLabel)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
       ${filterUnchosenFates.length ? `<fieldset><legend>${esc(unchosenLabel)}</legend><div class="recording-filter-options">${filterUnchosenFates.map((entry) => checkbox("unchosenFates", entry, replayFilters.unchosenFates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
@@ -1191,8 +1203,8 @@
   }
 
   function applyRecordingFilters({ navigate = true, sync = true, historyMode = "push" } = {}) {
-    const fateField = selectedSeason === "10" ? "linXianMoFates" : "linFates";
-    const unchosenFateField = selectedSeason === "10" ? "linUnchosenXianMoFates" : "linUnchosenFates";
+    const fateField = isHundredSchoolsSeason(selectedSeason) ? "linXianMoFates" : "linFates";
+    const unchosenFateField = isHundredSchoolsSeason(selectedSeason) ? "linUnchosenXianMoFates" : "linUnchosenFates";
     filteredCatalog = seasonCatalog.filter((item) =>
       (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
       && [...replayFilters.fates].every((id) => (item[fateField] ?? []).some((entry) => Number(entry.id) === id))
