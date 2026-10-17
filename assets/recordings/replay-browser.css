@@ -1178,6 +1178,20 @@
 .chosen-mark { position: relative; z-index: 2; justify-self: center; margin-top: 4px; padding: 3px 9px; border: 1px solid rgba(255, 235, 164, .72); border-radius: 999px; background: rgba(69, 80, 55, .78); color: #fff0b9; font-size: 10px; font-weight: 850; letter-spacing: .04em; }
 .chosen-mark.placeholder { visibility: hidden; }
 
+.selection-overlay[data-kind="mirage"] .selection-frame {
+  width: min(980px, calc(100% - 16px));
+  min-height: 0;
+  max-height: 100%;
+  overflow-y: auto;
+}
+.selection-overlay[data-kind="mirage"] .selection-options { min-height: 0; }
+.selection-overlay[data-kind="mirage"] .selection-context small { display: block; margin-top: 3px; font-size: 10px; }
+.mirage-description { margin: 12px 4px 16px; font-size: 14px; line-height: 1.45; white-space: pre-line; }
+.selection-option.mirage-choice { grid-template-rows: auto auto 1fr; min-height: 160px; padding: 14px 18px 20px; text-align: left; }
+.selection-option.mirage-choice strong { font-size: 16px; line-height: 1.3; white-space: pre-line; overflow-wrap: anywhere; }
+.selection-option.mirage-choice p { font-size: 13px; line-height: 1.4; overflow-wrap: anywhere; }
+.selection-option.mirage-choice .chosen-mark { justify-self: start; margin: 0 0 8px; }
+
 .selection-actions {
   position: relative;
   display: grid;
@@ -1529,6 +1543,13 @@
   .selection-actions { grid-template-columns: 1fr; margin-top: 6px; }
   .reroll-bank { justify-self: center; text-align: center; }
 
+  .selection-overlay[data-kind="mirage"] .selection-frame { width: 100%; max-height: none; }
+  .selection-overlay[data-kind="mirage"] .selection-options { grid-template-columns: 1fr; }
+  .mirage-description { font-size: 13px; }
+  .selection-option.mirage-choice { min-height: 0; padding: 10px 14px 14px; }
+  .selection-option.mirage-choice strong { font-size: 14px; }
+  .selection-option.mirage-choice p { font-size: 12px; }
+
   .selection-overlay[data-kind="daoist-rhyme"] .selection-options {
     display: flex;
     gap: 9px;
@@ -1688,7 +1709,10 @@
 .seasonal-workspace { display: flex; gap: 8px; align-items: stretch; min-width: 0; padding: 6px; border: 1px solid #b59e6466; border-radius: 7px; background: linear-gradient(110deg, #1e3533ed, #24332e); }
 .seasonal-zone { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 5px; min-width: 0; padding: 4px 7px; border-right: 1px solid #b59e6455; }
 .seasonal-zone:last-child { border-right: 0; }
-.sigil-zone { flex: 1 1 0; }
+.sigil-zone { flex: 0 0 auto; width: max-content; }
+.sigil-zone[data-seasonal-zone="sigil-hand"] { flex: 1 1 0; width: auto; }
+.sigil-zone[data-seasonal-zone="sigil-shop"] > .seasonal-zone-heading { flex-wrap: wrap; }
+.sigil-shop-rerolls { flex-basis: 100%; color: #c5dcb5; font-size: 8px; text-align: center; }
 .seasonal-zone-heading { display: flex; justify-content: center; align-items: baseline; gap: 5px; color: #dfd0a7; }
 .seasonal-zone-heading > strong { font: 700 9px Georgia, serif; }
 .seasonal-zone-slots { display: flex; align-items: center; justify-content: safe center; gap: 4px; min-width: 0; overflow-x: auto; padding: 3px 2px 9px; scrollbar-width: thin; }
@@ -1755,11 +1779,12 @@
   .board-panel.has-seasonal-zones { grid-template-rows: auto; height: auto; }
   .seasonal-workspace { flex-wrap: wrap; gap: 5px; padding: 4px; }
   .seasonal-zone { padding: 4px; }
-  .sigil-zone { flex: 1 1 100%; border-right: 0; border-bottom: 1px solid #b59e6455; }
+  .sigil-zone, .sigil-zone[data-seasonal-zone="sigil-hand"] { flex: 1 1 100%; width: auto; border-right: 0; border-bottom: 1px solid #b59e6455; }
   .sigil-zone:last-child { border-bottom: 0; }
   .seasonal-slot { flex-basis: 54px; width: 54px; }
   .seasonal-zone-slots { justify-content: flex-start; }
   .seasonal-zone-heading { justify-content: flex-start; }
+  .sigil-shop-rerolls { flex-basis: auto; text-align: left; }
   .seasonal-counter small, .seasonal-counter b { font-size: 8px; }
   .public-sigil-deck > .sigil-item { width: 25px; flex-basis: 25px; height: 40px; }
   .furnace-workbench { gap: 12px; }

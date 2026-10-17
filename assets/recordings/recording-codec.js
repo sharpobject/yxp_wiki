@@ -15,6 +15,7 @@
     "placementStart", "placementEnd", "ratingChange", "ratingKind",
     "gameMode", "firstRound", "cupId", "cupProgress", "cupStage", "practice",
     "seasonMechanic", "seasonMechanicEnabled", "linXianMoFates", "linUnchosenXianMoFates",
+    "roundOneXianMoPool",
   ]);
 
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -238,6 +239,7 @@
         (item.linUnchosenXianMoFates ?? []).map(({ id }) => id),
         Object.keys(filterLabels).length ? filterLabels : null,
         item.seasonMechanicEnabled ?? null,
+        item.roundOneXianMoPool ?? null,
       ]);
     }
     return [FORMAT_VERSION, packSharedCatalog(sharedCatalog), [...groups.values()]];
@@ -256,7 +258,7 @@
           cupId = 0, cupProgress = 0, cupStage = "", practice = 0, placementStart = null, placementEnd = null,
           ratingChange = null, ratingKind = "", seasonMechanic = null,
           xianMoFateIds = [], unchosenXianMoFateIds = [], filterLabels = null,
-          seasonMechanicEnabled = null] = game;
+          seasonMechanicEnabled = null, roundOneXianMoPool = null] = game;
         if (seasonMechanicEnabled !== null && typeof seasonMechanicEnabled !== "boolean") {
           throw new Error("invalid catalog mechanic activation flag");
         }
@@ -293,6 +295,7 @@
           placementStart, placementEnd, ratingChange, ratingKind,
           seasonMechanic,
           seasonMechanicEnabled,
+          ...(roundOneXianMoPool == null ? {} : { roundOneXianMoPool }),
           label: `${targetUsername} · ${rounds} rounds`,
         });
       }

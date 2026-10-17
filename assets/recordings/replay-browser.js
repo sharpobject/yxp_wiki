@@ -598,10 +598,17 @@
       <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(displayedStats?.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(displayedStats?.cultivation ?? 0)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span><span>${showPhysique ? `${esc(physique)} / ${esc(displayedStats?.maxPhysique ?? 0)} ${esc(copy.physique)} · ` : ""}${esc(priorMaxHp(displayedStats))} ${esc(copy.maxHp)}</span></div>`;
   }
 
-  function seasonalTraitMarkup(entry) {
+  function mirageText(entry, field = "name") {
+    return localizedInfo(entry, field).replace(/【(\d+)】/g, (reference, id) => {
+      const name = localizedInfo(recording.catalog.cards[id]);
+      return name ? `【${name}】` : reference;
+    });
+  }
+
+  function seasonalTraitMarkup(entry, { mirage = false } = {}) {
     if (!entry || !(Number(entry.id) > 0)) return "";
-    const name = localizedInfo(entry) || (isChinese ? `选项 ${entry.id}` : `Option ${entry.id}`);
-    const description = localizedInfo(entry, "description");
+    const name = (mirage ? mirageText(entry) : localizedInfo(entry)) || (isChinese ? `选项 ${entry.id}` : `Option ${entry.id}`);
+    const description = mirage ? mirageText(entry, "description") : localizedInfo(entry, "description");
     const status = localizedInfo(entry, "status");
     return `<span class="seasonal-trait${entry.selected ? " selected" : ""}" tabindex="0"><span>${entry.selected ? "✓ " : ""}${esc(name)}</span>${status ? `<small>${esc(status)}</small>` : ""}<span class="trait-popover"><strong>${esc(name)}</strong>${status ? `<p>${esc(status)}</p>` : ""}${description ? `<p>${esc(description)}</p>` : ""}</span></span>`;
   }
@@ -610,12 +617,13 @@
     if (!info || Number(info.mechanic) !== Number(mechanic)) return compact ? "" : `<span class="trait-empty">${esc(copy.noneVisible)}</span>`;
     const counters = (info.counters ?? []).filter(entry => entry.value != null).map(entry =>
       `<span class="seasonal-counter"><small>${esc(localizedInfo(entry, "label"))}</small><b>${esc(entry.value)}</b></span>`).join("");
-    const traits = (info.traits ?? []).map(seasonalTraitMarkup).join("");
-    const offers = (info.offers ?? []).map(seasonalTraitMarkup).join("");
+    const mirage = Number(mechanic) === 6;
+    const traits = (info.traits ?? []).map(entry => seasonalTraitMarkup(entry, { mirage })).join("");
+    const offers = (info.offers ?? []).map(entry => seasonalTraitMarkup(entry, { mirage })).join("");
     const sigils = Number(mechanic) === 7 && Array.isArray(info.usedSlots)
       ? `<div class="public-sigil-deck" aria-label="${isChinese ? "刻印卡组" : "Sigil deck"}">${Array.from({ length: 3 }, (_, slot) => sigilMarkup(info.usedSlots[slot], { slot: slot + 1, deck: true })).join("")}</div>` : "";
     const mirages = Number(mechanic) === 6 && info.mirageHistory?.length
-      ? `<details class="seasonal-history"><summary>${isChinese ? "此前幻景" : "Past Mirages"} · ${info.mirageHistory.length}</summary><div>${info.mirageHistory.map(mirage => `<section><strong>${esc(localizedInfo(mirage))}</strong><div class="seasonal-traits">${(mirage.options ?? []).map(seasonalTraitMarkup).join("")}</div></section>`).join("")}</div></details>` : "";
+      ? `<details class="seasonal-history"><summary>${isChinese ? "此前幻景" : "Past Mirages"} · ${info.mirageHistory.length}</summary><div>${info.mirageHistory.map(mirage => `<section><strong>${esc(mirageText(mirage))}</strong><div class="seasonal-traits">${(mirage.options ?? []).map(entry => seasonalTraitMarkup(entry, { mirage: true })).join("")}</div></section>`).join("")}</div></details>` : "";
     const dreamPhases = Number(mechanic) === 8 && info.dreamPhaseUnlocks?.length
       ? `<div class="dream-phase-progression"><small>${isChinese ? "梦境卡牌境界" : "Dream card phases"}</small><div>${info.dreamPhaseUnlocks.map(phase => `<span class="dream-phase${phase.unlocked ? " unlocked" : ""}" title="${isChinese ? `第${phase.round}轮解锁` : `Unlocks round ${phase.round}`}">${esc(phaseName(phase.phase))}<small>${isChinese ? `第${phase.round}轮` : `R${phase.round}`}</small></span>`).join("")}</div></div>` : "";
     const branchRerolls = Number(mechanic) === 3 && info.refreshTalentLevels?.length
@@ -676,12 +684,15 @@
     return `<div class="sigil-item${id ? "" : " empty-sigil"}${entry?.soldOut ? " sold-out" : ""}${change ? ` zone-${change}` : ""}" tabindex="0" data-sigil-id="${id}"${change ? ` data-zone-change="${change}"` : ""} aria-label="${esc([name, activation, previousText].filter(Boolean).join(" · "))}"><span class="sigil-fallback">${esc(name)}</span>${artwork}${cost != null && id ? `<span class="sigil-cost" title="${isChinese ? "刻印消耗" : "Sigil cost"}">${esc(cost)}</span>` : ""}${entry?.soldOut ? `<span class="sigil-sold">${isChinese ? "已购买" : "Purchased"}</span>` : price != null ? `<span class="sigil-price">${esc(price)} ${isChinese ? "换牌" : "exchanges"}</span>` : ""}${activation ? `<span class="sigil-activation">${esc(activation)}</span>` : ""}${previousText ? '<span class="zone-removed-mark" aria-hidden="true">×</span>' : ""}<div class="trait-popover"><strong>${esc(name)}</strong>${activation ? `<p>${esc(activation)}</p>` : ""}${status ? `<p>${esc(status)}</p>` : ""}${description ? `<p>${esc(description)}</p>` : ""}${cost != null && id ? `<p>${isChinese ? "刻印消耗" : "Sigil cost"}: ${esc(cost)}</p>` : ""}${price != null ? `<p>${isChinese ? "购买所需换牌次数" : "Purchase cost in exchanges"}: ${esc(price)}</p>` : ""}${previousText ? `<p>${esc(previousText)}</p>` : ""}</div></div>`;
   }
 
-  function seasonalZoneMarkup(zone, previous, owner) {
+  function seasonalZoneMarkup(zone, previous, owner, { freeSigilRerolls = null } = {}) {
     if (zone.id === "relic-1") return furnaceZoneMarkup(zone, previous, owner);
     if (zone.id === "relic-5") return shelfZoneMarkup(zone, previous, owner);
     const description = localizedInfo(zone, "description");
     const name = localizedInfo(zone);
     const entries = seasonalZoneTransition(zone, previous);
+    const shopRerolls = zone.kind === "sigil" && zone.id === "sigil-shop"
+      && Number.isInteger(freeSigilRerolls) && freeSigilRerolls >= 0
+      ? `<span class="sigil-shop-rerolls" aria-label="${isChinese ? "商店剩余免费刷新次数" : "Free shop rerolls remaining"}: ${freeSigilRerolls}">↻ ${isChinese ? "免费刷新" : "Free rerolls"}: ${freeSigilRerolls}</span>` : "";
     let removedSigils = "";
     if (zone.id === "sigil-hand" && previous) {
       const retained = seasonalZoneEntries(zone).map(entry => Number(entry?.id));
@@ -702,7 +713,7 @@
         ? (isChinese ? `封印：${metadata.sealCount}` : `Seal: ${metadata.sealCount}`) : ""].filter(Boolean).join(" · ");
       return `<div class="seasonal-slot stored-card-slot${metadata?.locked ? " locked" : ""}" data-zone-slot="${slot}" aria-label="${esc(name)} · ${slot}${status ? ` · ${esc(status)}` : ""}">${transitionCard({ id: visible, change }, owner)}${status ? `<span class="storage-slot-status">${esc(status)}</span>` : ""}</div>`;
     }).join("");
-    return `<section class="seasonal-zone${zone.kind === "sigil" ? " sigil-zone" : " card-storage-zone"}" data-seasonal-zone="${esc(zone.id)}"><div class="seasonal-zone-heading"><strong>${esc(name)}</strong>${description ? `<span class="seasonal-rules" tabindex="0" aria-label="${esc(name)} · ${isChinese ? "规则" : "Rules"}">ⓘ<span class="trait-popover"><strong>${esc(name)}</strong><p>${esc(description)}</p></span></span>` : ""}</div><div class="seasonal-zone-slots">${contents || `<span class="trait-empty">${isChinese ? "空" : "Empty"}</span>`}</div>${removedSigils}</section>`;
+    return `<section class="seasonal-zone${zone.kind === "sigil" ? " sigil-zone" : " card-storage-zone"}" data-seasonal-zone="${esc(zone.id)}"><div class="seasonal-zone-heading"><strong>${esc(name)}</strong>${description ? `<span class="seasonal-rules" tabindex="0" aria-label="${esc(name)} · ${isChinese ? "规则" : "Rules"}">ⓘ<span class="trait-popover"><strong>${esc(name)}</strong><p>${esc(description)}</p></span></span>` : ""}${shopRerolls}</div><div class="seasonal-zone-slots">${contents || `<span class="trait-empty">${isChinese ? "空" : "Empty"}</span>`}</div>${removedSigils}</section>`;
   }
 
   function relicZoneHeading(zone) {
@@ -738,10 +749,13 @@
       ? state.privatePlayer?.seasonalZones ?? [] : [];
     const previousZones = previousState?.privatePlayer?.uid === state.privatePlayer?.uid
       && Number(previousState?.seasonMechanic) === mechanic ? previousState.privatePlayer?.seasonalZones ?? [] : [];
+    const seasonalInfo = state.privatePlayer?.seasonalInfo;
+    const freeSigilRerolls = mechanic === 7 && Number(seasonalInfo?.mechanic) === 7
+      ? seasonalInfo.counters?.find(counter => counter.id === "sigil-refresh")?.value : null;
     seasonalWorkspace.hidden = zones.length === 0;
     seasonalWorkspace.innerHTML = zones.map(zone => seasonalZoneMarkup(zone,
       previousZones.find(previous => previous.id === zone.id && previous.kind === zone.kind),
-      state.players?.[state.privatePlayer?.uid])).join("");
+      state.players?.[state.privatePlayer?.uid], { freeSigilRerolls })).join("");
     $("#board-panel").classList.toggle("has-seasonal-zones", zones.length > 0);
   }
 
@@ -774,6 +788,11 @@
     }
     const options = displayedOptions.map(({ reference, optionIndex }) => {
       const selected = optionIndex === selectedOptionIndex;
+      if (overlay.kind === "mirage") {
+        const name = mirageText(reference) || (isChinese ? `选项 ${optionIndex + 1}` : `Option ${optionIndex + 1}`);
+        const description = mirageText(reference, "description");
+        return `<article class="selection-option mirage-choice${selected ? " selected" : ""}"><span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(name)}</strong>${description && description !== name ? `<p>${esc(description)}</p>` : ""}</article>`;
+      }
       if (overlay.kind === "side-job" || overlay.kind === "additional-side-job") {
         return `<article class="selection-option${selected ? " selected" : ""}"><div class="selection-icon"><img src="${careerAsset(reference.id)}" alt="${esc(careerName(reference.id))}"></div><span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(careerName(reference.id))}</strong></article>`;
       }
@@ -790,7 +809,9 @@
     }).concat(omittedCardCount > 0
       ? [`<article class="selection-option card-choice selection-more"><div class="selection-icon"><span>${esc(copy.andOtherCards(omittedCardCount))}</span></div><span class="chosen-mark placeholder">—</span><strong>${esc(copy.andOtherCards(omittedCardCount))}</strong></article>`]
       : []).join("");
-    const title = overlay.kind === "side-job"
+    const title = overlay.kind === "mirage"
+      ? mirageText(overlay) || (isChinese ? "选择幻景选项" : "Choose a Mirage option")
+      : overlay.kind === "side-job"
       ? (isChinese ? "选择副职业" : "Select a Side Job")
       : overlay.kind === "additional-side-job"
         ? (isChinese ? "选择兼修副职业" : "Select an Additional Side Job")
@@ -801,12 +822,19 @@
       : overlay.kind === "immortal-fate"
         ? copy.selectTalent
         : copy.selectDaoYun;
-    const roundOrPhase = overlay.kind === "side-job" || overlay.kind === "additional-side-job" || overlay.kind === "hundred-schools" || overlay.kind === "heavenly-derivation" || overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection"
+    const roundOrPhase = overlay.kind === "mirage" || overlay.kind === "side-job" || overlay.kind === "additional-side-job" || overlay.kind === "hundred-schools" || overlay.kind === "heavenly-derivation" || overlay.kind === "daoist-rhyme" || overlay.kind === "card-selection"
       ? `${copy.round}${esc(overlay.roundOrPhase)}${copy.roundSuffix}`
       : `${esc(phaseName(overlay.roundOrPhase))}`;
+    const mirageDescription = overlay.kind === "mirage" ? mirageText(overlay, "description") : "";
+    const deferredResult = overlay.kind === "mirage" && selectedOptionIndex >= 0
+      && Number(overlay.selectedRound) > Number(overlay.roundOrPhase);
+    const choiceContext = overlay.kind === "mirage"
+      ? `${isChinese ? "幻景" : "Mirage"} · ${roundOrPhase}${deferredResult ? `<small>${isChinese ? `第${esc(overlay.selectedRound)}轮选择` : `Chosen in round ${esc(overlay.selectedRound)}`}</small>` : ""}`
+      : roundOrPhase;
     host.dataset.kind = overlay.kind;
     host.innerHTML = `<div class="selection-frame" style="--choice-count:${displayedOptions.length + (omittedCardCount > 0 ? 1 : 0)}">
-      <div class="selection-heading"><span class="selection-context">${roundOrPhase}</span><h2>${esc(title)}</h2><span class="selection-heading-spacer" aria-hidden="true"></span></div>
+      <div class="selection-heading"><span class="selection-context">${choiceContext}</span><h2>${esc(title)}</h2><span class="selection-heading-spacer" aria-hidden="true"></span></div>
+      ${mirageDescription ? `<p class="mirage-description">${esc(mirageDescription)}</p>` : ""}
       <div class="selection-options">${options}</div>
       ${showRerolls ? `<div class="selection-actions"><span class="reroll-bank">↻ ${esc(rerollsRemaining)} ${esc(copy.rerollsRemaining)}</span></div>` : ""}
     </div>`;
@@ -882,7 +910,11 @@
       .slice(-5);
   }
 
-  const actionText = (action) => action[isChinese ? "textChinese" : "textEnglish"] || action.text || "";
+  const actionText = (action, mechanic) => {
+    const text = action[isChinese ? "textChinese" : "textEnglish"] || action.text || "";
+    return Number(mechanic) === 6 && action.kind === "seasonalFate"
+      ? mirageText({ nameEnglish: text, nameChinese: text }) : text;
+  };
   const actionKindText = (action, mechanic = 10) => ["seasonalFate", "seasonalFateUse"].includes(action.kind) && Number(mechanic) > 0 && Number(mechanic) < 9
     ? seasonName(String(mechanic))
     : action.kind === "destiny" && Number(action.round) > 0
@@ -892,7 +924,7 @@
   function renderActions() {
     const actions = recentActions();
     $("#action-list").innerHTML = actions.length
-      ? actions.map((action) => `<li class="${action.current ? "current" : ""}"><span class="action-kind">${esc(actionKindText(action, states[index]?.seasonMechanic))}</span>${esc(actionText(action))}</li>`).join("")
+      ? actions.map((action) => `<li class="${action.current ? "current" : ""}"><span class="action-kind">${esc(actionKindText(action, states[index]?.seasonMechanic))}</span>${esc(actionText(action, states[index]?.seasonMechanic))}</li>`).join("")
       : `<li class="empty">${esc(copy.noActions)}</li>`;
   }
 
@@ -1082,6 +1114,7 @@
       unchosenFates: filterNumbers(params, "unchosenFates"),
       career: Math.max(0, Number.parseInt(params.get("career") ?? "0", 10) || 0),
       opponents: filterNumbers(params, "opponents"),
+      roundOnePool: params.get("roundOnePool") || "",
     };
   }
 
@@ -1090,6 +1123,7 @@
     replayFilters.unchosenFates = nextState.unchosenFates;
     replayFilters.career = nextState.career;
     replayFilters.opponents = nextState.opponents;
+    replayFilters.roundOnePool = nextState.roundOnePool;
   }
 
   function writeFilterState(url) {
@@ -1105,6 +1139,8 @@
     }
     url.searchParams.delete("career");
     if (replayFilters.career > 0) url.searchParams.set("career", String(replayFilters.career));
+    url.searchParams.delete("roundOnePool");
+    if (replayFilters.roundOnePool) url.searchParams.set("roundOnePool", replayFilters.roundOnePool);
     return url;
   }
 
@@ -1251,7 +1287,7 @@
   let filteredCatalog = [];
   const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
     .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
-  let filterFates = [], filterUnchosenFates = [], filterOpponents = [], filterCareers = [];
+  let filterFates = [], filterUnchosenFates = [], filterOpponents = [], filterCareers = [], filterRoundOnePools = [];
 
   function seasonName(season) {
     const names = {
@@ -1291,6 +1327,10 @@
     filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap((item) => item.humanOpponentCharacters ?? []));
     filterCareers = [...new Set(seasonCatalog.map((item) => numericPrefix(item.linCareer)).filter((value) => value > 0))]
       .sort((first, second) => first - second);
+    filterRoundOnePools = season === "10" ? [...new Map(seasonCatalog
+      .map(item => item.roundOneXianMoPool).filter(pool => typeof pool?.id === "string" && pool.id)
+      .map(pool => [pool.id, pool])).values()]
+      .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second))) : [];
     // Preserve applicable filters, but never leave an invisible old-season
     // constraint selected after changing mechanics or opening an older link.
     for (const [kind, entries] of [["fates", filterFates], ["unchosenFates", filterUnchosenFates], ["opponents", filterOpponents]]) {
@@ -1298,6 +1338,7 @@
       replayFilters[kind] = new Set([...replayFilters[kind]].filter((id) => available.has(id)));
     }
     if (!filterCareers.includes(replayFilters.career)) replayFilters.career = 0;
+    if (!filterRoundOnePools.some(pool => pool.id === replayFilters.roundOnePool)) replayFilters.roundOnePool = "";
     if (seasonSelect) {
       seasonSelect.innerHTML = availableSeasons.map((value) => `<option value="${esc(value)}">${esc(seasonName(value))}</option>`).join("");
       seasonSelect.value = season ?? "";
@@ -1306,14 +1347,16 @@
   }
 
   function filterCount() {
-    return replayFilters.fates.size + replayFilters.unchosenFates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0);
+    return replayFilters.fates.size + replayFilters.unchosenFates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0) + (replayFilters.roundOnePool ? 1 : 0);
   }
 
   function renderRecordingFilters() {
     const checkbox = (kind, entry, checked) => `<label><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
     const fateLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
     const unchosenLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "出现但未选择的百家仙命" : "Offered but not chosen") : copy.unchosenHeavenlyFateFilter;
+    const roundOnePoolLabel = isChinese ? "第1轮出现的仙命池" : "Round 1 offered pool";
     filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
+      ${filterRoundOnePools.length ? `<fieldset><legend>${esc(roundOnePoolLabel)}</legend><select data-round-one-pool-filter aria-label="${esc(roundOnePoolLabel)}"><option value="">${isChinese ? "全部第1轮仙命池" : "All round 1 pools"}</option>${filterRoundOnePools.map(pool => `<option value="${esc(pool.id)}"${replayFilters.roundOnePool === pool.id ? " selected" : ""}>${esc(localizedInfo(pool))}</option>`).join("")}</select></fieldset>` : ""}
       ${filterFates.length ? `<fieldset><legend>${esc(fateLabel)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
       ${filterUnchosenFates.length ? `<fieldset><legend>${esc(unchosenLabel)}</legend><div class="recording-filter-options">${filterUnchosenFates.map((entry) => checkbox("unchosenFates", entry, replayFilters.unchosenFates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
       <fieldset><legend>${esc(copy.sideJobFilter)}</legend><select data-career-filter><option value="0">${esc(copy.anySideJob)}</option>${filterCareers.map((career) => `<option value="${career}"${replayFilters.career === career ? " selected" : ""}>${esc(careerName(career))}</option>`).join("")}</select></fieldset>
@@ -1330,8 +1373,13 @@
       applyRecordingFilters();
       renderRecordingFilters();
     });
+    filterPopover.querySelector("[data-round-one-pool-filter]")?.addEventListener("change", (event) => {
+      replayFilters.roundOnePool = event.target.value;
+      applyRecordingFilters();
+      renderRecordingFilters();
+    });
     filterPopover.querySelector("[data-clear-filters]")?.addEventListener("click", () => {
-      replayFilters.fates.clear(); replayFilters.unchosenFates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0;
+      replayFilters.fates.clear(); replayFilters.unchosenFates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0; replayFilters.roundOnePool = "";
       applyRecordingFilters();
       renderRecordingFilters();
     });
@@ -1370,6 +1418,7 @@
     const unchosenFateField = isHundredSchoolsSeason(selectedSeason) ? "linUnchosenXianMoFates" : "linUnchosenFates";
     filteredCatalog = seasonCatalog.filter((item) =>
       (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
+      && (!replayFilters.roundOnePool || item.roundOneXianMoPool?.id === replayFilters.roundOnePool)
       && [...replayFilters.fates].every((id) => (item[fateField] ?? []).some((entry) => Number(entry.id) === id))
       && [...replayFilters.unchosenFates].every((id) => (item[unchosenFateField] ?? []).some((entry) => Number(entry.id) === id))
       && [...replayFilters.opponents].every((id) => (item.humanOpponentCharacters ?? []).some((entry) => Number(entry.id) === id)));
@@ -1420,6 +1469,7 @@
     // fate selection must not silently select another mechanic's fate.
     replayFilters.fates.clear();
     replayFilters.unchosenFates.clear();
+    replayFilters.roundOnePool = "";
     setSeason(seasonSelect.value);
     applyRecordingFilters();
     renderRecordingFilters();
