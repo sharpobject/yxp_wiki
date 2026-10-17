@@ -43,6 +43,11 @@
   vaseZone.hidden = true;
   vaseZone.innerHTML = '<div id="vase-label" class="zone-label"></div><div id="vase" class="card-strip"></div>';
   $(".hand-zone").prepend(vaseZone);
+  const seasonalWorkspace = document.createElement("section");
+  seasonalWorkspace.id = "seasonal-workspace";
+  seasonalWorkspace.className = "seasonal-workspace";
+  seasonalWorkspace.hidden = true;
+  $("#board-panel").append(seasonalWorkspace);
   const mobileViewport = matchMedia("(max-width: 760px)");
   const mobileTooltipLayer = document.createElement("div");
   mobileTooltipLayer.className = "mobile-tooltip-layer";
@@ -58,8 +63,8 @@
     mobileTooltipLayer.querySelector(".mobile-tooltip-content").replaceChildren();
   }
 
-  function openMobileTooltip(trigger) {
-    if (!mobileViewport.matches) return;
+  function openMobileTooltip(trigger, force = false) {
+    if (!mobileViewport.matches && !force) return;
     const popover = trigger.querySelector(".trait-popover");
     if (!popover) return;
     mobileTooltipLayer.querySelector(".mobile-tooltip-content").innerHTML = popover.innerHTML;
@@ -78,7 +83,7 @@
     selectTalent: "选择仙命", selectDaoYun: "选择卡牌", noActions: "尚无玩家操作。",
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角", cupPreliminary: "天衍杯初赛", cupFinal: "天衍杯决赛", cup: "天衍杯", practice: "练习赛",
-    actionKinds: { draw: "抽牌", gain: "获得卡牌", move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", sideJob: "副职业", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", seasonalFate: "百家仙命", seasonalFateUse: "使用百家仙命", reroll: "刷新" },
+    actionKinds: { draw: "抽牌", gain: "获得卡牌", move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", sideJob: "副职业", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", seasonalFate: "百家仙命", seasonalFateUse: "使用百家仙命", sigilMove: "移动刻印", sigilBuy: "购买刻印", sigilRefine: "炼化刻印", sigilRefresh: "刷新刻印商店", sigilReplace: "更换刻印", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
     previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔", andOtherCards: (count) => `另有 ${count} 张牌`,
     filters: "筛选", heavenlyFateFilter: "已选择的天衍仙命", unchosenHeavenlyFateFilter: "出现但未选择的天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
@@ -93,7 +98,7 @@
     selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Card", noActions: "No player action has occurred yet.",
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view", cupPreliminary: "Heavenly Derivation Cup preliminary", cupFinal: "Heavenly Derivation Cup final", cup: "Heavenly Derivation Cup", practice: "Practice",
-    actionKinds: { draw: "Draw", gain: "Gain", move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", sideJob: "Side Job", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", seasonalFate: "Hundred Schools", seasonalFateUse: "used Hundred Schools", reroll: "reroll" },
+    actionKinds: { draw: "Draw", gain: "Gain", move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", sideJob: "Side Job", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", seasonalFate: "Hundred Schools", seasonalFateUse: "used Hundred Schools", sigilMove: "Move sigil", sigilBuy: "Buy sigil", sigilRefine: "Refine sigil", sigilRefresh: "Refresh sigil shop", sigilReplace: "Replace sigil", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
     previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon", andOtherCards: (count) => `and ${count} other cards`,
     filters: "Filters", heavenlyFateFilter: "Chosen Heavenly Derivation Fates", unchosenHeavenlyFateFilter: "Offered but not chosen", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
@@ -576,14 +581,168 @@
     const displayedStats = priorRound ?? player;
     const physique = Number(displayedStats?.physique ?? 0);
     const showPhysique = numericPrefix(player.sect) === 4 || physique > 0;
+    const mechanic = Number(state.seasonMechanic);
+    const olderMechanic = mechanic > 0 && mechanic < 9;
+    const mechanicInfo = player.uid === privateOwnerUid ? privatePlayer?.seasonalInfo : priorRound?.seasonalInfo;
+    const mechanicPanel = olderMechanic
+      ? `<div class="trait-group seasonal-trait-group"><span class="trait-heading">${esc(seasonName(String(mechanic)))}</span>${seasonalInfoMarkup(mechanicInfo, mechanic)}</div>`
+      : seasonal || mechanic === 9 || fates
+        ? `<div class="trait-group"><span class="trait-heading">${esc(seasonal ? (isChinese ? "百家之道" : "The Dao of Hundred Schools") : copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : "";
     $("#character-panel").innerHTML = `<div class="trait-panel">
         <div class="trait-group"><span class="trait-heading">${esc(copy.immortalFates)}</span><div class="trait-row">${talents || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
-        <div class="trait-group"><span class="trait-heading">${esc(seasonal ? (isChinese ? "百家之道" : "The Dao of Hundred Schools") : copy.heavenlyDerivation)}</span><div class="trait-row">${fates || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>
+        ${mechanicPanel}
         ${player.uid === privateOwnerUid ? `<div class="trait-group dao-yun-group"><span class="trait-heading">${esc(copy.daoYunChoices)}</span><div class="trait-row dao-yun-row">${daoYunChoices || `<span class="trait-empty">${esc(copy.noneVisible)}</span>`}</div></div>` : ""}
         ${player.uid === privateOwnerUid && cardSelections ? `<div class="trait-group card-selection-group"><span class="trait-heading">${esc(copy.cardSelections)}</span><div class="trait-row card-selection-row">${cardSelections}</div></div>` : ""}
       </div>
       <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
       <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(displayedStats?.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(displayedStats?.cultivation ?? 0)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span><span>${showPhysique ? `${esc(physique)} / ${esc(displayedStats?.maxPhysique ?? 0)} ${esc(copy.physique)} · ` : ""}${esc(priorMaxHp(displayedStats))} ${esc(copy.maxHp)}</span></div>`;
+  }
+
+  function seasonalTraitMarkup(entry) {
+    if (!entry || !(Number(entry.id) > 0)) return "";
+    const name = localizedInfo(entry) || (isChinese ? `选项 ${entry.id}` : `Option ${entry.id}`);
+    const description = localizedInfo(entry, "description");
+    const status = localizedInfo(entry, "status");
+    return `<span class="seasonal-trait${entry.selected ? " selected" : ""}" tabindex="0"><span>${entry.selected ? "✓ " : ""}${esc(name)}</span>${status ? `<small>${esc(status)}</small>` : ""}<span class="trait-popover"><strong>${esc(name)}</strong>${status ? `<p>${esc(status)}</p>` : ""}${description ? `<p>${esc(description)}</p>` : ""}</span></span>`;
+  }
+
+  function seasonalInfoMarkup(info, mechanic, { compact = false } = {}) {
+    if (!info || Number(info.mechanic) !== Number(mechanic)) return compact ? "" : `<span class="trait-empty">${esc(copy.noneVisible)}</span>`;
+    const counters = (info.counters ?? []).filter(entry => entry.value != null).map(entry =>
+      `<span class="seasonal-counter"><small>${esc(localizedInfo(entry, "label"))}</small><b>${esc(entry.value)}</b></span>`).join("");
+    const traits = (info.traits ?? []).map(seasonalTraitMarkup).join("");
+    const offers = (info.offers ?? []).map(seasonalTraitMarkup).join("");
+    const sigils = Number(mechanic) === 7 && Array.isArray(info.usedSlots)
+      ? `<div class="public-sigil-deck" aria-label="${isChinese ? "刻印卡组" : "Sigil deck"}">${Array.from({ length: 3 }, (_, slot) => sigilMarkup(info.usedSlots[slot], { slot: slot + 1, deck: true })).join("")}</div>` : "";
+    const mirages = Number(mechanic) === 6 && info.mirageHistory?.length
+      ? `<details class="seasonal-history"><summary>${isChinese ? "此前幻景" : "Past Mirages"} · ${info.mirageHistory.length}</summary><div>${info.mirageHistory.map(mirage => `<section><strong>${esc(localizedInfo(mirage))}</strong><div class="seasonal-traits">${(mirage.options ?? []).map(seasonalTraitMarkup).join("")}</div></section>`).join("")}</div></details>` : "";
+    const dreamPhases = Number(mechanic) === 8 && info.dreamPhaseUnlocks?.length
+      ? `<div class="dream-phase-progression"><small>${isChinese ? "梦境卡牌境界" : "Dream card phases"}</small><div>${info.dreamPhaseUnlocks.map(phase => `<span class="dream-phase${phase.unlocked ? " unlocked" : ""}" title="${isChinese ? `第${phase.round}轮解锁` : `Unlocks round ${phase.round}`}">${esc(phaseName(phase.phase))}<small>${isChinese ? `第${phase.round}轮` : `R${phase.round}`}</small></span>`).join("")}</div></div>` : "";
+    const branchRerolls = Number(mechanic) === 3 && info.refreshTalentLevels?.length
+      ? `<p class="seasonal-refresh-history">${isChinese ? "已使用仙命刷新：" : "Fate rerolls used: "}${info.refreshTalentLevels.map(phase => esc(phaseName(phase))).join(" · ")}</p>` : "";
+    const description = localizedInfo(info, "description");
+    return `<div class="seasonal-summary${compact ? " compact" : ""}">${counters ? `<div class="seasonal-counters">${counters}</div>` : ""}${traits ? `<div class="seasonal-traits">${traits}</div>` : ""}${sigils}${offers ? `<div class="seasonal-offers"><small>${esc(copy.offer || (isChinese ? "选项" : "Offer"))}</small><div>${offers}</div></div>` : ""}${mirages}${dreamPhases}${branchRerolls}${description ? `<span class="seasonal-rules" tabindex="0">${isChinese ? "规则 ⓘ" : "Rules ⓘ"}<span class="trait-popover"><p>${esc(description)}</p></span></span>` : ""}${!counters && !traits && !offers && !sigils && !mirages && !dreamPhases && !branchRerolls && !description ? `<span class="trait-empty">${esc(copy.noneVisible)}</span>` : ""}</div>`;
+  }
+
+  function seasonalZoneEntries(zone) {
+    const entries = zone.kind === "sigil" ? (zone.entries ?? []).map(entry => entry || null)
+      : (zone.cards ?? []).map(id => Number(id) || 0);
+    // Sigil slots are independent of their cost budget and always number three.
+    const capacity = zone.kind === "sigil" && zone.id === "sigil-deck" ? 3
+      : zone.id === "dream-storage" ? 2 : Number(zone.capacity);
+    if (Number.isInteger(capacity) && capacity >= 0) {
+      entries.length = Math.min(entries.length, capacity);
+      while (entries.length < capacity) entries.push(zone.kind === "sigil" ? null : 0);
+    }
+    return entries;
+  }
+
+  function seasonalZoneTransition(zone, previous) {
+    const current = seasonalZoneEntries(zone);
+    const old = previous ? seasonalZoneEntries(previous) : [];
+    const idOf = entry => Number(zone.kind === "sigil" ? entry?.id : entry) || 0;
+    const fixedSlots = Number.isInteger(Number(zone.capacity)) || zone.id === "sigil-deck";
+    const unmatched = [...old];
+    return current.map((entry, slot) => {
+      let prior = old[slot];
+      if (!fixedSlots) {
+        const position = unmatched.findIndex(candidate => idOf(candidate) === idOf(entry));
+        prior = position >= 0 ? unmatched.splice(position, 1)[0] : null;
+      }
+      const changed = previous && idOf(entry) !== idOf(prior);
+      const sold = previous && zone.kind === "sigil" && idOf(entry) === idOf(prior)
+        && entry?.soldOut === true && prior?.soldOut !== true;
+      return { entry, previous: prior, change: changed ? idOf(entry) ? "appear" : "leaving" : sold ? "sold" : "", slot: slot + 1 };
+    });
+  }
+
+  function sigilMarkup(entry, { slot = null, change = "", previous = null, deck = false, shop = false } = {}) {
+    const id = Number(entry?.id) || 0;
+    const previousName = localizedInfo(previous);
+    const name = id ? localizedInfo(entry) || (isChinese ? `刻印 ${id}` : `Sigil ${id}`)
+      : (isChinese ? "空刻印槽" : "Empty sigil slot");
+    const description = localizedInfo(entry, "description");
+    const status = localizedInfo(entry, "status");
+    const passive = entry?.passive === true || String(entry?.descriptionChinese ?? "").includes("被动生效");
+    const activation = deck ? passive ? (isChinese ? "被动生效" : "Passive")
+      : (isChinese ? `第${slot}回合` : `Turn ${slot}`) : "";
+    const cost = entry?.keYin;
+    const price = shop ? entry?.price : null;
+    const previousText = previousName && change === "leaving"
+      ? (isChinese ? `此前：${previousName}` : `Previously: ${previousName}`) : "";
+    const artwork = id ? `<img data-asset-fallback src="${assetMode === "local"
+      ? `sigil-images/KeYinCard_${id}_${language}.webp`
+      : `/yxp_wiki/assets/sigils/${language}/KeYinCard_${id}_${language}.webp`}" alt="${esc(name)}">` : "";
+    return `<div class="sigil-item${id ? "" : " empty-sigil"}${entry?.soldOut ? " sold-out" : ""}${change ? ` zone-${change}` : ""}" tabindex="0" data-sigil-id="${id}"${change ? ` data-zone-change="${change}"` : ""} aria-label="${esc([name, activation, previousText].filter(Boolean).join(" · "))}"><span class="sigil-fallback">${esc(name)}</span>${artwork}${cost != null && id ? `<span class="sigil-cost" title="${isChinese ? "刻印消耗" : "Sigil cost"}">${esc(cost)}</span>` : ""}${entry?.soldOut ? `<span class="sigil-sold">${isChinese ? "已购买" : "Purchased"}</span>` : price != null ? `<span class="sigil-price">${esc(price)} ${isChinese ? "换牌" : "exchanges"}</span>` : ""}${activation ? `<span class="sigil-activation">${esc(activation)}</span>` : ""}${previousText ? '<span class="zone-removed-mark" aria-hidden="true">×</span>' : ""}<div class="trait-popover"><strong>${esc(name)}</strong>${activation ? `<p>${esc(activation)}</p>` : ""}${status ? `<p>${esc(status)}</p>` : ""}${description ? `<p>${esc(description)}</p>` : ""}${cost != null && id ? `<p>${isChinese ? "刻印消耗" : "Sigil cost"}: ${esc(cost)}</p>` : ""}${price != null ? `<p>${isChinese ? "购买所需换牌次数" : "Purchase cost in exchanges"}: ${esc(price)}</p>` : ""}${previousText ? `<p>${esc(previousText)}</p>` : ""}</div></div>`;
+  }
+
+  function seasonalZoneMarkup(zone, previous, owner) {
+    if (zone.id === "relic-1") return furnaceZoneMarkup(zone, previous, owner);
+    if (zone.id === "relic-5") return shelfZoneMarkup(zone, previous, owner);
+    const description = localizedInfo(zone, "description");
+    const name = localizedInfo(zone);
+    const entries = seasonalZoneTransition(zone, previous);
+    let removedSigils = "";
+    if (zone.id === "sigil-hand" && previous) {
+      const retained = seasonalZoneEntries(zone).map(entry => Number(entry?.id));
+      const removed = seasonalZoneEntries(previous).filter(entry => {
+        const matched = retained.indexOf(Number(entry?.id));
+        if (matched >= 0) { retained.splice(matched, 1); return false; }
+        return Number(entry?.id) > 0;
+      });
+      if (removed.length) removedSigils = `<div class="sigil-removed-history"><small>${isChinese ? "本步移出" : "Removed this step"}</small>${removed.map(seasonalTraitMarkup).join("")}</div>`;
+    }
+    const contents = entries.map(({ entry, previous: prior, change, slot }) => {
+      if (zone.kind === "sigil") return `<div class="seasonal-slot sigil-slot" data-zone-slot="${slot}">${sigilMarkup(entry, { slot, change, previous: prior, deck: zone.id === "sigil-deck", shop: zone.id === "sigil-shop" })}</div>`;
+      const visible = change === "leaving" ? prior : entry;
+      const metadata = zone.slotMetadata?.[slot - 1];
+      const slotLabel = localizedInfo(metadata, "label");
+      const status = [slotLabel, metadata?.locked ? (metadata.unlockRound != null
+        ? (isChinese ? `第${metadata.unlockRound}轮解锁` : `Unlocks round ${metadata.unlockRound}`) : isChinese ? "未解锁" : "Locked") : "", Number(metadata?.sealCount) > 0
+        ? (isChinese ? `封印：${metadata.sealCount}` : `Seal: ${metadata.sealCount}`) : ""].filter(Boolean).join(" · ");
+      return `<div class="seasonal-slot stored-card-slot${metadata?.locked ? " locked" : ""}" data-zone-slot="${slot}" aria-label="${esc(name)} · ${slot}${status ? ` · ${esc(status)}` : ""}">${transitionCard({ id: visible, change }, owner)}${status ? `<span class="storage-slot-status">${esc(status)}</span>` : ""}</div>`;
+    }).join("");
+    return `<section class="seasonal-zone${zone.kind === "sigil" ? " sigil-zone" : " card-storage-zone"}" data-seasonal-zone="${esc(zone.id)}"><div class="seasonal-zone-heading"><strong>${esc(name)}</strong>${description ? `<span class="seasonal-rules" tabindex="0" aria-label="${esc(name)} · ${isChinese ? "规则" : "Rules"}">ⓘ<span class="trait-popover"><strong>${esc(name)}</strong><p>${esc(description)}</p></span></span>` : ""}</div><div class="seasonal-zone-slots">${contents || `<span class="trait-empty">${isChinese ? "空" : "Empty"}</span>`}</div>${removedSigils}</section>`;
+  }
+
+  function relicZoneHeading(zone) {
+    const name = localizedInfo(zone), description = localizedInfo(zone, "description");
+    return `<div class="seasonal-zone-heading"><strong>${esc(name)}</strong>${description ? `<span class="seasonal-rules" tabindex="0">${isChinese ? "规则 ⓘ" : "Rules ⓘ"}<span class="trait-popover"><strong>${esc(name)}</strong><p>${esc(description)}</p></span></span>` : ""}</div>`;
+  }
+
+  function furnaceZoneMarkup(zone, previous, owner) {
+    const slots = seasonalZoneTransition({ ...zone, capacity: 2 }, previous).map(({ entry, previous: prior, change, slot }) =>
+      `<div class="furnace-material"><small>${isChinese ? `材料 ${slot}` : `Material ${slot}`}</small><div class="seasonal-slot stored-card-slot" data-zone-slot="${slot}">${transitionCard({ id: change === "leaving" ? prior : entry, change }, owner)}</div></div>`);
+    const counterKnown = typeof zone.combineCounter === "number" && Number.isFinite(zone.combineCounter);
+    const available = counterKnown && zone.combineCounter < 1;
+    const status = counterKnown ? available ? (isChinese ? "本轮可熔炼" : "Available this round")
+      : (isChinese ? "本轮已使用" : "Used this round") : "";
+    return `<section class="seasonal-zone furnace-zone" data-seasonal-zone="${esc(zone.id)}">${relicZoneHeading(zone)}<div class="furnace-workbench">${slots[0]}<div class="furnace-smelt${available ? " available" : ""}"><span class="furnace-glyph" aria-hidden="true">♨</span><strong>${isChinese ? "精华熔炼" : "Essence Smelt"}</strong>${status ? `<span class="furnace-status" role="status">${esc(status)}</span>` : ""}</div>${slots[1]}</div><p class="relic-storage-rule">${isChinese ? "常规门派牌 · 同境界 · 不同等级" : "Regular sect cards · same phase · different levels"}</p><small class="relic-cultivation-rule">${isChinese ? "存入：修为 +1 · 取出：修为 −1" : "Store: +1 Cultivation · Take: −1 Cultivation"}</small></section>`;
+  }
+
+  function shelfZoneMarkup(zone, previous, owner) {
+    const storage = seasonalZoneTransition({ ...zone, capacity: 2 }, previous).map(({ entry, previous: prior, change, slot }) =>
+      `<div class="seasonal-slot stored-card-slot" data-zone-slot="${slot}">${transitionCard({ id: change === "leaving" ? prior : entry, change }, owner)}</div>`).join("");
+    const choices = (zone.shelfChoices ?? []).map(choice => {
+      const labels = isChinese ? { pending: "下轮获得", received: "已获得", available: "可选牌", locked: "未解锁" }
+        : { pending: "Arrives next round", received: "Received", available: "Choice available", locked: "Locked" };
+      const name = choice.cardId ? localizedInfo(recording.catalog.cards[choice.cardId]) || String(choice.cardId) : "";
+      return `<li class="shelf-phase-choice ${esc(choice.status)}" data-shelf-phase="${esc(choice.phase)}"><span class="shelf-phase-label">${esc(phaseName(choice.phase))}</span>${choice.cardId ? `<span class="shelf-card-name" title="${esc(name)}">${esc(name)}</span>` : '<span class="shelf-card-name">—</span>'}<small>${esc(labels[choice.status] ?? "")}</small></li>`;
+    }).join("");
+    return `<section class="seasonal-zone shelf-zone" data-seasonal-zone="${esc(zone.id)}">${relicZoneHeading(zone)}<div class="shelf-workspace"><div class="shelf-storage"><small>${isChinese ? "存牌" : "Stored cards"}</small><div class="seasonal-zone-slots">${storage}</div><small class="relic-cultivation-rule">${isChinese ? "存入修为 +1 · 取出 −1" : "Store +1 Cultivation · Take −1"}</small></div>${choices ? `<div class="shelf-library"><strong>${isChinese ? "每个境界选择一张牌" : "One card per phase"}</strong><ol>${choices}</ol></div>` : ""}</div></section>`;
+  }
+
+  function renderSeasonalZones(state, previousState, isOwn, battle) {
+    const mechanic = Number(state.seasonMechanic);
+    const zones = isOwn && !battle && mechanic > 0 && mechanic < 9
+      ? state.privatePlayer?.seasonalZones ?? [] : [];
+    const previousZones = previousState?.privatePlayer?.uid === state.privatePlayer?.uid
+      && Number(previousState?.seasonMechanic) === mechanic ? previousState.privatePlayer?.seasonalZones ?? [] : [];
+    seasonalWorkspace.hidden = zones.length === 0;
+    seasonalWorkspace.innerHTML = zones.map(zone => seasonalZoneMarkup(zone,
+      previousZones.find(previous => previous.id === zone.id && previous.kind === zone.kind),
+      state.players?.[state.privatePlayer?.uid])).join("");
+    $("#board-panel").classList.toggle("has-seasonal-zones", zones.length > 0);
   }
 
   function renderChoice(overlay) {
@@ -724,14 +883,16 @@
   }
 
   const actionText = (action) => action[isChinese ? "textChinese" : "textEnglish"] || action.text || "";
-  const actionKindText = (action) => action.kind === "destiny" && Number(action.round) > 0
+  const actionKindText = (action, mechanic = 10) => ["seasonalFate", "seasonalFateUse"].includes(action.kind) && Number(mechanic) > 0 && Number(mechanic) < 9
+    ? seasonName(String(mechanic))
+    : action.kind === "destiny" && Number(action.round) > 0
     ? isChinese ? `${copy.round}${action.round}${copy.roundSuffix}${copy.battle}` : `${copy.round}${action.round}${copy.roundSuffix} ${copy.battle}`
     : copy.actionKinds[action.kind] || action.kind;
 
   function renderActions() {
     const actions = recentActions();
     $("#action-list").innerHTML = actions.length
-      ? actions.map((action) => `<li class="${action.current ? "current" : ""}"><span class="action-kind">${esc(actionKindText(action))}</span>${esc(actionText(action))}</li>`).join("")
+      ? actions.map((action) => `<li class="${action.current ? "current" : ""}"><span class="action-kind">${esc(actionKindText(action, states[index]?.seasonMechanic))}</span>${esc(actionText(action))}</li>`).join("")
       : `<li class="empty">${esc(copy.noActions)}</li>`;
   }
 
@@ -769,6 +930,7 @@
             <div class="battle-effect-row battle-fates">${talents}</div>
             <div class="battle-effect-row battle-heavenly-fates">${fates}</div>
             <div class="battle-effect-row battle-temp-buffs">${buffs}</div>
+            ${seasonalInfoMarkup(player.seasonalInfo, player.seasonalInfo?.mechanic, { compact: true })}
           </div>
           <div class="battle-deck">${(player.deck ?? []).map((id) => card(id, true, player)).join("")}</div>
         </article>`;
@@ -795,7 +957,7 @@
           ${showPhysique ? `<span><b>${esc(physique)} / ${esc(prior.maxPhysique ?? 0)} ${esc(copy.physique)}</b></span>` : ""}
           <span><small>${esc(copy.maxHp)}</small><b>${esc(priorMaxHp(prior) || "—")}</b></span>
         </div>
-        <div class="opponent-effects"><div>${talents}</div><div>${fates}</div></div>
+        <div class="opponent-effects"><div>${talents}</div><div>${fates}</div>${seasonalInfoMarkup(prior.seasonalInfo, prior.seasonalInfo?.mechanic, { compact: true })}</div>
       </div>
       <div class="opponent-deck">${(prior.deck ?? []).map((id) => card(id, true, prior)).join("") || `<span class="private-hand">${esc(copy.noDeck)}</span>`}</div>`;
     host.hidden = false;
@@ -839,6 +1001,7 @@
     const showVase = !battle && isOwn && (selected?.talents ?? []).some(t => Number(t.id) === 199);
     vaseZone.hidden = !showVase;
     $(".hand-zone").classList.toggle("has-vase", showVase);
+    renderSeasonalZones(state, states[index - 1], isOwn, battle);
     $("#vase-label").textContent = isChinese ? "五行玉瓶" : "Five Elements Pure Vase";
     $("#board-panel").hidden = Boolean(battle);
     $("#character-panel").hidden = Boolean(battle);
@@ -1266,10 +1429,10 @@
     filterToggle.setAttribute("aria-expanded", String(!filterPopover.hidden));
   });
   document.addEventListener("click", (event) => {
-    const tooltipTrigger = event.target.closest(".trait-icon, .battle-buff, .dao-yun-choice, .card-selection-choice");
-    if (tooltipTrigger && mobileViewport.matches) {
+    const tooltipTrigger = event.target.closest(".trait-icon, .battle-buff, .dao-yun-choice, .card-selection-choice, .seasonal-trait, .seasonal-rules, .sigil-item");
+    if (tooltipTrigger && (mobileViewport.matches || tooltipTrigger.matches(".seasonal-trait, .seasonal-rules, .sigil-item"))) {
       event.preventDefault();
-      openMobileTooltip(tooltipTrigger);
+      openMobileTooltip(tooltipTrigger, true);
       return;
     }
     if (!filterPopover.hidden && !event.target.closest(".recording-picker-row")) {

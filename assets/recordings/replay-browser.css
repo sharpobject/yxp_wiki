@@ -1655,3 +1655,118 @@
 
 /* Native Clear Heart rules laid over the wiki-rendered blank card face. */
 .game-card .clear-heart-rules { position: absolute; z-index: 3; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* Captured seasonal state and distinct private storage/sigil zones. */
+.seasonal-summary { display: grid; gap: 4px; min-width: 0; }
+.seasonal-counters, .seasonal-traits, .seasonal-offers > div { display: flex; flex-wrap: wrap; gap: 3px; }
+.seasonal-counter { display: grid; gap: 1px; padding: 3px 5px; border: 1px solid #658b8066; border-radius: 4px; background: #142e2d; }
+.seasonal-counter small, .seasonal-offers > small { color: #abc6bf; font-size: 8px; }
+.seasonal-counter b { color: #f1dfab; font-size: 11px; }
+.seasonal-trait { position: relative; display: grid; max-width: 100%; gap: 1px; padding: 3px 5px; border: 1px solid #728d7b77; border-radius: 4px; background: #192f2a; color: #e3d5b4; font-size: 9px; cursor: pointer; }
+.seasonal-trait.selected { border-color: #bda464; background: #413c23; }
+.seasonal-trait small { color: #b6c9ba; font-size: 8px; }
+.seasonal-rules { position: relative; width: max-content; color: #b6d5cf; font-size: 10px; cursor: pointer; }
+.seasonal-trait:focus, .seasonal-rules:focus, .sigil-item:focus { outline: 2px solid #f0d17c; outline-offset: 2px; }
+.seasonal-trait:hover > .trait-popover, .seasonal-trait:focus > .trait-popover,
+.seasonal-rules:hover > .trait-popover, .seasonal-rules:focus > .trait-popover,
+.sigil-item:hover > .trait-popover, .sigil-item:focus > .trait-popover { display: block; }
+.seasonal-summary.compact .seasonal-counter { padding: 2px 3px; }
+.seasonal-summary.compact .seasonal-counter b { font-size: 9px; }
+.seasonal-summary.compact .seasonal-trait { padding: 2px 3px; font-size: 8px; }
+.seasonal-history { color: #b6d0c5; font-size: 9px; }
+.seasonal-refresh-history { margin: 0; color: #b6c9ba; font-size: 8px; }
+.seasonal-history summary { cursor: pointer; }
+.seasonal-history > div { display: grid; gap: 5px; max-height: 140px; overflow: auto; padding-top: 4px; }
+.seasonal-history section > strong { display: block; margin-bottom: 3px; color: #d4c29a; font-size: 8px; }
+.dream-phase-progression > small { color: #a5bec4; font-size: 8px; }
+.dream-phase-progression > div { display: flex; gap: 2px; margin-top: 3px; }
+.dream-phase { display: grid; flex: 1; min-width: 0; gap: 2px; padding: 3px 2px; border: 1px solid #8aa6bd44; border-radius: 3px; color: #8a969d; font-size: 6px; text-align: center; overflow-wrap: anywhere; }
+.dream-phase small { font-size: 7px; }
+.dream-phase.unlocked { border-color: #a197ca; color: #e1d9ef; background: #544c6c88; }
+.opponent-effects > .seasonal-summary { display: grid; }
+.seasonal-workspace[hidden] { display: none; }
+.seasonal-workspace { display: flex; gap: 8px; align-items: stretch; min-width: 0; padding: 6px; border: 1px solid #b59e6466; border-radius: 7px; background: linear-gradient(110deg, #1e3533ed, #24332e); }
+.seasonal-zone { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 5px; min-width: 0; padding: 4px 7px; border-right: 1px solid #b59e6455; }
+.seasonal-zone:last-child { border-right: 0; }
+.sigil-zone { flex: 1 1 0; }
+.seasonal-zone-heading { display: flex; justify-content: center; align-items: baseline; gap: 5px; color: #dfd0a7; }
+.seasonal-zone-heading > strong { font: 700 9px Georgia, serif; }
+.seasonal-zone-slots { display: flex; align-items: center; justify-content: safe center; gap: 4px; min-width: 0; overflow-x: auto; padding: 3px 2px 9px; scrollbar-width: thin; }
+.seasonal-slot { position: relative; flex: 0 0 58px; width: 58px; aspect-ratio: 5 / 8; }
+.stored-card-slot .game-card, .stored-card-slot .empty-slot { min-width: 0; width: 100%; height: 100%; max-width: none; }
+.stored-card-slot.locked { opacity: .55; }
+.storage-slot-status { position: absolute; bottom: 2px; left: 0; right: 0; padding: 2px; background: #142424ed; color: #f0d5ac; font-size: 8px; text-align: center; }
+.sigil-item { position: relative; width: 100%; height: 100%; min-width: 0; border: 1px solid #b9a673; border-radius: 5px; background: #182b36; cursor: pointer; }
+.sigil-item > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+.sigil-fallback { display: grid; height: 100%; place-items: center; padding: 4px; color: #e7d9ad; text-align: center; overflow-wrap: anywhere; font-size: 9px; }
+.empty-sigil { border-style: dashed; border-color: #88aaa466; background: #11232566; }
+.empty-sigil .sigil-fallback { color: #8da7a4; font-size: 8px; }
+.sigil-cost, .sigil-price, .sigil-sold, .sigil-activation { position: absolute; z-index: 2; padding: 2px 3px; background: #152a32ed; color: #f0d9a0; font: 700 8px/1.15 sans-serif; text-align: center; }
+.sigil-cost { top: 1px; right: 1px; border: 1px solid #cab07e; border-radius: 50%; min-width: 14px; }
+.sigil-price, .sigil-sold { bottom: 1px; left: 1px; right: 1px; }
+.sigil-activation { bottom: -9px; left: 0; right: 0; color: #c0ddd3; background: #122725; }
+.sigil-item.sold-out > img { opacity: .4; filter: grayscale(.6); }
+.sigil-sold { color: #d6b6a5; }
+.sigil-item.zone-appear { box-shadow: 0 0 8px #7fd6a4; }
+.sigil-item.zone-leaving, .sigil-item.zone-sold { border-color: #df8d73; box-shadow: 0 0 5px #df8d7380; }
+.sigil-removed-history { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; padding-top: 3px; border-top: 1px solid #df8d7344; }
+.sigil-removed-history > small { color: #d69b84; font-size: 7px; }
+.sigil-removed-history .seasonal-trait { font-size: 7px; padding: 2px 3px; border-color: #df8d7377; }
+.zone-removed-mark { position: absolute; top: 2px; left: 4px; color: #f4987d; font-size: 17px; }
+.public-sigil-deck { display: flex; gap: 3px; padding-bottom: 8px; }
+.public-sigil-deck > .sigil-item { width: 31px; flex: 0 0 31px; height: 48px; }
+.public-sigil-deck .sigil-cost { padding: 1px; min-width: 10px; font-size: 6px; }
+.public-sigil-deck .sigil-activation { font-size: 6px; bottom: -8px; padding: 1px; }
+.public-sigil-deck .sigil-fallback { padding: 1px; font-size: 6px; }
+.furnace-zone, .shelf-zone { flex: 1 1 auto; }
+.furnace-zone { grid-template-rows: auto minmax(0, 1fr) auto auto; border: 1px solid #bd936c66; border-radius: 7px; background: radial-gradient(ellipse at center, #65472555, #192f2b 75%); }
+.furnace-workbench { display: flex; gap: 18px; justify-content: center; align-items: center; }
+.furnace-material { display: grid; justify-items: center; gap: 3px; }
+.furnace-material > small { color: #b6c3b1; font-size: 8px; }
+.furnace-smelt { display: grid; justify-items: center; align-content: center; gap: 4px; width: 112px; min-height: 77px; padding: 6px; border: 1px solid #997b5655; border-radius: 50%; background: #231f1bcc; color: #b2aaa0; }
+.furnace-smelt.available { border-color: #d8b676; background: radial-gradient(ellipse, #865523aa, #42321ecc); color: #f3dfae; box-shadow: 0 0 17px #c689302b; }
+.furnace-glyph { font: 24px/1 serif; }
+.furnace-smelt > strong { font-size: 10px; }
+.furnace-status { text-align: center; font-size: 8px; }
+.relic-storage-rule { margin: 0; color: #d0c2a1; font-size: 9px; text-align: center; }
+.relic-cultivation-rule { display: block; color: #9cbcb2; font-size: 8px; text-align: center; }
+.shelf-zone { background: linear-gradient(90deg, #2e332b, #383729aa); border: 1px solid #b59e6466; border-radius: 7px; }
+.shelf-workspace { display: grid; grid-template-columns: minmax(125px, .7fr) minmax(220px, 1.3fr); gap: 12px; align-items: center; }
+.shelf-storage > small { display: block; text-align: center; color: #b8c9bc; font-size: 8px; }
+.shelf-library { min-width: 0; padding-left: 9px; border-left: 1px solid #b59e6455; }
+.shelf-library > strong { display: block; margin-bottom: 4px; color: #d9c99d; font-size: 9px; }
+.shelf-library ol { display: grid; gap: 3px; list-style: none; margin: 0; padding: 0; }
+.shelf-phase-choice { display: grid; grid-template-columns: 66px minmax(0, 1fr) 87px; gap: 5px; align-items: center; padding: 3px 5px; border-bottom: 1px solid #b59e6444; background: #16292388; font-size: 8px; }
+.shelf-phase-label { color: #c1c8b3; }
+.shelf-card-name { overflow: hidden; color: #e4d6b2; text-overflow: ellipsis; white-space: nowrap; }
+.shelf-phase-choice > small { color: #99b6a8; font-size: 7px; text-align: right; }
+.shelf-phase-choice.pending { border-color: #c7a15d; background: #70542744; }
+.shelf-phase-choice.pending > small { color: #e6c17a; }
+.shelf-phase-choice.locked { opacity: .55; }
+@media (min-width: 761px) {
+  .card-storage-zone > .seasonal-zone-slots,
+  .shelf-storage .seasonal-zone-slots { overflow: visible; }
+  .game-stage:has(.seasonal-workspace:not([hidden])) { height: 650px; min-height: 650px; }
+  .game-stage:has(.board-panel.has-opponent-preview .seasonal-workspace:not([hidden])) { height: 800px; min-height: 800px; }
+  .board-panel.has-seasonal-zones { grid-template-rows: 158px 132px minmax(150px, 1fr); }
+  .board-panel.has-opponent-preview.has-seasonal-zones { grid-template-rows: 158px 158px 132px minmax(150px, 1fr); }
+}
+@media (max-width: 760px) {
+  .board-panel.has-seasonal-zones { grid-template-rows: auto; height: auto; }
+  .seasonal-workspace { flex-wrap: wrap; gap: 5px; padding: 4px; }
+  .seasonal-zone { padding: 4px; }
+  .sigil-zone { flex: 1 1 100%; border-right: 0; border-bottom: 1px solid #b59e6455; }
+  .sigil-zone:last-child { border-bottom: 0; }
+  .seasonal-slot { flex-basis: 54px; width: 54px; }
+  .seasonal-zone-slots { justify-content: flex-start; }
+  .seasonal-zone-heading { justify-content: flex-start; }
+  .seasonal-counter small, .seasonal-counter b { font-size: 8px; }
+  .public-sigil-deck > .sigil-item { width: 25px; flex-basis: 25px; height: 40px; }
+  .furnace-workbench { gap: 12px; }
+  .furnace-smelt { width: 104px; }
+  .furnace-zone, .shelf-zone { flex-basis: 100%; }
+  .shelf-workspace { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+  .shelf-storage .seasonal-zone-slots { justify-content: center; }
+  .shelf-library { padding: 5px 0 0; border-left: 0; border-top: 1px solid #b59e6455; }
+  .shelf-phase-choice { grid-template-columns: 68px minmax(0, 1fr) 84px; font-size: 9px; }
+}
