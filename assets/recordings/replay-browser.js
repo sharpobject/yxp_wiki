@@ -1323,6 +1323,40 @@
       .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
   }
 
+  // Follow the visitor/pool order in /en/fates/hundred-schools.html.
+  const roundOnePoolGuideOrder = [2, 26, 15, 20, 3, 4, 10, 22, 18, 19, 5, 13, 6, 14, 23, 17, 7, 8, 28, 9, 29, 1, 12, 16, 21, 11, 27];
+  const roundOnePoolExamples = {
+    1: 1001, 2: 2001, 3: 3001, 4: 4001, 5: 5001, 6: 6001, 7: 7001,
+    8: 8001, 9: 9001, 10: 10001, 12: 12001, 13: 13001, 14: 14001,
+    15: 15001, 16: 16001, 17: 17034, 18: 18001, 19: 19001, 20: 20001,
+    21: 21001, 22: 22001, 23: 23001,
+  };
+  const roundOnePoolDescriptions = {
+    11: ["Other-sect cards", "其他门派牌"],
+    27: ["Character Fate Resonance", "角色命途共鸣"],
+  };
+
+  function roundOnePoolEntries(values) {
+    const rank = pool => {
+      const index = roundOnePoolGuideOrder.indexOf(Number(pool.poolId));
+      return index < 0 ? roundOnePoolGuideOrder.length : index;
+    };
+    return visiblePoolEntries(values).sort((first, second) =>
+      rank(first) - rank(second)
+      || Number(first.offeredFateIds?.[0] ?? 0) - Number(second.offeredFateIds?.[0] ?? 0)
+      || localizedInfo(first).localeCompare(localizedInfo(second)));
+  }
+
+  function roundOnePoolLabel(pool) {
+    const label = localizedInfo(pool);
+    // Single-offer pools already include their specific fate in the label.
+    if (pool.id.includes(":fate:")) return label;
+    const description = roundOnePoolDescriptions[pool.poolId];
+    const example = sharedCatalog.xianMoStrategies?.[roundOnePoolExamples[pool.poolId]];
+    const hint = description ? localizedPair(description) : localizedInfo(example);
+    return hint ? `${label} — ${hint}` : label;
+  }
+
   function seasonName(season) {
     const names = {
       0: ["No season mechanic", "无赛季机制"],
@@ -1359,7 +1393,7 @@
     filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap(item => item.humanOpponentCharacters ?? []));
     filterCareers = [...new Set(seasonCatalog.map(item => numericPrefix(item.linCareer)).filter(value => value > 0))]
       .sort((first, second) => first - second);
-    filterRoundOnePools = season === "10" ? visiblePoolEntries(seasonCatalog.map(item => item.roundOneXianMoPool)) : [];
+    filterRoundOnePools = season === "10" ? roundOnePoolEntries(seasonCatalog.map(item => item.roundOneXianMoPool)) : [];
     filterPools = season === "10" ? visiblePoolEntries(seasonCatalog.flatMap(item => item.xianMoPools ?? [])) : [];
     // Old links may name any ID in a now-consolidated fate group.
     replayFilters.fates = new Set([...replayFilters.fates].map(id =>
@@ -1383,8 +1417,11 @@
 
   function renderRecordingFilters() {
     const checkbox = (kind, entry, checked) => {
-      const description = isChinese ? entry.descriptionChinese : entry.descriptionEnglish;
-      return `<label${description ? ` title="${esc(description)}"` : ""}><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
+      const openingPool = kind === "roundOnePools";
+      const label = openingPool ? roundOnePoolLabel(entry) : localizedInfo(entry);
+      const description = openingPool ? label : (isChinese ? entry.descriptionChinese : entry.descriptionEnglish);
+      const text = openingPool ? `<span class="recording-pool-label">${esc(label)}</span>` : esc(label);
+      return `<label${description ? ` title="${esc(description)}"` : ""}><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${text}</label>`;
     };
     const poolFieldset = (kind, entries, label, rule) => entries.length ? `<fieldset class="recording-pool-filter"><legend>${esc(label)}</legend><p class="recording-filter-rule">${esc(rule)}</p><div class="recording-filter-options recording-pool-options">${entries.map(entry => checkbox(kind, entry, replayFilters[kind].has(entry.id))).join("")}</div></fieldset>` : "";
     const fateLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;

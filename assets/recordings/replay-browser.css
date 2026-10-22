@@ -136,8 +136,9 @@
 .recording-filter-options input { margin: 0; accent-color: #d7b15d; }
 .recording-filter-rule { margin: 0 0 5px; color: var(--muted); font-size: 10px; font-weight: 400; letter-spacing: 0; }
 .recording-pool-options { display: grid; max-height: 146px; overflow-y: auto; overscroll-behavior: contain; padding-right: 3px; }
-.recording-pool-options label { min-height: 24px; font-size: 10px; }
+.recording-pool-options label { min-width: 0; min-height: 24px; font-size: 10px; }
 .recording-pool-options input { flex: 0 0 auto; }
+.recording-pool-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 
 .replay-shell {
