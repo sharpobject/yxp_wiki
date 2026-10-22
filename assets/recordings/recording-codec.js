@@ -15,7 +15,7 @@
     "placementStart", "placementEnd", "ratingChange", "ratingKind",
     "gameMode", "firstRound", "cupId", "cupProgress", "cupStage", "practice",
     "seasonMechanic", "seasonMechanicEnabled", "linXianMoFates", "linUnchosenXianMoFates",
-    "roundOneXianMoPool",
+    "roundOneXianMoPool", "xianMoPools",
   ]);
 
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
@@ -212,7 +212,8 @@
         ["humanOpponentCharacters", "characters"]]) {
         const entries = item[field] ?? [];
         if (entries.some(entry => entry.nameEnglish !== sharedCatalog[kind]?.[entry.id]?.nameEnglish
-          || entry.nameChinese !== sharedCatalog[kind]?.[entry.id]?.nameChinese)) filterLabels[field] = entries;
+          || entry.nameChinese !== sharedCatalog[kind]?.[entry.id]?.nameChinese
+          || Object.keys(entry).some(key => !["id", "nameEnglish", "nameChinese"].includes(key)))) filterLabels[field] = entries;
       }
       groups.get(groupKey)[3].push([
         item.id,
@@ -240,6 +241,7 @@
         Object.keys(filterLabels).length ? filterLabels : null,
         item.seasonMechanicEnabled ?? null,
         item.roundOneXianMoPool ?? null,
+        item.xianMoPools ?? null,
       ]);
     }
     return [FORMAT_VERSION, packSharedCatalog(sharedCatalog), [...groups.values()]];
@@ -258,7 +260,7 @@
           cupId = 0, cupProgress = 0, cupStage = "", practice = 0, placementStart = null, placementEnd = null,
           ratingChange = null, ratingKind = "", seasonMechanic = null,
           xianMoFateIds = [], unchosenXianMoFateIds = [], filterLabels = null,
-          seasonMechanicEnabled = null, roundOneXianMoPool = null] = game;
+          seasonMechanicEnabled = null, roundOneXianMoPool = null, xianMoPools = null] = game;
         if (seasonMechanicEnabled !== null && typeof seasonMechanicEnabled !== "boolean") {
           throw new Error("invalid catalog mechanic activation flag");
         }
@@ -296,6 +298,7 @@
           seasonMechanic,
           seasonMechanicEnabled,
           ...(roundOneXianMoPool == null ? {} : { roundOneXianMoPool }),
+          ...(xianMoPools == null ? {} : { xianMoPools }),
           label: `${targetUsername} · ${rounds} rounds`,
         });
       }

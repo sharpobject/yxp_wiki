@@ -25,10 +25,13 @@
 
 .recording-pickers {
   display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
   gap: 8px;
   min-width: min(440px, 42vw);
   max-width: 64%;
 }
+
+.recording-choice { grid-column: 1 / -1; }
 
 /* Older collection pages use the shared viewer without the season wrapper. */
 .recording-intro > .recording-picker { min-width: min(440px, 42vw); max-width: 64%; }
@@ -92,7 +95,7 @@
   z-index: 120;
   top: calc(100% + 5px);
   right: 0;
-  width: min(380px, 90vw);
+  width: min(440px, 90vw);
   max-height: min(520px, 72vh);
   overflow: auto;
   padding: 10px;
@@ -131,6 +134,11 @@
   cursor: pointer;
 }
 .recording-filter-options input { margin: 0; accent-color: #d7b15d; }
+.recording-filter-rule { margin: 0 0 5px; color: var(--muted); font-size: 10px; font-weight: 400; letter-spacing: 0; }
+.recording-pool-options { display: grid; max-height: 146px; overflow-y: auto; overscroll-behavior: contain; padding-right: 3px; }
+.recording-pool-options label { min-height: 24px; font-size: 10px; }
+.recording-pool-options input { flex: 0 0 auto; }
+
 
 .replay-shell {
   overflow: hidden;

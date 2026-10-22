@@ -86,7 +86,7 @@
     actionKinds: { draw: "抽牌", gain: "获得卡牌", move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", sideJob: "副职业", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", seasonalFate: "百家仙命", seasonalFateUse: "使用百家仙命", sigilMove: "移动刻印", sigilBuy: "购买刻印", sigilRefine: "炼化刻印", sigilRefresh: "刷新刻印商店", sigilReplace: "更换刻印", reroll: "刷新" },
     battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
     previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔", andOtherCards: (count) => `另有 ${count} 张牌`,
-    filters: "筛选", heavenlyFateFilter: "已选择的天衍仙命", unchosenHeavenlyFateFilter: "出现但未选择的天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
+    filters: "筛选", heavenlyFateFilter: "已选择的天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
   } : {
     unknownPhase: "Unknown phase", noSideJob: "No Side Job", emptySlot: "Empty deck slot", unknownCard: "Unknown card",
     inspect: "Inspect previous-round public state", upcomingOpponent: "Upcoming opponent", immortalFates: "Immortal Fates",
@@ -101,7 +101,7 @@
     actionKinds: { draw: "Draw", gain: "Gain", move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", sideJob: "Side Job", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", seasonalFate: "Hundred Schools", seasonalFateUse: "used Hundred Schools", sigilMove: "Move sigil", sigilBuy: "Buy sigil", sigilRefine: "Refine sigil", sigilRefresh: "Refresh sigil shop", sigilReplace: "Replace sigil", reroll: "reroll" },
     battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
     previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon", andOtherCards: (count) => `and ${count} other cards`,
-    filters: "Filters", heavenlyFateFilter: "Chosen Heavenly Derivation Fates", unchosenHeavenlyFateFilter: "Offered but not chosen", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
+    filters: "Filters", heavenlyFateFilter: "Chosen Heavenly Derivation Fates", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
   };
   const vocabulary = {
     phases: {
@@ -1108,39 +1108,41 @@
       .filter((value) => Number.isInteger(value) && value > 0));
   }
 
+  function filterStrings(params, name) {
+    return new Set(params.getAll(name).flatMap(value => value.split(",")).filter(Boolean));
+  }
+
   function filterStateFromParams(params) {
     return {
       fates: filterNumbers(params, "fates"),
-      unchosenFates: filterNumbers(params, "unchosenFates"),
       career: Math.max(0, Number.parseInt(params.get("career") ?? "0", 10) || 0),
       opponents: filterNumbers(params, "opponents"),
-      roundOnePool: params.get("roundOnePool") || "",
+      roundOnePools: filterStrings(params, "roundOnePool"),
+      pools: filterStrings(params, "pools"),
     };
   }
 
   function replaceFilterState(nextState) {
-    replayFilters.fates = nextState.fates;
-    replayFilters.unchosenFates = nextState.unchosenFates;
-    replayFilters.career = nextState.career;
-    replayFilters.opponents = nextState.opponents;
-    replayFilters.roundOnePool = nextState.roundOnePool;
+    Object.assign(replayFilters, nextState);
   }
 
   function writeFilterState(url) {
     if (selectedSeason != null) url.searchParams.set("season", selectedSeason);
     else url.searchParams.delete("season");
+    // Retired offered-but-not-chosen links no longer constrain recordings.
+    url.searchParams.delete("unchosenFates");
     for (const [name, values] of [
       ["fates", replayFilters.fates],
-      ["unchosenFates", replayFilters.unchosenFates],
       ["opponents", replayFilters.opponents],
+      ["roundOnePool", replayFilters.roundOnePools],
+      ["pools", replayFilters.pools],
     ]) {
       url.searchParams.delete(name);
-      if (values.size) url.searchParams.set(name, [...values].sort((first, second) => first - second).join(","));
+      if (values.size) url.searchParams.set(name, [...values].sort((first, second) =>
+        typeof first === "number" ? first - second : first.localeCompare(second)).join(","));
     }
     url.searchParams.delete("career");
     if (replayFilters.career > 0) url.searchParams.set("career", String(replayFilters.career));
-    url.searchParams.delete("roundOnePool");
-    if (replayFilters.roundOnePool) url.searchParams.set("roundOnePool", replayFilters.roundOnePool);
     return url;
   }
 
@@ -1287,7 +1289,39 @@
   let filteredCatalog = [];
   const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
     .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
-  let filterFates = [], filterUnchosenFates = [], filterOpponents = [], filterCareers = [], filterRoundOnePools = [];
+  let filterFates = [], filterOpponents = [], filterCareers = [], filterRoundOnePools = [], filterPools = [];
+
+  function groupedFateEntries(values) {
+    const groups = new Map();
+    for (const entry of values) {
+      const id = Number(entry.id);
+      if (!Number.isInteger(id) || id <= 0) continue;
+      const summon = entry.isSuanniSkip === true;
+      const skipGain = Number(entry.skipExchangeGain);
+      const ordinarySkip = entry.isSkip === true && !summon && [3, 5].includes(skipGain);
+      const name = String(entry.nameEnglish || entry.nameChinese || id).trim().replace(/\s+/g, " ").toLocaleLowerCase("en");
+      const key = summon ? "summon-suanni" : ordinarySkip ? `skip:${skipGain}`
+        : entry.isSkip ? `skip-unknown:${id}` : `name:${name}`;
+      if (!groups.has(key)) groups.set(key, {
+        ...entry,
+        ...(summon ? { nameEnglish: "Summon Suanni", nameChinese: "召唤狻猊" }
+          : ordinarySkip ? { nameEnglish: `Skip (+${skipGain})`, nameChinese: `跳过（+${skipGain}）`,
+            descriptionEnglish: `Exchange Chances and storage limit +${skipGain}.`,
+            descriptionChinese: `换牌机会及储存上限+${skipGain}。` } : {}),
+        ids: [],
+      });
+      const group = groups.get(key);
+      if (!group.ids.includes(id)) group.ids.push(id);
+      group.id = Math.min(...group.ids);
+    }
+    return [...groups.values()].sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
+  }
+
+  function visiblePoolEntries(values) {
+    return [...new Map(values.filter(pool => typeof pool?.id === "string" && pool.id
+      && ![24, 25].includes(Number(pool.poolId))).map(pool => [pool.id, pool])).values()]
+      .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
+  }
 
   function seasonName(season) {
     const names = {
@@ -1321,24 +1355,20 @@
     selectedSeason = season;
     seasonCatalog = catalog.filter((item) => seasonForItem(item) === season);
     const fateField = isHundredSchoolsSeason(season) ? "linXianMoFates" : "linFates";
-    const unchosenFateField = isHundredSchoolsSeason(season) ? "linUnchosenXianMoFates" : "linUnchosenFates";
-    filterFates = uniqueFilterEntries(seasonCatalog.flatMap((item) => item[fateField] ?? []));
-    filterUnchosenFates = uniqueFilterEntries(seasonCatalog.flatMap((item) => item[unchosenFateField] ?? []));
-    filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap((item) => item.humanOpponentCharacters ?? []));
-    filterCareers = [...new Set(seasonCatalog.map((item) => numericPrefix(item.linCareer)).filter((value) => value > 0))]
+    filterFates = groupedFateEntries(seasonCatalog.flatMap(item => item[fateField] ?? []));
+    filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap(item => item.humanOpponentCharacters ?? []));
+    filterCareers = [...new Set(seasonCatalog.map(item => numericPrefix(item.linCareer)).filter(value => value > 0))]
       .sort((first, second) => first - second);
-    filterRoundOnePools = season === "10" ? [...new Map(seasonCatalog
-      .map(item => item.roundOneXianMoPool).filter(pool => typeof pool?.id === "string" && pool.id)
-      .map(pool => [pool.id, pool])).values()]
-      .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second))) : [];
-    // Preserve applicable filters, but never leave an invisible old-season
-    // constraint selected after changing mechanics or opening an older link.
-    for (const [kind, entries] of [["fates", filterFates], ["unchosenFates", filterUnchosenFates], ["opponents", filterOpponents]]) {
-      const available = new Set(entries.map((entry) => Number(entry.id)));
-      replayFilters[kind] = new Set([...replayFilters[kind]].filter((id) => available.has(id)));
+    filterRoundOnePools = season === "10" ? visiblePoolEntries(seasonCatalog.map(item => item.roundOneXianMoPool)) : [];
+    filterPools = season === "10" ? visiblePoolEntries(seasonCatalog.flatMap(item => item.xianMoPools ?? [])) : [];
+    // Old links may name any ID in a now-consolidated fate group.
+    replayFilters.fates = new Set([...replayFilters.fates].map(id =>
+      filterFates.find(group => group.ids.includes(id))?.id).filter(id => id != null));
+    for (const [kind, entries] of [["opponents", filterOpponents], ["roundOnePools", filterRoundOnePools], ["pools", filterPools]]) {
+      const available = new Set(entries.map(entry => entry.id));
+      replayFilters[kind] = new Set([...replayFilters[kind]].filter(id => available.has(id)));
     }
     if (!filterCareers.includes(replayFilters.career)) replayFilters.career = 0;
-    if (!filterRoundOnePools.some(pool => pool.id === replayFilters.roundOnePool)) replayFilters.roundOnePool = "";
     if (seasonSelect) {
       seasonSelect.innerHTML = availableSeasons.map((value) => `<option value="${esc(value)}">${esc(seasonName(value))}</option>`).join("");
       seasonSelect.value = season ?? "";
@@ -1347,39 +1377,38 @@
   }
 
   function filterCount() {
-    return replayFilters.fates.size + replayFilters.unchosenFates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0) + (replayFilters.roundOnePool ? 1 : 0);
+    return replayFilters.fates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0)
+      + replayFilters.roundOnePools.size + replayFilters.pools.size;
   }
 
   function renderRecordingFilters() {
-    const checkbox = (kind, entry, checked) => `<label><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
+    const checkbox = (kind, entry, checked) => {
+      const description = isChinese ? entry.descriptionChinese : entry.descriptionEnglish;
+      return `<label${description ? ` title="${esc(description)}"` : ""}><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${esc(localizedInfo(entry))}</label>`;
+    };
+    const poolFieldset = (kind, entries, label, rule) => entries.length ? `<fieldset class="recording-pool-filter"><legend>${esc(label)}</legend><p class="recording-filter-rule">${esc(rule)}</p><div class="recording-filter-options recording-pool-options">${entries.map(entry => checkbox(kind, entry, replayFilters[kind].has(entry.id))).join("")}</div></fieldset>` : "";
     const fateLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
-    const unchosenLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "出现但未选择的百家仙命" : "Offered but not chosen") : copy.unchosenHeavenlyFateFilter;
-    const roundOnePoolLabel = isChinese ? "第1轮出现的仙命池" : "Round 1 offered pool";
+    const careerSelect = $("#career-filter");
+    if (careerSelect) {
+      careerSelect.innerHTML = `<option value="0">${esc(copy.anySideJob)}</option>${filterCareers.map(career => `<option value="${career}">${esc(careerName(career))}</option>`).join("")}`;
+      careerSelect.value = String(replayFilters.career);
+    }
     filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
-      ${filterRoundOnePools.length ? `<fieldset><legend>${esc(roundOnePoolLabel)}</legend><select data-round-one-pool-filter aria-label="${esc(roundOnePoolLabel)}"><option value="">${isChinese ? "全部第1轮仙命池" : "All round 1 pools"}</option>${filterRoundOnePools.map(pool => `<option value="${esc(pool.id)}"${replayFilters.roundOnePool === pool.id ? " selected" : ""}>${esc(localizedInfo(pool))}</option>`).join("")}</select></fieldset>` : ""}
-      ${filterFates.length ? `<fieldset><legend>${esc(fateLabel)}</legend><div class="recording-filter-options">${filterFates.map((entry) => checkbox("fates", entry, replayFilters.fates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
-      ${filterUnchosenFates.length ? `<fieldset><legend>${esc(unchosenLabel)}</legend><div class="recording-filter-options">${filterUnchosenFates.map((entry) => checkbox("unchosenFates", entry, replayFilters.unchosenFates.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}
-      <fieldset><legend>${esc(copy.sideJobFilter)}</legend><select data-career-filter><option value="0">${esc(copy.anySideJob)}</option>${filterCareers.map((career) => `<option value="${career}"${replayFilters.career === career ? " selected" : ""}>${esc(careerName(career))}</option>`).join("")}</select></fieldset>
-      <fieldset><legend>${esc(copy.opponentFilter)}</legend><div class="recording-filter-options">${filterOpponents.map((entry) => checkbox("opponents", entry, replayFilters.opponents.has(Number(entry.id)))).join("")}</div></fieldset>`;
+      ${poolFieldset("roundOnePools", filterRoundOnePools, isChinese ? "第1轮仙命池" : "Round 1 fate pool", isChinese ? "符合任一所选仙命池" : "Matches any selected pool")}
+      ${poolFieldset("pools", filterPools, isChinese ? "出现过的仙命池" : "Fate pools appearing", isChinese ? "必须出现所有所选仙命池" : "Must include every selected pool")}
+      ${filterFates.length ? `<fieldset><legend>${esc(fateLabel)}</legend><div class="recording-filter-options">${filterFates.map(entry => checkbox("fates", entry, replayFilters.fates.has(entry.id))).join("")}</div></fieldset>` : ""}
+      ${filterOpponents.length ? `<fieldset><legend>${esc(copy.opponentFilter)}</legend><div class="recording-filter-options">${filterOpponents.map(entry => checkbox("opponents", entry, replayFilters.opponents.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}`;
     filterToggle.innerHTML = `☷${filterCount() ? `<span>${filterCount()}</span>` : ""}`;
-    filterPopover.querySelectorAll("input[data-filter-kind]").forEach((input) => input.addEventListener("change", () => {
-      const target = replayFilters[input.dataset.filterKind];
-      if (input.checked) target.add(Number(input.value)); else target.delete(Number(input.value));
+    filterPopover.querySelectorAll("input[data-filter-kind]").forEach(input => input.addEventListener("change", () => {
+      const kind = input.dataset.filterKind;
+      const target = replayFilters[kind];
+      const value = kind === "roundOnePools" || kind === "pools" ? input.value : Number(input.value);
+      if (input.checked) target.add(value); else target.delete(value);
       applyRecordingFilters();
       renderRecordingFilters();
     }));
-    filterPopover.querySelector("[data-career-filter]")?.addEventListener("change", (event) => {
-      replayFilters.career = Number(event.target.value);
-      applyRecordingFilters();
-      renderRecordingFilters();
-    });
-    filterPopover.querySelector("[data-round-one-pool-filter]")?.addEventListener("change", (event) => {
-      replayFilters.roundOnePool = event.target.value;
-      applyRecordingFilters();
-      renderRecordingFilters();
-    });
     filterPopover.querySelector("[data-clear-filters]")?.addEventListener("click", () => {
-      replayFilters.fates.clear(); replayFilters.unchosenFates.clear(); replayFilters.opponents.clear(); replayFilters.career = 0; replayFilters.roundOnePool = "";
+      replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.roundOnePools.clear(); replayFilters.pools.clear(); replayFilters.career = 0;
       applyRecordingFilters();
       renderRecordingFilters();
     });
@@ -1415,13 +1444,13 @@
 
   function applyRecordingFilters({ navigate = true, sync = true, historyMode = "push" } = {}) {
     const fateField = isHundredSchoolsSeason(selectedSeason) ? "linXianMoFates" : "linFates";
-    const unchosenFateField = isHundredSchoolsSeason(selectedSeason) ? "linUnchosenXianMoFates" : "linUnchosenFates";
-    filteredCatalog = seasonCatalog.filter((item) =>
+    const chosenGroups = [...replayFilters.fates].map(id => filterFates.find(group => group.id === id));
+    filteredCatalog = seasonCatalog.filter(item =>
       (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
-      && (!replayFilters.roundOnePool || item.roundOneXianMoPool?.id === replayFilters.roundOnePool)
-      && [...replayFilters.fates].every((id) => (item[fateField] ?? []).some((entry) => Number(entry.id) === id))
-      && [...replayFilters.unchosenFates].every((id) => (item[unchosenFateField] ?? []).some((entry) => Number(entry.id) === id))
-      && [...replayFilters.opponents].every((id) => (item.humanOpponentCharacters ?? []).some((entry) => Number(entry.id) === id)));
+      && (!replayFilters.roundOnePools.size || replayFilters.roundOnePools.has(item.roundOneXianMoPool?.id))
+      && [...replayFilters.pools].every(id => (item.xianMoPools ?? []).some(pool => pool.id === id))
+      && chosenGroups.every(group => (item[fateField] ?? []).some(entry => group?.ids.includes(Number(entry.id))))
+      && [...replayFilters.opponents].every(id => (item.humanOpponentCharacters ?? []).some(entry => Number(entry.id) === id)));
     const currentId = select.value || activeCatalogItem?.id;
     select.innerHTML = filteredCatalog.length
       ? filteredCatalog.map((item) => `<option value="${esc(item.id)}">${esc(recordingLabel(item))}</option>`).join("")
@@ -1468,9 +1497,36 @@
     // IDs from different fate catalogs can overlap. A previous mechanic's
     // fate selection must not silently select another mechanic's fate.
     replayFilters.fates.clear();
-    replayFilters.unchosenFates.clear();
-    replayFilters.roundOnePool = "";
+    replayFilters.roundOnePools.clear();
+    replayFilters.pools.clear();
     setSeason(seasonSelect.value);
+    applyRecordingFilters();
+    renderRecordingFilters();
+  });
+  // Older collection HTML shares this viewer but predates the visible filter.
+  if (!$("#career-filter")) {
+    const picker = select.closest(".recording-picker");
+    if (picker) {
+      let pickers = picker.closest(".recording-pickers");
+      if (!pickers) {
+        pickers = document.createElement("div");
+        pickers.className = "recording-pickers";
+        picker.before(pickers);
+        pickers.append(picker);
+      }
+      picker.classList.add("recording-choice");
+      const careerPicker = document.createElement("label");
+      careerPicker.className = "recording-picker career-picker";
+      careerPicker.append(document.createTextNode(copy.sideJobFilter));
+      const careerControl = document.createElement("select");
+      careerControl.id = "career-filter";
+      careerControl.setAttribute("aria-label", isChinese ? "选择副职业" : "Choose a side job");
+      careerPicker.append(careerControl);
+      pickers.insertBefore(careerPicker, picker);
+    }
+  }
+  $("#career-filter")?.addEventListener("change", event => {
+    replayFilters.career = Number(event.target.value);
     applyRecordingFilters();
     renderRecordingFilters();
   });

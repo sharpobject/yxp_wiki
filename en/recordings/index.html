@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Match Recordings - Yi Xian Card Gallery</title>
   <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
-  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=recordings-bec211a4045df55a4881">
+  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=recordings-b1db8663db898d9b4b70">
 <script data-card-components src="/yxp_wiki/assets/card-components/runtime/cards.js?v=1c33d6fe8340d7d3"></script></head>
-<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data" data-recording-version="recordings-bec211a4045df55a4881">
+<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings/data" data-recording-version="recordings-b1db8663db898d9b4b70">
   <header>
     <a class="brand" href="/yxp_wiki/en/index.html">Yi Xian Card Gallery</a>
     <nav>
@@ -30,13 +30,17 @@
         <label class="recording-picker season-picker">Season mechanic
           <select id="season-select" aria-label="Choose a season mechanic"></select>
         </label>
-        <label class="recording-picker">Recording
-          <span class="recording-picker-row">
+        <label class="recording-picker career-picker">Side Job
+          <select id="career-filter" aria-label="Choose a side job"></select>
+        </label>
+        <div class="recording-picker recording-choice">
+          <label for="recording-select">Recording</label>
+          <div class="recording-picker-row">
             <select id="recording-select" aria-label="Choose a recording"></select>
             <button id="recording-filter-toggle" type="button" aria-label="Filter recordings" aria-expanded="false">⌄</button>
-            <span id="recording-filter-popover" class="recording-filter-popover" hidden></span>
-          </span>
-        </label>
+            <div id="recording-filter-popover" class="recording-filter-popover" hidden></div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -88,9 +92,9 @@
     </section>
   </main>
 
-  <script src="/yxp_wiki/assets/recordings/recording-codec.js?v=recordings-bec211a4045df55a4881"></script>
-  <script src="/yxp_wiki/assets/recordings/clear-heart/data.js?v=recordings-bec211a4045df55a4881"></script>
-  <script src="/yxp_wiki/assets/recordings/clear-heart.js?v=recordings-bec211a4045df55a4881"></script>
-  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=recordings-bec211a4045df55a4881"></script>
+  <script src="/yxp_wiki/assets/recordings/recording-codec.js?v=recordings-b1db8663db898d9b4b70"></script>
+  <script src="/yxp_wiki/assets/recordings/clear-heart/data.js?v=recordings-b1db8663db898d9b4b70"></script>
+  <script src="/yxp_wiki/assets/recordings/clear-heart.js?v=recordings-b1db8663db898d9b4b70"></script>
+  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=recordings-b1db8663db898d9b4b70"></script>
 </body>
 </html>
