@@ -138,7 +138,10 @@
 .recording-pool-options { display: grid; max-height: 146px; overflow-y: auto; overscroll-behavior: contain; padding-right: 3px; }
 .recording-pool-options label { min-width: 0; min-height: 24px; font-size: 10px; }
 .recording-pool-options input { flex: 0 0 auto; }
-.recording-pool-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recording-pool-options .recording-opening-pool { padding-top: 0; padding-bottom: 0; }
+.recording-pool-label { display: grid; min-width: 0; overflow: hidden; line-height: 12px; }
+.recording-pool-label > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.recording-pool-hint { font-weight: 400; }
 
 
 .replay-shell {

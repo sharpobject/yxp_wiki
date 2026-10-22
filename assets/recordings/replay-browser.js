@@ -1332,8 +1332,25 @@
     21: 21001, 22: 22001, 23: 23001,
   };
   const roundOnePoolDescriptions = {
-    11: ["Other-sect cards", "其他门派牌"],
-    27: ["Character Fate Resonance", "角色命途共鸣"],
+    "2": ["General fates such as Destiny Reserve", "命元底蕴等通用仙命"],
+    "pool:26:fate:26002": ["Absorb cards to upgrade a sect card of the same phase", "炼化牌来升级同境界的门派牌"],
+    "pool:26:fate:26003": ["Transform a sect card, keeping its phase and level", "变化门派牌，保留境界与等级"],
+    "pool:26:fate:26004": ["Trade 1 Cultivation for a chosen card each phase", "每个境界花1修为，自选一张同境界牌"],
+    "pool:26:fate:26005": ["Trim your card pool; recover an upgraded card", "精简牌池，取回升级后的牌"],
+    "20": ["Sect Dream cards such as Dream: Qi Perfusion", "梦•灵气灌注等门派梦境牌"],
+    "4": ["Guarantee a specific fate option or Daoist Rhyme Omen cards", "仙命或道韵预感中必出指定选项"],
+    "10": ["Scrolls to choose sect cards or reselect a fate", "自选门派牌或重选仙命的卷轴"],
+    "6": ["Secret sect cards such as Cloud Sword - Sunset Glow", "云剑•晚霞等门派秘传牌"],
+    "14": ["Add seasonal cards such as Swift Shadow Flying Sword to your pool", "将迅影飞剑等赛季轮换牌加入牌池"],
+    "23": ["Gain cards as you advance, or enhance character effects", "随境界获得成套牌，或强化角色专属效果"],
+    "17": ["Ultimate and fusion cards such as Ultimate: Cloud Sword - Softheart", "极•云剑柔心等极牌与融汇牌"],
+    "8": ["Gain a pet power card that upgrades in Round 10", "获得灵宠之力牌，第10轮自动升级"],
+    "pool:28:fate:28001": ["Unstoppable Chase; gain the card in Round 13", "再动不受阻止，第13轮获得影枭兔"],
+    "9": ["Gain an ancient artifact in Round 15", "第15轮获得上古神器"],
+    "pool:29:fate:29001": ["Speed per card in hand; breakthroughs without Cultivation", "留牌加速度，按轮次无视修为突破"],
+    "12": ["Add Mirage cards such as Mirage: Raven Spirit Sword to your pool", "将幻•暗鸦灵剑等幻景牌加入牌池"],
+    "11": ["Choose another sect's cards and gain its combat bonuses", "获取其他门派牌，并获得相应战斗加成"],
+    "27": ["Choose another character's breakthrough fates, up to twice", "突破时可选其他角色仙命，累计选择2次"],
   };
 
   function roundOnePoolEntries(values) {
@@ -1347,14 +1364,11 @@
       || localizedInfo(first).localeCompare(localizedInfo(second)));
   }
 
-  function roundOnePoolLabel(pool) {
-    const label = localizedInfo(pool);
-    // Single-offer pools already include their specific fate in the label.
-    if (pool.id.includes(":fate:")) return label;
-    const description = roundOnePoolDescriptions[pool.poolId];
+  function roundOnePoolHint(pool) {
+    const description = roundOnePoolDescriptions[pool.id] ?? roundOnePoolDescriptions[pool.poolId];
     const example = sharedCatalog.xianMoStrategies?.[roundOnePoolExamples[pool.poolId]];
     const hint = description ? localizedPair(description) : localizedInfo(example);
-    return hint ? `${label} — ${hint}` : label;
+    return hint;
   }
 
   function seasonName(season) {
@@ -1418,10 +1432,12 @@
   function renderRecordingFilters() {
     const checkbox = (kind, entry, checked) => {
       const openingPool = kind === "roundOnePools";
-      const label = openingPool ? roundOnePoolLabel(entry) : localizedInfo(entry);
+      const name = localizedInfo(entry);
+      const hint = openingPool ? roundOnePoolHint(entry) : "";
+      const label = hint ? `${name} — ${hint}` : name;
       const description = openingPool ? label : (isChinese ? entry.descriptionChinese : entry.descriptionEnglish);
-      const text = openingPool ? `<span class="recording-pool-label">${esc(label)}</span>` : esc(label);
-      return `<label${description ? ` title="${esc(description)}"` : ""}><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${text}</label>`;
+      const text = openingPool ? `<span class="recording-pool-label"><span>${esc(name)}</span>${hint ? `<span class="recording-pool-hint">${esc(hint)}</span>` : ""}</span>` : esc(name);
+      return `<label${openingPool ? ' class="recording-opening-pool"' : ""}${description ? ` title="${esc(description)}"` : ""}><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${text}</label>`;
     };
     const poolFieldset = (kind, entries, label, rule) => entries.length ? `<fieldset class="recording-pool-filter"><legend>${esc(label)}</legend><p class="recording-filter-rule">${esc(rule)}</p><div class="recording-filter-options recording-pool-options">${entries.map(entry => checkbox(kind, entry, replayFilters[kind].has(entry.id))).join("")}</div></fieldset>` : "";
     const fateLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
