@@ -247,7 +247,111 @@
     return [FORMAT_VERSION, packSharedCatalog(sharedCatalog), [...groups.values()]];
   }
 
+  // Browser indexes are derived, lossy list projections; canonical catalogs and
+  // recorded timelines retain FORMAT_VERSION 1 and their complete metadata.
+  const BROWSER_INDEX_VERSION = 2;
+  const BROWSER_POOL_EXAMPLE_FATES = {
+    1: 1001, 2: 2001, 3: 3001, 4: 4001, 5: 5001, 6: 6001, 7: 7001,
+    8: 8001, 9: 9001, 10: 10001, 12: 12001, 13: 13001, 14: 14001,
+    15: 15001, 16: 16001, 17: 17034, 18: 18001, 19: 19001, 20: 20001,
+    21: 21001, 22: 22001, 23: 23001,
+  };
+
+  function browserPool(pool) {
+    const { offeredFateIds, ...descriptor } = pool;
+    return { ...descriptor, sortFateId: Number(offeredFateIds?.[0] ?? 0) };
+  }
+
+  function packBrowserCatalog(sharedCatalog, items) {
+    const dictionaries = { fates: [], xianMoFates: [], characters: [], pools: [], examples: {} };
+    const indexes = Object.fromEntries(["fates", "xianMoFates", "characters", "pools"]
+      .map(kind => [kind, new Map()]));
+    const reference = (kind, entry) => {
+      const signature = JSON.stringify(entry), index = indexes[kind];
+      if (!index.has(signature)) {
+        index.set(signature, dictionaries[kind].length);
+        dictionaries[kind].push(entry);
+      }
+      return index.get(signature);
+    };
+    const references = (kind, entries) => (entries ?? []).map(entry => reference(kind, entry));
+    const groups = new Map();
+    for (const item of items) {
+      for (const key of Object.keys(item)) {
+        if (!CATALOG_ITEM_KEYS.has(key)) throw new Error(`unencoded browser catalog field ${key}`);
+      }
+      const groupKey = JSON.stringify([item.targetUid, item.targetUsername, item.targetCharacterId]);
+      if (!groups.has(groupKey)) groups.set(groupKey, [item.targetUid, item.targetUsername, item.targetCharacterId, []]);
+      const pool = item.roundOneXianMoPool;
+      if (pool) {
+        const id = BROWSER_POOL_EXAMPLE_FATES[pool.poolId], info = sharedCatalog.xianMoStrategies?.[id];
+        if (info) dictionaries.examples[id] = { id: info.id, nameEnglish: info.nameEnglish, nameChinese: info.nameChinese };
+      }
+      groups.get(groupKey)[3].push([
+        item.id, item.startingRating, item.career, item.rounds, item.capturedThrough, item.linCareer,
+        references("fates", item.linFates), references("xianMoFates", item.linXianMoFates),
+        references("characters", item.humanOpponentCharacters),
+        item.gameMode ?? 0, item.firstRound ?? 1, item.cupId ?? 0, item.cupProgress ?? 0,
+        item.cupStage ?? "", item.practice ? 1 : 0,
+        item.placementStart ?? null, item.placementEnd ?? null, item.ratingChange ?? null,
+        item.ratingKind ?? "", item.seasonMechanic ?? null, item.seasonMechanicEnabled ?? null,
+        pool == null ? null : reference("pools", browserPool(pool)),
+        item.xianMoPools == null ? null : references("pools", item.xianMoPools.map(browserPool)),
+      ]);
+    }
+    return [BROWSER_INDEX_VERSION, packValue(dictionaries), [...groups.values()]];
+  }
+
+  function unpackBrowserCatalog(packed) {
+    if (!Array.isArray(packed) || packed[0] !== BROWSER_INDEX_VERSION || packed.length !== 3) {
+      throw new Error("unsupported browser recording catalog format");
+    }
+    const dictionaries = unpackValue(packed[1]);
+    for (const kind of ["fates", "xianMoFates", "characters", "pools"]) {
+      if (!Array.isArray(dictionaries[kind])) throw new Error(`invalid browser ${kind} dictionary`);
+    }
+    if (!isObject(dictionaries.examples)) throw new Error("invalid browser example metadata");
+    const entry = (kind, index) => {
+      if (!Number.isSafeInteger(index) || index < 0 || index >= dictionaries[kind].length) {
+        throw new Error(`invalid browser ${kind} reference ${index}`);
+      }
+      return dictionaries[kind][index];
+    };
+    const entries = (kind, indexes) => {
+      if (!Array.isArray(indexes)) throw new Error(`invalid browser ${kind} references`);
+      return indexes.map(index => entry(kind, index));
+    };
+    const catalog = [];
+    for (const [targetUid, targetUsername, targetCharacterId, games] of packed[2]) {
+      for (const game of games) {
+        if (game.length !== 23) throw new Error("invalid browser catalog row length");
+        const [id, startingRating, career, rounds, capturedThrough, linCareer,
+          fateRefs, xianMoRefs, opponentRefs, gameMode, firstRound, cupId, cupProgress, cupStage,
+          practice, placementStart, placementEnd, ratingChange, ratingKind, seasonMechanic,
+          seasonMechanicEnabled, roundOnePoolRef, poolRefs] = game;
+        if (seasonMechanicEnabled !== null && typeof seasonMechanicEnabled !== "boolean") {
+          throw new Error("invalid catalog mechanic activation flag");
+        }
+        catalog.push({ id, file: `${id}.compact.json.gz`, targetUid, targetUsername, targetCharacterId,
+          startingRating, career, rounds, capturedThrough, linCareer,
+          linFates: entries("fates", fateRefs), linXianMoFates: entries("xianMoFates", xianMoRefs),
+          humanOpponentCharacters: entries("characters", opponentRefs),
+          gameMode, firstRound, cupId, cupProgress, cupStage, practice: Boolean(practice),
+          placementStart, placementEnd, ratingChange, ratingKind, seasonMechanic, seasonMechanicEnabled,
+          ...(roundOnePoolRef == null ? {} : { roundOneXianMoPool: entry("pools", roundOnePoolRef) }),
+          ...(poolRefs == null ? {} : { xianMoPools: entries("pools", poolRefs) }),
+          label: `${targetUsername} · ${rounds} rounds`,
+        });
+      }
+    }
+    return {
+      sharedCatalog: Object.fromEntries(CATALOG_KINDS.map(kind => [kind, kind === "xianMoStrategies" ? dictionaries.examples : {}])),
+      catalog,
+    };
+  }
+
   function unpackCatalog(packed) {
+    if (packed?.[0] === BROWSER_INDEX_VERSION) return unpackBrowserCatalog(packed);
     if (!Array.isArray(packed) || packed[0] !== FORMAT_VERSION || packed.length !== 3) {
       throw new Error("unsupported packed recording catalog format");
     }
@@ -308,6 +412,7 @@
 
   return {
     FORMAT_VERSION,
+    BROWSER_INDEX_VERSION,
     CATALOG_KINDS,
     packValue,
     unpackValue,
@@ -317,5 +422,7 @@
     unpackRecording,
     packCatalog,
     unpackCatalog,
+    packBrowserCatalog,
+    unpackBrowserCatalog,
   };
 }));

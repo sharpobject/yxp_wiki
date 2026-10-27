@@ -37,20 +37,26 @@
     };
     let manifest;
     try {
-      manifest = await load("catalog-seasons.json");
+      manifest = await load("catalog-index.json");
     } catch (error) {
-      // Older collection pages still publish the original combined catalog.
       if (error.status !== 404) throw error;
-      return { legacy: decode(await load("catalog.compact.json.gz")) };
+      try {
+        manifest = await load("catalog-seasons.json");
+      } catch (error) {
+        // Older collection pages still publish the original combined catalog.
+        if (error.status !== 404) throw error;
+        return { legacy: decode(await load("catalog.compact.json.gz")) };
+      }
     }
     if (!Array.isArray(manifest.seasons) || manifest.seasons.some(entry =>
       typeof entry.id !== "string" || typeof entry.file !== "string" || !Number.isInteger(entry.count) || entry.count < 0)
       || new Set(manifest.seasons.map(entry => entry.id)).size !== manifest.seasons.length
+      || (manifest.sharedCatalogFile !== undefined && typeof manifest.sharedCatalogFile !== "string")
       || (manifest.seasons.length && !manifest.seasons.some(entry => entry.id === manifest.defaultSeason))) {
       throw new Error("invalid recording season manifest");
     }
     const seasons = new Map();
-    let lookup;
+    let lookup, replayCatalog;
     return {
       manifest,
       loadSeason(season) {
@@ -64,6 +70,18 @@
           seasons.set(season, pending);
         }
         return seasons.get(season);
+      },
+      loadReplayCatalog(listCatalog) {
+        // Season indexes carry only list labels. Replay metadata is shared by the
+        // collection and starts loading only after a recording has been selected.
+        if (!manifest.sharedCatalogFile) return Promise.resolve(listCatalog);
+        if (!replayCatalog) replayCatalog = load(manifest.sharedCatalogFile)
+          .then(packed => window.RECORDING_CODEC.unpackCatalog(packed).sharedCatalog)
+          .catch(error => {
+            replayCatalog = null;
+            throw error;
+          });
+        return replayCatalog;
       },
       lookupRecordingSeason(id) {
         if (!lookup) lookup = load("catalog-recordings.json.gz").catch(error => {
@@ -1274,15 +1292,16 @@
     if (!item) return;
     closeMobileTooltip();
     const generation = ++loadGeneration;
-    const recordingSharedCatalog = sharedCatalog;
+    const recordingSharedCatalog = typeof catalogSource !== "undefined" && catalogSource.loadReplayCatalog
+      ? catalogSource.loadReplayCatalog(sharedCatalog) : Promise.resolve(sharedCatalog);
     $("#loading").hidden = false;
     $("#loading").textContent = copy.loading;
     $("#viewer").hidden = true;
     const resultSummary = $("#recording-result");
     if (resultSummary) resultSummary.hidden = true;
     previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
-    loadCompressedJson(versionedUrl(item.file))
-      .then((packed) => window.RECORDING_CODEC.unpackRecording(packed, recordingSharedCatalog))
+    Promise.all([loadCompressedJson(versionedUrl(item.file)), recordingSharedCatalog])
+      .then(([packed, metadata]) => window.RECORDING_CODEC.unpackRecording(packed, metadata))
       .then((data) => {
         if (generation !== loadGeneration) return;
         installRecording(data, item, stepIndex, historyMode);
@@ -1412,7 +1431,7 @@
     };
     return visiblePoolEntries(values).sort((first, second) =>
       rank(first) - rank(second)
-      || Number(first.offeredFateIds?.[0] ?? 0) - Number(second.offeredFateIds?.[0] ?? 0)
+      || Number(first.sortFateId ?? first.offeredFateIds?.[0] ?? 0) - Number(second.sortFateId ?? second.offeredFateIds?.[0] ?? 0)
       || localizedInfo(first).localeCompare(localizedInfo(second)));
   }
 
