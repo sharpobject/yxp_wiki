@@ -9,7 +9,11 @@
     ? `?v=${encodeURIComponent(recordingVersion)}` : ""}`;
   async function loadCompressedJson(url) {
     const response = await fetch(url);
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      const error = new Error(`${response.status} ${response.statusText}`);
+      error.status = response.status;
+      throw error;
+    }
     const bytes = new Uint8Array(await response.arrayBuffer());
     let text;
     if (bytes[0] === 0x1f && bytes[1] === 0x8b) {
@@ -22,13 +26,57 @@
     return JSON.parse(text);
   }
   if (!window.RECORDING_CODEC) throw new Error("recording codec did not load");
-  const decodedCatalog = window.RECORDING_CODEC.unpackCatalog(
-    await loadCompressedJson(versionedUrl("catalog.compact.json.gz")),
-  );
-  const sharedCatalog = decodedCatalog.sharedCatalog;
-  const catalog = [...decodedCatalog.catalog].sort((first, second) =>
-    String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
-      || String(second.capturedThrough ?? "").localeCompare(String(first.capturedThrough ?? "")));
+  async function createCatalogSource() {
+    const load = file => loadCompressedJson(versionedUrl(file));
+    const decode = packed => {
+      const data = window.RECORDING_CODEC.unpackCatalog(packed);
+      data.catalog.sort((first, second) =>
+        String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
+        || String(second.capturedThrough ?? "").localeCompare(String(first.capturedThrough ?? "")));
+      return data;
+    };
+    let manifest;
+    try {
+      manifest = await load("catalog-seasons.json");
+    } catch (error) {
+      // Older collection pages still publish the original combined catalog.
+      if (error.status !== 404) throw error;
+      return { legacy: decode(await load("catalog.compact.json.gz")) };
+    }
+    if (!Array.isArray(manifest.seasons) || manifest.seasons.some(entry =>
+      typeof entry.id !== "string" || typeof entry.file !== "string" || !Number.isInteger(entry.count) || entry.count < 0)
+      || new Set(manifest.seasons.map(entry => entry.id)).size !== manifest.seasons.length
+      || (manifest.seasons.length && !manifest.seasons.some(entry => entry.id === manifest.defaultSeason))) {
+      throw new Error("invalid recording season manifest");
+    }
+    const seasons = new Map();
+    let lookup;
+    return {
+      manifest,
+      loadSeason(season) {
+        const entry = manifest.seasons.find(entry => entry.id === season);
+        if (!entry) return Promise.resolve({ catalog: [], sharedCatalog: {} });
+        if (!seasons.has(season)) {
+          const pending = load(entry.file).then(decode).catch(error => {
+            seasons.delete(season);
+            throw error;
+          });
+          seasons.set(season, pending);
+        }
+        return seasons.get(season);
+      },
+      lookupRecordingSeason(id) {
+        if (!lookup) lookup = load("catalog-recordings.json.gz").catch(error => {
+          lookup = null;
+          throw error;
+        });
+        return lookup.then(index => Object.hasOwn(index, id) ? index[id] : null);
+      },
+    };
+  }
+  const catalogSource = await createCatalogSource();
+  let sharedCatalog = catalogSource.legacy?.sharedCatalog ?? {};
+  let catalog = catalogSource.legacy?.catalog ?? [];
   const select = $("#recording-select");
   const seasonSelect = $("#season-select");
   const timeline = $("#timeline");
@@ -1226,13 +1274,15 @@
     if (!item) return;
     closeMobileTooltip();
     const generation = ++loadGeneration;
+    const recordingSharedCatalog = sharedCatalog;
     $("#loading").hidden = false;
     $("#loading").textContent = copy.loading;
     $("#viewer").hidden = true;
-    $("#recording-result").hidden = true;
+    const resultSummary = $("#recording-result");
+    if (resultSummary) resultSummary.hidden = true;
     previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
     loadCompressedJson(versionedUrl(item.file))
-      .then((packed) => window.RECORDING_CODEC.unpackRecording(packed, sharedCatalog))
+      .then((packed) => window.RECORDING_CODEC.unpackRecording(packed, recordingSharedCatalog))
       .then((data) => {
         if (generation !== loadGeneration) return;
         installRecording(data, item, stepIndex, historyMode);
@@ -1279,7 +1329,9 @@
     return String(Number(item.seasonMechanic));
   };
   const isHundredSchoolsSeason = (season) => season === "10" || season === "10-preseason";
-  const availableSeasons = [...new Set(catalog.map(seasonForItem))]
+  const lazyCatalogs = typeof catalogSource !== "undefined" && catalogSource.manifest;
+  const availableSeasons = lazyCatalogs ? catalogSource.manifest.seasons.map(entry => entry.id)
+    : [...new Set(catalog.map(seasonForItem))]
     .sort((first, second) => first === "unknown" ? 1 : second === "unknown" ? -1
       : Number.parseInt(second, 10) - Number.parseInt(first, 10)
         || Number(first === "10-preseason") - Number(second === "10-preseason"));
@@ -1396,7 +1448,7 @@
     // Keep their recording and step when migrating the pre-season category.
     if (requested.season === "10" && seasonForItem(item) === "10-preseason") return "10-preseason";
     if (availableSeasons.includes(requested.season)) return requested.season;
-    return item ? seasonForItem(item) : availableSeasons[0] ?? null;
+    return item ? seasonForItem(item) : (lazyCatalogs ? catalogSource.manifest.defaultSeason : availableSeasons[0]) ?? null;
   }
 
   function setSeason(season) {
@@ -1417,9 +1469,13 @@
       replayFilters[kind] = new Set([...replayFilters[kind]].filter(id => available.has(id)));
     }
     if (!filterCareers.includes(replayFilters.career)) replayFilters.career = 0;
+    renderSeasonSelector();
+  }
+
+  function renderSeasonSelector() {
     if (seasonSelect) {
-      seasonSelect.innerHTML = availableSeasons.map((value) => `<option value="${esc(value)}">${esc(seasonName(value))}</option>`).join("");
-      seasonSelect.value = season ?? "";
+      seasonSelect.innerHTML = availableSeasons.map(value => `<option value="${esc(value)}">${esc(seasonName(value))}</option>`).join("");
+      seasonSelect.value = selectedSeason ?? "";
       seasonSelect.disabled = !availableSeasons.length;
     }
   }
@@ -1478,7 +1534,8 @@
     recording = activeCatalogItem = null;
     states = [];
     $("#viewer").hidden = true;
-    $("#recording-result").hidden = true;
+    const resultSummary = $("#recording-result");
+    if (resultSummary) resultSummary.hidden = true;
     $("#loading").hidden = false;
     $("#loading").textContent = catalog.length ? copy.noMatchingRecordings : copy.noRecordings;
     previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
@@ -1518,7 +1575,7 @@
     } else if (sync) syncFilterLocation();
   }
 
-  function restoreLocation() {
+  function restoreLoadedLocation() {
     const requested = requestedLocation();
     replaceFilterState(filterStateFromParams(new URLSearchParams(location.search)));
     setSeason(seasonFromLocation(requested));
@@ -1540,10 +1597,74 @@
       loadGeneration++;
       $("#loading").hidden = true;
       $("#viewer").hidden = false;
-      $("#recording-result").hidden = false;
+      const resultSummary = $("#recording-result");
+      if (resultSummary) resultSummary.hidden = false;
       timeline.disabled = roundSelect.disabled = false;
       setIndex(stepIndex ?? Math.max(0, states.findIndex((state) => state.round > 0)));
     } else loadRecording(item, { stepIndex, historyMode: "replace" });
+  }
+
+  let catalogNavigationGeneration = 0;
+
+  async function restoreSeasonLocation() {
+    const generation = ++catalogNavigationGeneration;
+    const requested = requestedLocation();
+    const requestedId = legacyRecordingAliases.get(requested.recordingId) ?? requested.recordingId;
+    const validSeason = availableSeasons.includes(requested.season);
+    let season = validSeason ? requested.season : catalogSource.manifest.defaultSeason ?? null;
+    // A season change also invalidates an outstanding replay request.
+    loadGeneration++;
+    closeMobileTooltip();
+    selectedSeason = season;
+    renderSeasonSelector();
+    $("#loading").hidden = false;
+    $("#loading").textContent = copy.loading;
+    $("#viewer").hidden = true;
+    const resultSummary = $("#recording-result");
+    if (resultSummary) resultSummary.hidden = true;
+    select.innerHTML = `<option value="">${esc(copy.loading)}</option>`;
+    select.disabled = previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
+    filterToggle.disabled = true;
+    filterPopover.hidden = true;
+    filterToggle.setAttribute("aria-expanded", "false");
+    const careerSelect = $("#career-filter");
+    if (careerSelect) careerSelect.disabled = true;
+    try {
+      // Ordinary visits and explicit season links never need the ID lookup.
+      if (requestedId && !validSeason) {
+        const located = await catalogSource.lookupRecordingSeason(requestedId);
+        if (generation !== catalogNavigationGeneration) return;
+        if (availableSeasons.includes(located)) season = located;
+      }
+      let data = await catalogSource.loadSeason(season);
+      if (generation !== catalogNavigationGeneration) return;
+      // Only the former combined Hundred Schools category needs migration.
+      // Other explicit season conflicts retain their existing behavior.
+      if (requestedId && requested.season === "10" && availableSeasons.includes("10-preseason")
+          && !data.catalog.some(item => item.id === requestedId)) {
+        const located = await catalogSource.lookupRecordingSeason(requestedId);
+        if (generation !== catalogNavigationGeneration) return;
+        if (located === "10-preseason") {
+          season = located;
+          data = await catalogSource.loadSeason(season);
+          if (generation !== catalogNavigationGeneration) return;
+        }
+      }
+      catalog = data.catalog;
+      sharedCatalog = data.sharedCatalog;
+      filterToggle.disabled = false;
+      if (careerSelect) careerSelect.disabled = false;
+      restoreLoadedLocation();
+    } catch (error) {
+      if (generation !== catalogNavigationGeneration) return;
+      console.error("could not load recording season", error);
+      $("#loading").textContent = `${copy.couldNotLoad} ${seasonName(season)}`;
+    }
+  }
+
+  function restoreLocation() {
+    if (lazyCatalogs) return restoreSeasonLocation();
+    return restoreLoadedLocation();
   }
 
   seasonSelect?.addEventListener("change", () => {
@@ -1552,6 +1673,12 @@
     replayFilters.fates.clear();
     replayFilters.roundOnePools.clear();
     replayFilters.pools.clear();
+    if (lazyCatalogs) {
+      selectedSeason = seasonSelect.value;
+      syncEmptyLocation("push");
+      restoreLocation();
+      return;
+    }
     setSeason(seasonSelect.value);
     applyRecordingFilters();
     renderRecordingFilters();
