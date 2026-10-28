@@ -5,10 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>祁忘忧·灵植师对局录像 - 弈仙牌卡牌图鉴</title>
   <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
-  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=20260920-card-components-01"><!-- fate-previews:start --><link rel="stylesheet" href="/yxp_wiki/assets/fate-previews/preview.css?v=3976f161d3a5"><script id="wiki-card-previews" data-wiki-base="/yxp_wiki" data-preview-lang="zh" data-catalog-url="/yxp_wiki/assets/fate-previews/cards-zh.json?v=3976f161d3a5" defer src="/yxp_wiki/assets/fate-previews/preview.js?v=3976f161d3a5"></script><!-- fate-previews:end -->
-  <script data-card-components src="/yxp_wiki/assets/card-components/runtime/cards.js?v=1c33d6fe8340d7d3"></script>
-</head>
-<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings_751/data" data-recording-version="751-fe2f639db6cd">
+  <link rel="stylesheet" href="/yxp_wiki/assets/recordings/replay-browser.css?v=recordings-8112b7408b4c5158d29d">
+<script data-card-components src="/yxp_wiki/assets/card-components/runtime/cards.js?v=1c33d6fe8340d7d3"></script></head>
+<body data-asset-mode="wiki" data-recording-base="/yxp_wiki/assets/recordings_751/data" data-recording-version="recordings-8112b7408b4c5158d29d">
   <header>
     <a class="brand" href="/yxp_wiki/zh/index.html">弈仙牌卡牌图鉴</a>
     <nav>
@@ -25,16 +24,27 @@
       <div>
         <p class="eyebrow">对局录像库</p>
         <h1>祁忘忧 · 灵植师</h1>
-        <p class="muted">灵植师祁忘忧的对局录像，包含排位、私人房间和天衍杯。</p>
+        <p class="muted">灵植师祁忘忧的对局录像，以及大厅中其他玩家上一轮的公开信息。</p>
       </div>
-      <label class="recording-picker">录像
-        <span class="recording-picker-row">
-          <select id="recording-select" aria-label="选择录像"></select>
-          <button id="recording-filter-toggle" type="button" aria-label="筛选录像" aria-expanded="false">⌄</button>
-          <span id="recording-filter-popover" class="recording-filter-popover" hidden></span>
-        </span>
-      </label>
+      <div class="recording-pickers">
+        <label class="recording-picker season-picker">赛季机制
+          <select id="season-select" aria-label="选择赛季机制"></select>
+        </label>
+        <label class="recording-picker career-picker">副职业
+          <select id="career-filter" aria-label="选择副职业"></select>
+        </label>
+        <div class="recording-picker recording-choice">
+          <label for="recording-select">录像</label>
+          <div class="recording-picker-row">
+            <select id="recording-select" aria-label="选择录像"></select>
+            <button id="recording-filter-toggle" type="button" aria-label="筛选录像" aria-expanded="false">⌄</button>
+            <div id="recording-filter-popover" class="recording-filter-popover" hidden></div>
+          </div>
+        </div>
+      </div>
     </section>
+
+    <p id="recording-result" class="muted" aria-live="polite" hidden></p>
 
     <section class="replay-shell" aria-live="polite">
       <div class="replay-toolbar">
@@ -82,9 +92,9 @@
     </section>
   </main>
 
-  <script src="/yxp_wiki/assets/recordings/recording-codec.js?v=20260920-card-components-01"></script>
-  <script src="/yxp_wiki/assets/recordings/clear-heart/data.js?v=20260920-card-components-01"></script>
-  <script src="/yxp_wiki/assets/recordings/clear-heart.js?v=20260920-card-components-01"></script>
-  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=20260920-card-components-01"></script>
+  <script src="/yxp_wiki/assets/recordings/recording-codec.js?v=recordings-8112b7408b4c5158d29d"></script>
+  <script src="/yxp_wiki/assets/recordings/clear-heart/data.js?v=recordings-8112b7408b4c5158d29d"></script>
+  <script src="/yxp_wiki/assets/recordings/clear-heart.js?v=recordings-8112b7408b4c5158d29d"></script>
+  <script src="/yxp_wiki/assets/recordings/replay-browser.js?v=recordings-8112b7408b4c5158d29d"></script>
 </body>
 </html>
