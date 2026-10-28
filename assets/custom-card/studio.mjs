@@ -1,11 +1,14 @@
-import {defaults,decode,encode,normalize} from './model.mjs?v=4c09c2e629da61db';
-import {renderCard,loadImage} from './render.mjs?v=4c09c2e629da61db';
-import {richChars} from './native-layout.mjs?v=4c09c2e629da61db';
+import {defaults,decode,encode,normalize} from './model.mjs?v=fcc3e22a089f41a8';
+import {createRenderer,loadImage} from './render-client.mjs?v=fcc3e22a089f41a8';
+import {richChars} from './native-layout.mjs?v=fcc3e22a089f41a8';
 const root=document.querySelector('#card-studio'),ui=root.dataset.language,t=(en,zh)=>ui==='zh'?zh:en;
 const base=new URL('./',import.meta.url),$=s=>root.querySelector(s);
 let catalog,state,view=new URLSearchParams(location.search).get('view')==='1',uploads={},undo=[],redo=[],renderSerial=0,pickerSlot='A',libraryLimit=60;
-const initialSearch=location.search;let drawTimer,previewURL;
-function scheduleDraw(){clearTimeout(drawTimer);renderSerial++;$('#preview').dataset.ready='false';$('#download').disabled=true;drawTimer=setTimeout(draw,80);}
+const initialSearch=location.search;let drawTimer,previewURL,renderPreview,drawing=false,drawRequested=false;
+function scheduleDraw(){
+ renderSerial++;drawRequested=true;$('#preview').dataset.ready='false';$('#download').disabled=true;
+ if(!drawing&&!drawTimer)drawTimer=requestAnimationFrame(draw);
+}
 const field=(label,name,extra='')=>'<label class="field">'+label+'<input data-field="'+name+'" '+extra+'></label>';
 const select=(label,name,options)=>'<label class="field">'+label+'<select data-field="'+name+'">'+options.map(([v,l])=>'<option value="'+v+'">'+l+'</option>').join('')+'</select></label>';
 function slot(s){
@@ -77,24 +80,24 @@ function sync(){
  updateURL();scheduleDraw();
 }
 async function draw(){
- const serial=++renderSerial,snapshot={...state},canvas=document.createElement('canvas');
+ drawTimer=0;if(drawing)return;drawing=true;drawRequested=false;
+ const serial=renderSerial,snapshot={...state};
  $('#download').disabled=true;
  $('#studio-status').dataset.renderError='1';status(t('Rendering card… The first load may take a moment.','正在渲染卡牌…首次加载可能需要一些时间。'));
  try{
-  const result=await renderCard(canvas,snapshot,catalog,base,{...uploads},2);if(serial!==renderSerial)return;
-  const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
-  if(serial!==renderSerial)return;if(!blob)throw new Error('Preview image could not be encoded');
-  const url=URL.createObjectURL(blob),prepared=new Image();prepared.src=url;
+  const result=await renderPreview(snapshot,{...uploads},2);if(serial!==renderSerial)return;
+  const url=URL.createObjectURL(result.blob),prepared=new Image();prepared.src=url;
   try{await prepared.decode();}catch(error){URL.revokeObjectURL(url);throw error;}
   if(serial!==renderSerial){URL.revokeObjectURL(url);return;}
   const target=$('#preview'),previousURL=previewURL;previewURL=url;
-  target.width=canvas.width;target.height=canvas.height;target.src=url;
+  target.width=result.width;target.height=result.height;target.src=url;
   if(previousURL)URL.revokeObjectURL(previousURL);
   $('#download').disabled=false;$('#share').disabled=false;
   target.dataset.ready='true';
   if(result.overflow){$('#studio-status').dataset.renderError='1';status(t('Text is too long to fit. Shorten the rules or name.','文字过长，请缩短效果描述或卡名。'));}
   else if($('#studio-status').dataset.renderError){status('');delete $('#studio-status').dataset.renderError;}
  }catch(error){if(serial!==renderSerial)return;status(t('Could not render the card. Check your connection and retry.','无法渲染卡牌，请检查网络后重试。'));$('#studio-status').dataset.renderError='1';console.error(error);}
+ finally{drawing=false;if(drawRequested&&!drawTimer)drawTimer=requestAnimationFrame(draw);}
 }
 function changed(){status('');$('#share-url').hidden=true;sync();}
 function library(){
@@ -170,17 +173,17 @@ function bind(){
   try{await navigator.clipboard.writeText(url.href);status(omitted?t('Link copied. Uploaded art is omitted; use PNG for the complete card.','链接已复制。上传图片已省略，完整卡牌请使用 PNG。'):t('Share link copied.','分享链接已复制。'));}
   catch{field.focus();field.select();status(t('Copy the selected link to share your card.','复制已选中的链接即可分享卡牌。'));}
  };
- $('#download').onclick=async()=>{
-  const exported=document.createElement('canvas');$('#download').disabled=true;
-  try{await renderCard(exported,{...state},catalog,base,{...uploads},2);}catch(error){status(t('Export failed. Please retry.','导出失败，请重试。'));$('#download').disabled=false;return;}
-  $('#download').disabled=false;
+ $('#download').onclick=()=>{
+  if(!previewURL||$('#preview').dataset.ready!=='true')return;
   const link=document.createElement('a');link.download=(state.name||state.cn||'custom-card').replace(/[^\p{L}\p{N} _-]/gu,'').slice(0,80)+'.png';
-  exported.toBlob(blob=>{if(!blob)return;const url=URL.createObjectURL(blob);link.href=url;link.click();setTimeout(()=>URL.revokeObjectURL(url),10000);},'image/png');
+  // The preview already contains the full-resolution export, including uploads.
+  link.href=previewURL;link.click();
  };
 }
 try{
  const response=await fetch(new URL('catalog.json',base),{cache:'no-cache'});if(!response.ok)throw new Error('Catalog unavailable');catalog=await response.json();
  const parsed=decode(initialSearch,catalog);state=parsed.state;
+ renderPreview=createRenderer(base,catalog);
  if(!new URLSearchParams(initialSearch).has('v'))state.language=ui;
  buildUI();bind();status(t('Loading the card font…','正在加载卡牌字体…'));
  sync();status(parsed.issues.length?t('Some invalid link settings were reset.','链接中的部分无效设置已重置。'):'');

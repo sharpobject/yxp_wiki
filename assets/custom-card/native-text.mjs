@@ -1,4 +1,4 @@
-import {round,richChars,NativeLayout} from './native-layout.mjs?v=4c09c2e629da61db';
+import {round,richChars,NativeLayout} from './native-layout.mjs?v=fcc3e22a089f41a8';
 const clamp=x=>Math.max(0,Math.min(255,round(x)));
 export const PROBE='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789御空剑阵禦空劍陣防灵气靈氣造成伤害傷害卡组組再次行动動';
 export function bitmap(w,h){return {width:w,height:h,data:new Uint8ClampedArray(w*h*4)};}
@@ -31,10 +31,25 @@ function shader(sdf,w,h,mat,size,bold,faceDistance,outlineDistance,fill){
   if(outline){outline.data.set(oc,p);outline.data[p+3]=clamp((sdf[i]/255*od-ob+oo)*255);}
  }return {face,outline};
 }
+// Font metadata and decoded glyphs are immutable. Keep repeated title/probe
+// rows across NativeText instances, but never give callers the cached buffer.
+const lineCaches=new WeakMap(),glyphIds=new WeakMap();let nextGlyphId=0;
+const LINE_CACHE_BYTES=8*1024*1024,LINE_CACHE_ROWS=128;
+const copyBitmap=im=>({width:im.width,height:im.height,data:im.data.slice()});
+function lineCache(meta){
+ if(!lineCaches.has(meta))lineCaches.set(meta,{rows:new Map(),bytes:0});
+ return lineCaches.get(meta);
+}
+function glyphId(glyph){
+ if(!glyphIds.has(glyph))glyphIds.set(glyph,++nextGlyphId);
+ return glyphIds.get(glyph);
+}
 export class NativeText extends NativeLayout{
  line(input,size,{kind='body',spacing=0,shaderSize=size,language='en',phaseX=0,phaseY=0}={}){
   size=Math.max(1,round(size));shaderSize=Math.max(1,round(shaderSize));
   const isolated=kind!=='body',tag=language==='en'?'EN':'CJK',scale=size/this.m.pointSize,c=this.c,chars=typeof input==='string'?Array.from(input,char=>({char,bold:false,color:'#ffffff'})):input;
+  const cache=lineCache(this.m),key=JSON.stringify([size,kind,spacing,shaderSize,language,phaseX,phaseY,chars.map(item=>[item.char,item.bold,item.color,item.char===' '?0:glyphId(this.glyph(item.char))])]);
+  if(cache.rows.has(key)){const saved=cache.rows.get(key);cache.rows.delete(key);cache.rows.set(key,saved);return copyBitmap(saved);}
   const extra=isolated?Math.ceil(10*scale):0,pad=Math.max(4,round(size*.25))+extra,baseline=pad+round(27*scale),width=Math.max(1,round(this.width(chars.map(c=>c.char).join(''),size,spacing))+2*pad),height=Math.max(1,round(42*scale)+2*pad),out=bitmap(width,height);
   let cursor=pad;
   for(const item of chars){
@@ -50,7 +65,14 @@ export class NativeText extends NativeLayout{
    const {face,outline}=shader(pixels,w,h,mat,shaderSize,bold,faceDistance,outlineDistance,fill);
    if(outline)composite(out,outline,x,y);composite(out,face,x,y);cursor+=g[0]*scale+spacing*.01*size;
   }
-  return isolated&&width>extra*2&&height>extra*2?crop(out,extra,extra,width-2*extra,height-2*extra):out;
+  const result=isolated&&width>extra*2&&height>extra*2?crop(out,extra,extra,width-2*extra,height-2*extra):out;
+  if(result.data.byteLength<=LINE_CACHE_BYTES){
+   while(cache.rows.size&&(cache.rows.size>=LINE_CACHE_ROWS||cache.bytes+result.data.byteLength>LINE_CACHE_BYTES)){
+    const oldest=cache.rows.keys().next().value;cache.bytes-=cache.rows.get(oldest).data.byteLength;cache.rows.delete(oldest);
+   }
+   cache.rows.set(key,copyBitmap(result));cache.bytes+=result.data.byteLength;
+  }
+  return result;
  }
  sigilLayers(state,scale,titleFont){
   const c=this.c,tag=state.language==='en'?'EN':'CJK',layers=[],description=[],title=state.language==='en'?state.name:state.cn;
@@ -105,6 +127,9 @@ export class NativeText extends NativeLayout{
  }
 }
 const chunkCache=new Map(),metaCache=new Map();
+// These separators are consumed by description layout, not drawn as glyphs.
+// Space advances come from metadata. A newline must not fetch all ASCII SDFs.
+const needsGlyph=c=>!/[ \n\r\v\f\u001c-\u001e\u0085\u2028\u2029]/u.test(c);
 export async function loadNativeText(base,text,font='default'){
  const url=new URL(font==='huiwen'?'native-font-huiwen.json':'native-font.json',base).href;
  if(!metaCache.has(url))metaCache.set(url,fetch(url,{cache:'no-cache'}).then(r=>{if(!r.ok)throw Error('Native font unavailable');return r.json();}).catch(e=>{metaCache.delete(url);throw e;}));
@@ -115,10 +140,10 @@ export async function loadNativeText(base,text,font='default'){
   Object.assign(glyphs,await chunkCache.get(url));
  }
  if(meta.core)await chunk(meta.core);
- const groups=new Set(Array.from(text+PROBE+'\ufffd ').filter(c=>!glyphs[c]).map(c=>Math.floor(c.codePointAt(0)/256)));
+ const groups=new Set(Array.from(text+PROBE+'\ufffd').filter(c=>needsGlyph(c)&&!glyphs[c]).map(c=>Math.floor(c.codePointAt(0)/256)));
  await Promise.all([...groups].map(n=>meta.chunks[n]?chunk(meta.chunks[n]):null));
  if(font==='huiwen'){
-  const missing=Array.from(text).filter(c=>!glyphs[c]).join('');
+  const missing=Array.from(text).filter(c=>needsGlyph(c)&&!glyphs[c]).join('');
   if(missing){const fallback=await loadNativeText(base,missing);for(const ch of missing)glyphs[ch]=fallback.glyph(ch);}
  }
  return new NativeText(meta,glyphs);

@@ -1,5 +1,5 @@
-import {applyPhraseStyles} from './phrase-style.mjs?v=4c09c2e629da61db';
-import {richChars,BODY} from './native-layout.mjs?v=4c09c2e629da61db';
+import {applyPhraseStyles} from './phrase-style.mjs?v=fcc3e22a089f41a8';
+import {richChars,BODY} from './native-layout.mjs?v=fcc3e22a089f41a8';
 const escape=s=>s.replace(/[.*+?^$(){}|[\]\\]/g,'\\$&');
 export function autoStyle(text,language,lexicon){
  const parts=text.split(/(\[[^\]]+\])/g),overrides=[];let plain='',offset=0;
