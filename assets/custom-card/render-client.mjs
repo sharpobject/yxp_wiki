@@ -12,7 +12,7 @@ export function createRenderer(base,catalog){
  }
  function start(){
   if(!worker){
-   worker=new Worker(new URL('./render-worker.mjs?v=fcc3e22a089f41a8',import.meta.url),{type:'module'});
+   worker=new Worker(new URL('./render-worker.mjs?v=62adc1c2209c2653',import.meta.url),{type:'module'});
    worker.onmessage=({data})=>{
     const request=pending.get(data.id);if(!request)return;
     pending.delete(data.id);
@@ -25,7 +25,7 @@ export function createRenderer(base,catalog){
   return worker;
  }
  async function fallback(state,uploads,scale){
-  const {renderCard}=await import('./render.mjs?v=fcc3e22a089f41a8');
+  const {renderCard}=await import('./render.mjs?v=62adc1c2209c2653');
   const canvas=document.createElement('canvas'),result=await renderCard(canvas,state,catalog,base,uploads,scale);
   const blob=await new Promise(resolve=>canvas.toBlob(resolve,'image/png'));
   if(!blob)throw new Error('Preview image could not be encoded');
