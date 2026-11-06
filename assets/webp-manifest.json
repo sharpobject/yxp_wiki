@@ -10242,14 +10242,14 @@
       "webpBytes": 44240
     },
     "assets/cards/10437_en.png": {
-      "pngBytes": 188815,
-      "sha256": "3ffa827e87bd1717911e6911857533d2a9dcf7f03fdd4fb8022a8d50daf99ee9",
-      "webpBytes": 51974
+      "pngBytes": 188931,
+      "sha256": "749b08cb68ccfd615da37a69b39102a2d9dd129d400b32ec755b74542c59bd1f",
+      "webpBytes": 52014
     },
     "assets/cards/10437_zh.png": {
-      "pngBytes": 177183,
-      "sha256": "2afe35bf3fc4d0452628a18d9d3a92855eed2326e7003dd1ad9191aa63c3d978",
-      "webpBytes": 47604
+      "pngBytes": 177297,
+      "sha256": "65dbe0a847ac8df125c18d236dd02d4c9db30726ef9cb6127ffd13c101f39491",
+      "webpBytes": 47590
     },
     "assets/cards/10438_en.png": {
       "pngBytes": 232343,
@@ -15122,13 +15122,13 @@
       "webpBytes": 53436
     },
     "assets/cards/20437_en.png": {
-      "pngBytes": 204074,
-      "sha256": "dea143a70d94b1b1e83602833f8a4c98500a77cb2f26eb586185a617486e4320",
-      "webpBytes": 59452
+      "pngBytes": 203881,
+      "sha256": "968e05077dd0e2cf58885811e36ac33e5585f8c1729b1990251d20de886ac594",
+      "webpBytes": 59406
     },
     "assets/cards/20437_zh.png": {
-      "pngBytes": 195159,
-      "sha256": "4cddce777941480f1f99a4f49f22f760d89d64b75a67365b04b77de44f31b1a7",
+      "pngBytes": 194923,
+      "sha256": "362692bb80cc3646e32b8e6007dc16da4c2e7b53662cbd49af5678e5645985e5",
       "webpBytes": 58372
     },
     "assets/cards/20438_en.png": {
@@ -21472,14 +21472,14 @@
       "webpBytes": 39278
     },
     "assets/cards/437_en.png": {
-      "pngBytes": 176385,
-      "sha256": "bad79981b025924388e633f511878f7305f8b3bf7f65c164bda6912dd953de65",
-      "webpBytes": 47240
+      "pngBytes": 176456,
+      "sha256": "641d9ddf1ad331182ff206ce215b43dca6e063a0f09aad356698139e14f49c55",
+      "webpBytes": 47236
     },
     "assets/cards/437_zh.png": {
-      "pngBytes": 164932,
-      "sha256": "252c206910c20453e5e0dadd73cca38fd18fdb57348f4d45e58065235e29da82",
-      "webpBytes": 43166
+      "pngBytes": 165016,
+      "sha256": "5027bbf4ea8d2d55cb2633580a94912d03edcc67fdb703302f8163602e17eba3",
+      "webpBytes": 43172
     },
     "assets/cards/438_en.png": {
       "pngBytes": 219292,
@@ -32182,9 +32182,9 @@
       "webpBytes": 5256
     }
   },
-  "pngBytes": 1172438535,
+  "pngBytes": 1172438491,
   "pngFiles": 6436,
   "quality": 92,
   "version": 1,
-  "webpBytes": 307927654
+  "webpBytes": 307927636
 }
