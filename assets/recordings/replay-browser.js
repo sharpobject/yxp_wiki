@@ -144,7 +144,7 @@
     heavenlyDerivation: "天衍仙命", noneVisible: "暂无可见信息", cultivation: "修为", destiny: "命元", physique: "体魄", maxHp: "生命上限",
     exchangeChance: "换牌机会", currentView: "当前私密视角", previousView: "上一轮公开状态",
     deck: "卡组", previousDeck: "上一轮卡组", hand: "手牌", slots: "格", noDeck: "未记录到可见卡组。",
-    hiddenHand: "查看其他玩家时无法看到其手牌。", round: "第", roundSuffix: "轮",
+    hiddenHand: "此时未记录该玩家的手牌。", round: "第", roundSuffix: "轮",
     rerollsRemaining: "次刷新剩余", selectHdf: "选择天衍仙命",
     selectTalent: "选择仙命", selectDaoYun: "选择卡牌", noActions: "尚无玩家操作。",
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
@@ -159,7 +159,7 @@
     heavenlyDerivation: "Heavenly Derivation", noneVisible: "None visible", cultivation: "Cultivation", destiny: "Destiny", physique: "Physique", maxHp: "Max HP",
     exchangeChance: "Exchange Chance", currentView: "Current private view", previousView: "previous-round public state",
     deck: "Deck", previousDeck: "Previous-round deck", hand: "Hand", slots: "slots", noDeck: "No deck was visible.",
-    hiddenHand: "Private hand is not visible when browsing another player.", round: "Round ", roundSuffix: "",
+    hiddenHand: "This player’s private hand was not recorded at this point.", round: "Round ", roundSuffix: "",
     rerollsRemaining: "rerolls remaining", selectHdf: "Select a Heavenly Derivation Fate",
     selectTalent: "Select an Immortal Fate", selectDaoYun: "Select a Card", noActions: "No player action has occurred yet.",
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
@@ -206,7 +206,7 @@
   let states = [];
   let index = 0;
   let selectedUid = "";
-  let selectionFollowsPrivate = true;
+  let selectionFollowsTarget = true;
   let activeCatalogItem = null;
   let loadGeneration = 0;
 
@@ -608,10 +608,10 @@
     return `<span class="player-emote" aria-label="${esc(copy.actionKinds.emote)} ${esc(emojiId)}"><span>${esc(emojiId)}</span><img data-emote-art src="${emojiAsset(emojiId)}" alt=""></span>`;
   }
 
-  function playerPortrait(player, state, privateOwnerUid, emojiId = null) {
-    const own = state.players[privateOwnerUid];
+  function playerPortrait(player, state, targetUid, emojiId = null) {
+    const own = state.players[targetUid];
     const upcoming = own?.nextOpponent === player.uid;
-    return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.uid === privateOwnerUid ? "own" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
+    return `<button class="player-portrait ${selectedUid === player.uid ? "selected" : ""} ${player.uid === targetUid ? "own" : ""} ${player.settled ? "settled" : ""}" data-uid="${esc(player.uid)}" data-rating="${esc(player.rating ?? 0)}" title="${esc(copy.inspect)}: ${esc(player.username)}">
       <span class="avatar-wrap"><img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" class="avatar ${Number(player.skinNumber) > 0 ? "costume" : ""}" src="${characterAsset(player, "avatar")}" alt=""><span class="life-gem"><span>${esc(player.life)}</span></span>${upcoming ? `<span class="opponent-badge" title="${esc(copy.upcomingOpponent)}">⚔</span>` : ""}</span>
       <span class="name">${esc(player.username)}</span><span class="character-name">${esc(characterName(player))}</span>
       ${emoteMarkup(emojiId)}
@@ -1068,12 +1068,15 @@
     if (!state) return;
     const battle = recording.steps[index]?.battle;
     const privatePlayer = state.privatePlayer;
-    const privateOwnerUid = privatePlayer?.uid || recording.targetUid;
+    // Observer snapshots can belong to another player before capture starts or
+    // after elimination. They never change which player this recording follows.
+    const privateOwnerUid = privatePlayer?.uid || "";
+    const targetUid = recording.targetUid;
     const players = Object.values(state.players ?? {}).sort((first, second) =>
       (Number(first.rank) || 0) - (Number(second.rank) || 0));
-    if (selectionFollowsPrivate || !selectedUid || !state.players[selectedUid]) {
-      selectedUid = state.players[privateOwnerUid] ? privateOwnerUid : players[0]?.uid || "";
-      selectionFollowsPrivate = true;
+    if (selectionFollowsTarget || !selectedUid || !state.players[selectedUid]) {
+      selectedUid = state.players[targetUid] ? targetUid : players[0]?.uid || "";
+      selectionFollowsTarget = true;
     }
     const selected = state.players[selectedUid] ?? players[0];
     const isOwn = selected?.uid === privateOwnerUid;
@@ -1089,7 +1092,7 @@
     const emotes = new Map((recording.steps[index]?.humanActions ?? [])
       .filter((action) => action.kind === "emote" && action.emojiId != null)
       .map((action) => [action.actorUid, action.emojiId]));
-    $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state, privateOwnerUid, emotes.get(player.uid))).join("");
+    $("#player-roster").innerHTML = players.map((player) => playerPortrait(player, state, targetUid, emotes.get(player.uid))).join("");
     $("#round-marker").textContent = `${copy.round}${battle?.round || state.round || "—"}${copy.roundSuffix}`;
     $("#view-caption").textContent = battle
       ? `${selected?.username || recording.targetUsername} · ${copy.battleResult}`
@@ -1133,10 +1136,11 @@
     previous.disabled = index === 0;
     next.disabled = index === recording.steps.length - 1;
     $("#step-label").textContent = `${index + 1} / ${recording.steps.length}`;
-    $("#recording-meta").textContent = recording.targetUsername;
+    $("#recording-meta").textContent = state.players[targetUid]?.username
+      || activeCatalogItem?.targetUsername || recording.targetUsername;
     document.querySelectorAll(".player-portrait").forEach((button) => button.addEventListener("click", () => {
       selectedUid = button.dataset.uid;
-      selectionFollowsPrivate = selectedUid === privateOwnerUid;
+      selectionFollowsTarget = selectedUid === targetUid;
       render();
     }));
     if (matchMedia("(max-width: 760px)").matches) {
@@ -1276,7 +1280,7 @@
     index = requestedStepIndex == null ? Math.max(0, firstRecordedIndex) : requestedStepIndex;
     index = Math.max(0, Math.min(data.steps.length - 1, index));
     selectedUid = data.targetUid;
-    selectionFollowsPrivate = true;
+    selectionFollowsTarget = true;
     timeline.max = data.steps.length - 1;
     timeline.disabled = roundSelect.disabled = false;
     const firstByRound = new Map();
