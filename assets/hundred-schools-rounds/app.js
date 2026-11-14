@@ -117,13 +117,6 @@
     const storageKey = 'hundred-schools-rounds-v1';
     let round = rounds[0] ?? 1;
 
-    for (const sect of [...new Set(data.characters.map(item => item.sect))].sort((a, b) => a - b)) {
-      const group = document.createElement('optgroup');
-      group.label = data.sectNames?.[sect] || text.allSects;
-      for (const item of data.characters.filter(item => item.sect === sect)) group.append(new window.Option(item.name, item.id));
-      character.append(group);
-    }
-    for (const job of data.sideJobs) sideJob.append(new window.Option(job.name, job.id));
     const fatesFor = (pool, selectedRound = round) => filteredFates(data, pool, +character.value, +sideJob.value, selectedRound);
     const sourceLink = id => data.sourceUrl + '#' + encodeURIComponent(id);
     const iconHTML = fate => `<span class="fate-icon">${fate.artworkHtml || ''}</span>`;
