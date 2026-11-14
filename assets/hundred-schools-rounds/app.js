@@ -150,9 +150,6 @@
       legend.innerHTML = [...styles].map(([id, index]) => `<span><i class="legend-swatch skip-style-${index}${index === 1 ? ' skip-two' : ''}" data-skip-style="${index}" aria-hidden="true"></i>${text.skip} → ${escapeHTML(poolsById.get(id).name)}</span>`).join('') +
         `<span><i class="last-offer-label" aria-hidden="true">${text.last}</i>${text.lastLegend}</span>`;
     }
-    function endingFates(pool, selectedRound) {
-      return fatesFor(pool, selectedRound).filter(fate => earlyLastRound(fate, pool, maximum) === selectedRound);
-    }
     function updateLanguageLink() {
       const link = byId('rounds-language-switch');
       if (link) link.href = languageUrl(link.href, window.location.href, {character: character.value, job: sideJob.value, round});
@@ -184,10 +181,14 @@
       const rows = rounds.map(selectedRound => {
         const cells = lanes.map((lane, laneIndex) => {
           const pool = lane.find(pool => selectedRound >= pool.minRound && selectedRound <= pool.maxRound);
-          if (!pool || !fatesFor(pool, selectedRound).length) return `<td class="lane-cell"><span class="matrix-empty" aria-label="${text.noPool}">—</span></td>`;
+          const available = pool ? fatesFor(pool, selectedRound) : [];
+          if (!available.length) return `<td class="lane-cell"><span class="matrix-empty" aria-label="${text.noPool}">—</span></td>`;
           const first = rounds.find(value => value >= pool.minRound && value <= pool.maxRound) === selectedRound;
           const last = rounds.filter(value => value >= pool.minRound && value <= pool.maxRound).at(-1) === selectedRound;
-          const endings = endingFates(pool, selectedRound), fate = endings[0] || fatesFor(pool, selectedRound)[0];
+          const endings = available.filter(fate => earlyLastRound(fate, pool, maximum) === selectedRound);
+          const regular = available.find(fate => (fate.minRound ?? pool.minRound) <= pool.minRound &&
+            (fate.maxRound ?? pool.maxRound) >= pool.maxRound);
+          const fate = endings[0] || regular || available.find(fate => earlyLastRound(fate, pool, maximum) == null) || available[0];
           const label = `${text.round} ${selectedRound} · ${pool.name} · ${pool.theme} · ${text.example}: ${fate.name}${skipLabel(pool)}${endings.length ? ' · ' + text.lastOffer + ': ' + endings.map(item => item.name).join(', ') : ''}`;
           const marker = endings.length ? `<span class="last-offer-label">${text.last}${endings.length > 1 ? ' ×' + endings.length : ''}</span>` : '';
           return `<td class="lane-cell active${styleClass(pool)}${first ? ' pool-start' : ''}${last ? ' pool-end' : ''}"${styleData(pool)}><button type="button" class="matrix-pool${endings.length ? ' has-cutoff' : ''}" data-pool="${escapeHTML(pool.id)}" data-lane="${laneIndex}" data-select-round="${selectedRound}" data-fate="${escapeHTML(fate.id)}" data-skip-target="${escapeHTML(pool.skipTarget || '')}"${previewAttributes(pool)} aria-label="${escapeHTML(label)}">${iconHTML(fate)}${marker}</button></td>`;
