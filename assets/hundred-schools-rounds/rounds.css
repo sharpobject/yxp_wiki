@@ -46,7 +46,7 @@
 .hundred-schools-rounds .skip-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); }
 .hundred-schools-rounds .skip-section .pool-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
 .hundred-schools-rounds .skip-section .fate-list { grid-template-columns: repeat(3,minmax(0,1fr)); }
-.hundred-schools-rounds #overview { margin-top: 38px; padding-top: 26px; border-top: 1px solid var(--line); }
+.hundred-schools-rounds #overview { margin-top: 20px; padding-top: 0; }
 .hundred-schools-rounds .footnote { font-size: 13px; color: var(--muted); }
 .hundred-schools-rounds .pool-card:is(:target,.highlight) { outline: 2px solid var(--accent); outline-offset: 3px; }
 .hundred-schools-rounds .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
@@ -110,4 +110,18 @@
   .hundred-schools-rounds #round-buttons { width: 100%; }
   .hundred-schools-rounds .round-button { min-width: 40px; min-height: 42px; }
   .hundred-schools-rounds .opening-grid { grid-template-columns: minmax(0,1fr); }
+}
+
+/* Native top-layer popover keeps previews clear of the scrolling timeline. */
+.hundred-schools-rounds .pool-preview { position: fixed; inset: auto; margin: 0; padding: 0; width: min(440px,calc(100vw - 24px)); max-height: min(560px,calc(100dvh - 24px)); overflow: auto; overscroll-behavior: contain; border: 1px solid #8b7b54; border-radius: 10px; background: var(--surface-2); color: var(--ink); box-shadow: 0 12px 40px #0009; }
+.hundred-schools-rounds .preview-toolbar { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 10px 8px 15px; border-bottom: 1px solid var(--line); background: var(--panel); font-size: 13px; color: var(--muted); }
+.hundred-schools-rounds #close-pool-preview { display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 5px; color: var(--ink); background: var(--surface); font-size: 22px; line-height: 1; }
+.hundred-schools-rounds #close-pool-preview:hover { border-color: var(--accent); }
+.hundred-schools-rounds .pool-preview .pool-card { border: 0; border-radius: 0; overflow: visible; }
+.hundred-schools-rounds .pool-preview .pool-head { padding: 12px 15px; }
+.hundred-schools-rounds .pool-preview .pool-head h3 { font-size: 16px; }
+.hundred-schools-rounds .pool-preview .fate-list { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.hundred-schools-rounds [aria-expanded="true"][data-pool] { outline: 2px solid var(--accent); outline-offset: -2px; }
+@media(max-width:720px) {
+  .hundred-schools-rounds .pool-preview { width: calc(100vw - 24px); max-height: min(560px,calc(100dvh - 24px)); }
 }

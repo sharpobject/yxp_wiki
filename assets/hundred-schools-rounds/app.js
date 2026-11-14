@@ -103,6 +103,22 @@
     target.searchParams.set('round', state.round);
     return target.href;
   }
+  function poolMarkup(data, pool, characterId, jobId, selectedRound, maximum, preview = false) {
+    const text = words[data.lang] || words.en;
+    const eligibleFates = filteredFates(data, pool, characterId, jobId, selectedRound);
+    const hasDeadline = fate => earlyLastRound(fate, pool, maximum) != null;
+    const fates = [...eligibleFates.filter(fate => !hasDeadline(fate)), ...eligibleFates.filter(hasDeadline)];
+    const target = data.pools.find(item => item.id === pool.skipTarget);
+    const link = id => escapeHTML(data.sourceUrl + '#' + encodeURIComponent(id));
+    const items = fates.map(fate => {
+      const conditions = fate.conditions || [];
+      const condition = conditions.length ? `<span class="condition-mark" aria-label="${escapeHTML(text.additional + ': ' + conditions.join('; '))}">◇</span>` : '';
+      const last = earlyLastRound(fate, pool, maximum);
+      const deadline = last == null ? '' : `<span class="fate-deadline${selectedRound === last ? ' last-now' : ''}">${text.lastOffer}: R${last}</span>`;
+      return `<li><a class="fate" data-fate="${escapeHTML(fate.id)}" href="${link(fate.id)}" title="${escapeHTML(fate.name + (conditions.length ? ' — ' + conditions.join('; ') : ''))}"><span class="fate-icon">${fate.artworkHtml || ''}</span><span>${escapeHTML(fate.name)}${condition}${deadline}</span></a></li>`;
+    }).join('');
+    return `<article class="pool-card" id="${preview ? 'preview-' : ''}${escapeHTML(pool.id)}"><div class="pool-head"><h3><a href="${link(pool.id)}">${escapeHTML(pool.name)}</a></h3><span class="pool-total" title="${text.potential}">${fates.length}</span><p class="pool-theme">${escapeHTML(pool.theme)}</p></div><ul class="fate-list">${items}</ul>${target ? `<button type="button" class="pool-skip" data-skip="${escapeHTML(target.id)}">${text.skip} → ${escapeHTML(target.name)} <span aria-hidden="true">↗</span></button>` : ''}</article>`;
+  }
 
   function mount(document, window, data) {
     const byId = id => document.getElementById(id);
@@ -114,12 +130,15 @@
     const styles = skipStyles(data);
     const openingPools = data.pools.filter(openingOnly);
     const lanes = buildPoolLanes(data.pools.filter(pool => !openingOnly(pool)));
+    const overview = byId('overview'), preview = byId('pool-preview'), previewContent = byId('pool-preview-content');
     const storageKey = 'hundred-schools-rounds-v1';
     let round = rounds[0] ?? 1;
+    let previewState = null, closeTimer = null, ignoredFocusTrigger = null;
 
     const fatesFor = (pool, selectedRound = round) => filteredFates(data, pool, +character.value, +sideJob.value, selectedRound);
-    const sourceLink = id => data.sourceUrl + '#' + encodeURIComponent(id);
     const iconHTML = fate => `<span class="fate-icon">${fate.artworkHtml || ''}</span>`;
+    const poolHTML = (pool, selectedRound = round, isPreview = false) => poolMarkup(data, pool, +character.value, +sideJob.value, selectedRound, maximum, isPreview);
+    const previewAttributes = pool => pool.special ? ' aria-controls="skip-pools"' : ' aria-haspopup="dialog" aria-controls="pool-preview" aria-expanded="false"';
     const styleClass = pool => styles.has(pool.skipTarget) ? ` skip-style-${styles.get(pool.skipTarget)}${styles.get(pool.skipTarget) === 1 ? ' skip-two' : ''}` : '';
     const styleData = pool => styles.has(pool.skipTarget) ? ` data-skip-style="${styles.get(pool.skipTarget)}"` : '';
     const skipLabel = pool => {
@@ -133,17 +152,6 @@
     }
     function endingFates(pool, selectedRound) {
       return fatesFor(pool, selectedRound).filter(fate => earlyLastRound(fate, pool, maximum) === selectedRound);
-    }
-    function fateHTML(fate, pool) {
-      const conditions = fate.conditions || [];
-      const condition = conditions.length ? `<span class="condition-mark" aria-label="${escapeHTML(text.additional + ': ' + conditions.join('; '))}">◇</span>` : '';
-      const last = earlyLastRound(fate, pool, maximum);
-      const deadline = last == null ? '' : `<span class="fate-deadline${round === last ? ' last-now' : ''}">${text.lastOffer}: R${last}</span>`;
-      return `<li><a class="fate" data-fate="${escapeHTML(fate.id)}" href="${escapeHTML(sourceLink(fate.id))}" title="${escapeHTML(fate.name + (conditions.length ? ' — ' + conditions.join('; ') : ''))}">${iconHTML(fate)}<span>${escapeHTML(fate.name)}${condition}${deadline}</span></a></li>`;
-    }
-    function poolHTML(pool) {
-      const fates = fatesFor(pool), target = poolsById.get(pool.skipTarget);
-      return `<article class="pool-card" id="${escapeHTML(pool.id)}"><div class="pool-head"><h3><a href="${escapeHTML(sourceLink(pool.id))}">${escapeHTML(pool.name)}</a></h3><span class="pool-total" title="${text.potential}">${fates.length}</span><p class="pool-theme">${escapeHTML(pool.theme)}</p></div><ul class="fate-list">${fates.map(fate => fateHTML(fate, pool)).join('')}</ul>${target ? `<button class="pool-skip" data-skip="${escapeHTML(target.id)}">${text.skip} → ${escapeHTML(target.name)} <span aria-hidden="true">↗</span></button>` : ''}</article>`;
     }
     function updateLanguageLink() {
       const link = byId('rounds-language-switch');
@@ -165,8 +173,8 @@
       byId('round-title').textContent = text.round + ' ' + String(round).padStart(2, '0');
       byId('profile').textContent = (character.selectedOptions[0]?.text || '') + ' / ' + (sideJob.selectedOptions[0]?.text || '');
       byId('round-count').textContent = pools.length + ' ' + text.encounterPools + ' · ' + pools.reduce((sum, pool) => sum + fatesFor(pool).length, 0) + ' ' + text.potentialFates;
-      byId('encounter-pools').innerHTML = pools.map(poolHTML).join('');
-      byId('skip-pools').innerHTML = special.map(poolHTML).join('');
+      byId('skip-pools').innerHTML = special.map(pool => poolHTML(pool)).join('');
+      byId('skip-round').textContent = text.round + ' ' + String(round).padStart(2, '0');
       if (byId('skip-section')) byId('skip-section').hidden = !special.length;
       document.querySelectorAll('.round-button').forEach(button => button.setAttribute('aria-current', String(+button.dataset.round === round)));
       document.querySelectorAll('.overview-row').forEach(row => row.classList.toggle('current', +row.dataset.round === round));
@@ -182,7 +190,7 @@
           const endings = endingFates(pool, selectedRound), fate = endings[0] || fatesFor(pool, selectedRound)[0];
           const label = `${text.round} ${selectedRound} · ${pool.name} · ${pool.theme} · ${text.example}: ${fate.name}${skipLabel(pool)}${endings.length ? ' · ' + text.lastOffer + ': ' + endings.map(item => item.name).join(', ') : ''}`;
           const marker = endings.length ? `<span class="last-offer-label">${text.last}${endings.length > 1 ? ' ×' + endings.length : ''}</span>` : '';
-          return `<td class="lane-cell active${styleClass(pool)}${first ? ' pool-start' : ''}${last ? ' pool-end' : ''}"${styleData(pool)}><button class="matrix-pool${endings.length ? ' has-cutoff' : ''}" data-pool="${escapeHTML(pool.id)}" data-lane="${laneIndex}" data-select-round="${selectedRound}" data-fate="${escapeHTML(fate.id)}" data-skip-target="${escapeHTML(pool.skipTarget || '')}" title="${escapeHTML(label)}" aria-label="${escapeHTML(label)}">${iconHTML(fate)}${marker}</button></td>`;
+          return `<td class="lane-cell active${styleClass(pool)}${first ? ' pool-start' : ''}${last ? ' pool-end' : ''}"${styleData(pool)}><button type="button" class="matrix-pool${endings.length ? ' has-cutoff' : ''}" data-pool="${escapeHTML(pool.id)}" data-lane="${laneIndex}" data-select-round="${selectedRound}" data-fate="${escapeHTML(fate.id)}" data-skip-target="${escapeHTML(pool.skipTarget || '')}"${previewAttributes(pool)} aria-label="${escapeHTML(label)}">${iconHTML(fate)}${marker}</button></td>`;
         }).join('');
         return `<tr class="overview-row" data-round="${selectedRound}"><th scope="row"><button class="overview-round" data-select-round="${selectedRound}" aria-label="${text.showRound} ${selectedRound}">${String(selectedRound).padStart(2, '0')}</button></th>${cells}</tr>`;
       }).join('');
@@ -192,19 +200,21 @@
       byId('round-one-pools').innerHTML = opening.map(pool => {
         const fate = fatesFor(pool, 1)[0];
         const label = `${text.opening} · ${pool.name} · ${pool.theme} · ${text.example}: ${fate.name}${skipLabel(pool)}`;
-        return `<button class="opening-pool${styleClass(pool)}"${styleData(pool)} data-pool="${escapeHTML(pool.id)}" data-select-round="1" data-fate="${escapeHTML(fate.id)}" data-skip-target="${escapeHTML(pool.skipTarget || '')}" title="${escapeHTML(label)}"><span class="opening-label"><strong>${escapeHTML(pool.name)}</strong><small>${escapeHTML(pool.theme)}</small></span>${iconHTML(fate)}</button>`;
+        return `<button type="button" class="opening-pool${styleClass(pool)}"${styleData(pool)} data-pool="${escapeHTML(pool.id)}" data-select-round="1" data-fate="${escapeHTML(fate.id)}" data-skip-target="${escapeHTML(pool.skipTarget || '')}"${previewAttributes(pool)} aria-label="${escapeHTML(label)}"><span class="opening-label"><strong>${escapeHTML(pool.name)}</strong><small>${escapeHTML(pool.theme)}</small></span>${iconHTML(fate)}</button>`;
       }).join('');
       const cutoffs = cutoffFates(data, +character.value, +sideJob.value, rounds);
       byId('fate-cutoffs').hidden = !cutoffs.length;
-      byId('cutoff-list').innerHTML = cutoffs.map(({pool, fate, last}) => `<button class="cutoff-item" data-pool="${escapeHTML(pool.id)}" data-select-round="${last}" data-fate="${escapeHTML(fate.id)}" title="${escapeHTML(pool.name)}">${iconHTML(fate)}<span><strong>${escapeHTML(fate.name)}</strong><small>${escapeHTML(pool.name)}</small></span><span class="cutoff-round">${text.last}<br><b>R${last}</b></span></button>`).join('');
+      byId('cutoff-list').innerHTML = cutoffs.map(({pool, fate, last}) => `<button type="button" class="cutoff-item" data-pool="${escapeHTML(pool.id)}" data-select-round="${last}" data-fate="${escapeHTML(fate.id)}"${previewAttributes(pool)} aria-label="${escapeHTML(`${text.round} ${last} · ${pool.name} · ${fate.name}`)}">${iconHTML(fate)}<span><strong>${escapeHTML(fate.name)}</strong><small>${escapeHTML(pool.name)}</small></span><span class="cutoff-round">${text.last}<br><b>R${last}</b></span></button>`).join('');
     }
     function refresh() {
+      closePreview();
       const profile = normalizedProfile(data, character.value, sideJob.value);
       character.value = profile.character; sideJob.value = profile.job;
       byId('results').hidden = false;
       renderOverview(); renderDetail(); save();
     }
-    function revealPool(id, fateId) {
+    function revealSuanni(id, fateId) {
+      if (!poolsById.get(id)?.special) return;
       const card = byId(id); if (!card) return;
       document.querySelectorAll('.highlight').forEach(element => element.classList.remove('highlight'));
       card.classList.add('highlight'); card.scrollIntoView({block: 'start'});
@@ -212,18 +222,140 @@
       if (fate) { fate.classList.add('deadline-focus'); fate.scrollIntoView({block: 'nearest'}); fate.focus({preventScroll: true}); }
       else card.querySelector('h3 a')?.focus({preventScroll: true});
     }
+    function cancelClose() {
+      if (closeTimer !== null) window.clearTimeout(closeTimer);
+      closeTimer = null;
+    }
+    function clearPreviewState() {
+      cancelClose();
+      if (previewState) {
+        ignoredFocusTrigger = previewState.trigger;
+        previewState.trigger.setAttribute('aria-expanded', 'false');
+      }
+      previewState = null;
+    }
+    function closePreview(restoreFocus = false) {
+      const trigger = previewState?.trigger;
+      clearPreviewState();
+      if (preview.matches(':popover-open')) preview.hidePopover();
+      if (restoreFocus && trigger) trigger.focus({preventScroll: true});
+    }
+    function scheduleClose() {
+      cancelClose();
+      closeTimer = window.setTimeout(() => {
+        closeTimer = null;
+        if (!previewState || previewState.pinned || preview.matches(':hover') || previewState.trigger.matches(':hover') ||
+            preview.contains(document.activeElement) || document.activeElement === previewState.trigger) return;
+        closePreview();
+      }, 180);
+    }
+    function positionPreview() {
+      if (!previewState || !preview.matches(':popover-open')) return;
+      const anchor = previewState.trigger.getBoundingClientRect(), box = preview.getBoundingClientRect();
+      const gap = 6, margin = 12, width = window.innerWidth, height = window.innerHeight;
+      let left, top;
+      if (anchor.right + gap + box.width <= width - margin) {
+        left = anchor.right + gap; top = anchor.top;
+      } else if (anchor.left - gap - box.width >= margin) {
+        left = anchor.left - gap - box.width; top = anchor.top;
+      } else {
+        left = anchor.left;
+        top = anchor.bottom + gap + box.height <= height - margin ? anchor.bottom + gap : anchor.top - gap - box.height;
+      }
+      preview.style.left = Math.max(margin, Math.min(left, width - box.width - margin)) + 'px';
+      preview.style.top = Math.max(margin, Math.min(top, height - box.height - margin)) + 'px';
+    }
+    function showPreview(trigger, pinned = false) {
+      const pool = poolsById.get(trigger.dataset.pool);
+      if (!pool || pool.special || (previewState?.pinned && !pinned && previewState.trigger !== trigger)) return;
+      cancelClose();
+      if (previewState?.trigger === trigger) {
+        previewState.pinned ||= pinned;
+        return;
+      }
+      if (previewState) previewState.trigger.setAttribute('aria-expanded', 'false');
+      const selectedRound = normalizeRound(trigger.dataset.selectRound, rounds);
+      previewState = {trigger, pool, round: selectedRound, pinned};
+      byId('pool-preview-title').textContent = `${text.round} ${selectedRound} · ${pool.name}`;
+      previewContent.innerHTML = poolHTML(pool, selectedRound, true);
+      preview.scrollTop = 0;
+      trigger.setAttribute('aria-expanded', 'true');
+      if (!preview.matches(':popover-open')) preview.showPopover();
+      positionPreview();
+    }
+    function selectRound(value) {
+      closePreview();
+      round = normalizeRound(value, rounds); renderDetail(); save();
+    }
+    const triggerFor = target => target?.closest?.('button[data-pool][data-select-round]');
+    overview.addEventListener('pointerout', event => {
+      const trigger = triggerFor(event.target);
+      if (trigger && !trigger.contains(event.relatedTarget) && !preview.contains(event.relatedTarget)) scheduleClose();
+    });
+    overview.addEventListener('focusin', event => {
+      const trigger = triggerFor(event.target);
+      if (trigger && trigger !== ignoredFocusTrigger) showPreview(trigger);
+    });
+    document.addEventListener('pointermove', event => {
+      if (event.pointerType === 'touch' || !(event.movementX || event.movementY)) return;
+      ignoredFocusTrigger = null;
+      const trigger = triggerFor(event.target);
+      if (trigger && overview.contains(trigger)) showPreview(trigger);
+    });
+    overview.addEventListener('focusout', event => {
+      const trigger = triggerFor(event.target);
+      if (trigger && trigger === ignoredFocusTrigger && !trigger.contains(event.relatedTarget)) ignoredFocusTrigger = null;
+      if (!preview.contains(event.relatedTarget)) scheduleClose();
+    });
+    overview.addEventListener('keydown', event => {
+      if (event.key !== 'Tab' || event.shiftKey || !previewState || triggerFor(event.target) !== previewState.trigger) return;
+      event.preventDefault();
+      previewState.pinned = true;
+      (previewContent.querySelector('a[href]') || byId('close-pool-preview')).focus({preventScroll: true});
+    });
+    preview.addEventListener('pointerenter', cancelClose);
+    preview.addEventListener('pointerleave', scheduleClose);
+    preview.addEventListener('focusin', cancelClose);
+    preview.addEventListener('focusout', event => {
+      if (!preview.contains(event.relatedTarget)) scheduleClose();
+    });
+    preview.addEventListener('beforetoggle', event => {
+      if (event.newState === 'closed') clearPreviewState();
+    });
+    preview.addEventListener('click', event => {
+      const skip = event.target.closest('[data-skip]');
+      if (!skip || !previewState) return;
+      const selectedRound = previewState.round;
+      selectRound(selectedRound); revealSuanni(skip.dataset.skip);
+    });
+    byId('close-pool-preview').addEventListener('click', () => closePreview(true));
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && previewState) { event.preventDefault(); closePreview(true); }
+    }, true);
+    window.addEventListener('resize', () => closePreview());
+    document.addEventListener('scroll', event => {
+      if (!previewState || preview.contains(event.target)) return;
+      const trigger = previewState.trigger, anchor = trigger.getBoundingClientRect();
+      const scroller = trigger.closest('.matrix-scroll');
+      const clip = scroller?.getBoundingClientRect();
+      const left = Math.max(0, clip?.left ?? 0), top = Math.max(0, clip?.top ?? 0);
+      const right = Math.min(window.innerWidth, clip?.right ?? window.innerWidth);
+      const bottom = Math.min(window.innerHeight, clip?.bottom ?? window.innerHeight);
+      if (anchor.right <= left || anchor.left >= right || anchor.bottom <= top || anchor.top >= bottom) closePreview();
+      else positionPreview();
+    }, true);
     byId('round-buttons').innerHTML = rounds.map(value => `<button class="round-button" data-round="${value}" aria-label="${text.round} ${value}">${String(value).padStart(2, '0')}</button>`).join('');
     byId('round-buttons').addEventListener('click', event => {
       const button = event.target.closest('[data-round]'); if (!button) return;
-      round = normalizeRound(button.dataset.round, rounds); renderDetail(); save();
+      selectRound(button.dataset.round);
     });
-    byId('round-detail').addEventListener('click', event => {
-      const skip = event.target.closest('[data-skip]'); if (skip) revealPool(skip.dataset.skip);
-    });
-    byId('overview').addEventListener('click', event => {
+    overview.addEventListener('click', event => {
       const button = event.target.closest('[data-select-round]'); if (!button) return;
-      round = normalizeRound(button.dataset.selectRound, rounds); renderDetail(); save();
-      if (button.dataset.pool) revealPool(button.dataset.pool, button.dataset.fate);
+      selectRound(button.dataset.selectRound);
+      if (button.dataset.pool) {
+        if (poolsById.get(button.dataset.pool)?.special) revealSuanni(button.dataset.pool, button.dataset.fate);
+        else showPreview(button, true);
+      }
       else { byId('round-detail').scrollIntoView(); document.querySelector(`.round-button[data-round="${round}"]`)?.focus({preventScroll: true}); }
     });
     [character, sideJob].forEach(element => element.addEventListener('change', refresh));
@@ -234,7 +366,7 @@
     refresh();
     return {refresh, renderDetail, renderOverview, getRound: () => round, getLanes: () => lanes};
   }
-  const api = {selectableRounds, normalizeRound, eligible, filteredFates, encounterPools, skipPools, earlyLastRound, cutoffFates, skipStyles, initialState, languageUrl, mount};
+  const api = {selectableRounds, normalizeRound, eligible, filteredFates, encounterPools, skipPools, earlyLastRound, cutoffFates, skipStyles, initialState, languageUrl, poolMarkup, mount};
   global.HundredSchoolsRounds = api;
   if (typeof document !== 'undefined' && document.getElementById('fate-data')) {
     mount(document, global, JSON.parse(document.getElementById('fate-data').textContent));
