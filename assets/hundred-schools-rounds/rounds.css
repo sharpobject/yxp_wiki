@@ -1,0 +1,113 @@
+/* The round browser inherits the gallery palette, typography and navigation. */
+.hundred-schools-rounds { --round-lane: #354b3b; --round-lane-alt: #1b3028; --round-gap: var(--surface); }
+.hundred-schools-rounds :is(button,select) { font: inherit; }
+.hundred-schools-rounds button { cursor: pointer; }
+.hundred-schools-rounds :is(button,a,select):focus-visible { outline: 2px solid var(--link); outline-offset: 3px; }
+.hundred-schools-rounds .hero { display: flex; align-items: end; justify-content: space-between; gap: 20px; padding-bottom: 20px; border-bottom: 1px solid var(--line); margin-bottom: 20px; }
+.hundred-schools-rounds .hero h1 { font-size: 32px; line-height: 1.15; }
+.hundred-schools-rounds .hero p { margin: 5px 0 0; color: var(--muted); }
+.hundred-schools-rounds .source-link { display: inline-flex; padding: 8px 12px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-2); font-size: 14px; white-space: nowrap; }
+.hundred-schools-rounds .eyebrow { margin: 0 0 6px; color: var(--muted); font-size: 12px; font-weight: 700; line-height: 1.5; }
+.hundred-schools-rounds .filters { display: flex; flex-wrap: wrap; align-items: end; gap: 14px; padding: 16px; margin: 20px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); }
+.hundred-schools-rounds .filters label { display: grid; gap: 6px; flex: 1; min-width: 180px; font-size: 13px; font-weight: 650; }
+.hundred-schools-rounds select { width: 100%; max-width: 100%; padding: 10px 12px; background: var(--surface); color: var(--ink); border: 1px solid #626a55; border-radius: 6px; }
+.hundred-schools-rounds .text-button { padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); color: var(--link); }
+.hundred-schools-rounds .text-button:hover { border-color: var(--accent); }
+.hundred-schools-rounds .welcome { padding: 40px 16px 48px; text-align: center; border: 1px dashed var(--line); border-radius: 10px; }
+.hundred-schools-rounds .welcome h2 { margin: 0 0 12px; }
+.hundred-schools-rounds .welcome p { margin: 0; color: var(--muted); }
+.hundred-schools-rounds .round-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.hundred-schools-rounds .round-nav > .eyebrow { margin: 0; }
+.hundred-schools-rounds #round-buttons { display: flex; flex-wrap: wrap; gap: 5px; }
+.hundred-schools-rounds .round-button { min-width: 37px; min-height: 38px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: var(--surface-2); font-size: 14px; font-variant-numeric: tabular-nums; }
+.hundred-schools-rounds .round-button:hover { border-color: var(--accent); }
+.hundred-schools-rounds .round-button[aria-current=true] { color: #fff6dd; background: #6e5430; border-color: var(--accent); }
+.hundred-schools-rounds .overview-link { margin-left: auto; font-size: 13px; }
+.hundred-schools-rounds .section-heading { display: flex; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 12px; }
+.hundred-schools-rounds .section-heading :is(h2,h3) { margin: 0; }
+.hundred-schools-rounds .section-heading > p { margin: 0; font-size: 13px; color: var(--muted); }
+.hundred-schools-rounds .availability-note { max-width: 900px; margin: 0 0 20px; font-size: 13px; color: var(--muted); }
+.hundred-schools-rounds .condition-example { color: var(--link); }
+.hundred-schools-rounds .pool-tools { margin: 0 0 12px; font-size: 14px; font-weight: 700; }
+.hundred-schools-rounds .pool-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; align-items: start; }
+.hundred-schools-rounds .pool-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); scroll-margin-top: 105px; }
+.hundred-schools-rounds .pool-head { position: relative; padding: 15px; border-bottom: 1px solid var(--line); }
+.hundred-schools-rounds .pool-head h3 { margin: 0 32px 6px 0; font-size: 16px; line-height: 1.4; }
+.hundred-schools-rounds .pool-theme { margin: 0; font-size: 12px; color: var(--muted); }
+.hundred-schools-rounds .pool-total { position: absolute; top: 15px; right: 12px; padding: 3px 6px; border-radius: 5px; background: var(--surface); color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.hundred-schools-rounds .fate-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; list-style: none; padding: 10px; margin: 0; }
+.hundred-schools-rounds .fate-list li { min-width: 0; }
+.hundred-schools-rounds .fate { display: flex; align-items: center; gap: 7px; min-height: 48px; padding: 5px 3px; border-radius: 5px; color: var(--ink); font-size: 12px; line-height: 1.35; overflow-wrap: anywhere; text-decoration: none; }
+.hundred-schools-rounds .fate:hover { background: rgba(199,155,77,.1); color: var(--link); }
+.hundred-schools-rounds .hdf-art { flex: 0 0 auto; width: 36px; height: 36px; }
+.hundred-schools-rounds .condition-mark { margin-left: 4px; color: var(--link); }
+.hundred-schools-rounds .pool-skip { width: 100%; padding: 10px 14px; text-align: left; border: 0; border-top: 1px solid var(--line); background: var(--surface); color: var(--link); font-size: 12px; line-height: 1.5; }
+.hundred-schools-rounds .pool-skip:hover { background: #26352b; }
+.hundred-schools-rounds .skip-section { margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--line); }
+.hundred-schools-rounds .skip-section .pool-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+.hundred-schools-rounds .skip-section .fate-list { grid-template-columns: repeat(3,minmax(0,1fr)); }
+.hundred-schools-rounds #overview { margin-top: 38px; padding-top: 26px; border-top: 1px solid var(--line); }
+.hundred-schools-rounds .footnote { font-size: 13px; color: var(--muted); }
+.hundred-schools-rounds .pool-card:is(:target,.highlight) { outline: 2px solid var(--accent); outline-offset: 3px; }
+.hundred-schools-rounds .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.hundred-schools-rounds .matrix-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin: 20px 0 16px; color: var(--muted); font-size: 12px; }
+.hundred-schools-rounds .matrix-legend > span { display: flex; align-items: center; gap: 7px; }
+.hundred-schools-rounds .legend-swatch { display: inline-block; width: 22px; height: 22px; background: var(--round-lane); border: 1px solid #718166; border-radius: 4px; }
+.hundred-schools-rounds .legend-swatch.skip-two { background: var(--round-lane-alt); border-color: #547260; }
+.hundred-schools-rounds .matrix-scroll { position: relative; overflow: auto; isolation: isolate; border: 1px solid var(--line); border-radius: 8px; background: var(--round-gap); }
+.hundred-schools-rounds .availability-matrix { width: 100%; min-width: 850px; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+.hundred-schools-rounds .round-column { width: 54px; }
+.hundred-schools-rounds .availability-matrix :is(th,td) { text-align: center; }
+.hundred-schools-rounds .availability-matrix thead th { padding: 8px 3px; background: var(--round-gap); }
+.hundred-schools-rounds .matrix-corner { font-size: 11px; }
+.hundred-schools-rounds .availability-matrix tbody th, .hundred-schools-rounds .availability-matrix .matrix-corner { position: sticky; left: 0; z-index: 1; background: var(--round-gap); }
+.hundred-schools-rounds .availability-matrix tbody th { padding: 0; border-top: 1px solid var(--line); }
+.hundred-schools-rounds .overview-round { display: block; width: 100%; min-height: 54px; padding: 10px 0; border: 0; background: transparent; color: var(--ink); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hundred-schools-rounds .overview-round:hover { background: #35422f; }
+.hundred-schools-rounds .overview-row.current > th { background: #6e5430; }
+.hundred-schools-rounds .lane-cell { padding: 0 2px; vertical-align: middle; border-left: 3px solid var(--round-gap); border-right: 3px solid var(--round-gap); border-top: 1px solid var(--line); background: var(--round-gap); }
+.hundred-schools-rounds .lane-cell.active { background: var(--round-lane); border-top-color: #4d614b; }
+.hundred-schools-rounds .lane-cell.active.skip-two { background: var(--round-lane-alt); border-top-color: #324f3e; }
+.hundred-schools-rounds .lane-cell.active.pool-start { border-top: 6px solid var(--round-gap); border-radius: 7px 7px 0 0; }
+.hundred-schools-rounds .lane-cell.pool-end { border-bottom: 6px solid var(--round-gap); border-radius: 0 0 7px 7px; }
+.hundred-schools-rounds .lane-cell.pool-start.pool-end { border-radius: 7px; }
+.hundred-schools-rounds .matrix-empty { display: block; line-height: 48px; color: #66705f; }
+.hundred-schools-rounds .matrix-pool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; width: 100%; min-height: 54px; padding: 6px 2px; border: 0; border-radius: 4px; background: transparent; color: var(--ink); }
+.hundred-schools-rounds .matrix-pool:hover { outline: 2px solid var(--accent); outline-offset: -2px; }
+.hundred-schools-rounds .matrix-pool .hdf-art { width: 32px; height: 32px; }
+.hundred-schools-rounds .last-offer-label { display: inline-block; padding: 2px 5px; border: 1px solid #c89849; border-radius: 3px; background: #f3cb7b; color: #3d2b0e; font-size: 10px; font-weight: 750; font-style: normal; line-height: 1.2; white-space: nowrap; }
+.hundred-schools-rounds .matrix-pool.has-cutoff { box-shadow: inset 0 0 0 2px var(--accent); }
+.hundred-schools-rounds .fate-deadline { display: block; width: fit-content; padding: 2px 4px; margin-top: 4px; border: 1px solid #806a43; border-radius: 3px; color: var(--link); background: #342c1f; font-size: 10px; line-height: 1.3; }
+.hundred-schools-rounds .fate-deadline.last-now { background: #f3cb7b; color: #3d2b0e; border-color: #c89849; }
+.hundred-schools-rounds .fate.deadline-focus { background: #3a3223; outline: 2px solid var(--accent); outline-offset: -1px; }
+.hundred-schools-rounds #fate-cutoffs { margin-top: 28px; }
+.hundred-schools-rounds #fate-cutoffs h3 { margin-bottom: 8px; }
+.hundred-schools-rounds #fate-cutoffs > p { color: var(--muted); font-size: 13px; }
+.hundred-schools-rounds #cutoff-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap: 10px; }
+.hundred-schools-rounds .cutoff-item { display: flex; align-items: center; gap: 9px; padding: 12px; border: 1px solid #6c5939; border-radius: 8px; background: var(--surface-2); color: var(--ink); text-align: left; font-size: 13px; }
+.hundred-schools-rounds .cutoff-item:hover { border-color: var(--accent); background: #292c21; }
+.hundred-schools-rounds .cutoff-item strong { display: block; line-height: 1.4; }
+.hundred-schools-rounds .cutoff-item small { display: block; margin-top: 3px; color: var(--muted); font-size: 11px; }
+.hundred-schools-rounds .cutoff-round { margin-left: auto; padding-left: 8px; color: var(--link); text-align: center; white-space: nowrap; font-size: 11px; }
+.hundred-schools-rounds .cutoff-round b { font-size: 16px; }
+.hundred-schools-rounds .round-one-section { margin: 24px 0; }
+.hundred-schools-rounds .round-one-section h3, .hundred-schools-rounds .timeline-heading { margin: 0 0 12px; font-size: 15px; }
+.hundred-schools-rounds .opening-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 8px; }
+.hundred-schools-rounds .opening-pool { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 12px; border: 1px solid #64725a; border-radius: 8px; color: var(--ink); background: var(--round-lane); text-align: left; }
+.hundred-schools-rounds .opening-pool.skip-two { background: var(--round-lane-alt); border-color: #547260; }
+.hundred-schools-rounds .opening-pool:hover { outline: 2px solid var(--accent); outline-offset: 1px; }
+.hundred-schools-rounds .opening-label { flex: 1; min-width: 0; }
+.hundred-schools-rounds .opening-label strong { display: block; font-size: 13px; line-height: 1.4; }
+.hundred-schools-rounds .opening-label small { display: block; margin-top: 4px; color: #ced4bd; font-size: 11px; line-height: 1.35; }
+@media(max-width:1050px) { .hundred-schools-rounds .pool-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } .hundred-schools-rounds .skip-section .fate-list { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media(max-width:720px) {
+  .hundred-schools-rounds .hero, .hundred-schools-rounds .section-heading { align-items: start; flex-direction: column; gap: 12px; }
+  .hundred-schools-rounds .hero h1 { font-size: 28px; }
+  .hundred-schools-rounds .pool-grid, .hundred-schools-rounds .skip-section .pool-grid { grid-template-columns: minmax(0,1fr); }
+  .hundred-schools-rounds .filters { gap: 12px; padding: 12px; }
+  .hundred-schools-rounds .filters label { flex: 1 1 100%; min-width: 0; }
+  .hundred-schools-rounds .overview-link { margin-left: 0; }
+  .hundred-schools-rounds #round-buttons { width: 100%; }
+  .hundred-schools-rounds .round-button { min-width: 40px; min-height: 42px; }
+  .hundred-schools-rounds .opening-grid { grid-template-columns: minmax(0,1fr); }
+}
