@@ -4,8 +4,8 @@
 <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
 <link rel="stylesheet" href="/yxp_wiki/assets/tier-list/fate-artwork.css?v=5">
 <link rel="stylesheet" href="/yxp_wiki/assets/hundred-schools/style.css">
-<link rel="stylesheet" href="/yxp_wiki/assets/hundred-schools-rounds/rounds.css?v=043a3232172d">
-<script defer src="/yxp_wiki/assets/hundred-schools-rounds/pool-lanes.js?v=043a3232172d"></script><script defer src="/yxp_wiki/assets/hundred-schools-rounds/app.js?v=043a3232172d"></script>
+<link rel="stylesheet" href="/yxp_wiki/assets/hundred-schools-rounds/rounds.css?v=2b5d2ac92673">
+<script defer src="/yxp_wiki/assets/hundred-schools-rounds/pool-lanes.js?v=2b5d2ac92673"></script><script defer src="/yxp_wiki/assets/hundred-schools-rounds/app.js?v=2b5d2ac92673"></script>
 </head><body><header>
 <a
  class="brand" href="/yxp_wiki/zh/index.html">弈仙牌卡牌图鉴</a>
@@ -13,11 +13,9 @@
 </header><main class="hundred-schools-rounds">
 <section class="fate-index-hero hero"><div><h1>百家争鸣 — 按轮次查看仙命</h1><p class="intro">按角色、副职和轮次，查看可能遇到的仙命池与仙命选项。</p></div><a class="pill source-link" href="/yxp_wiki/zh/fates/hundred-schools.html">完整仙命目录 ↗</a></section>
 <section class="filters seasonal-controls" aria-label="角色与副职筛选">
-<label for="character"><span>角色</span><select id="character"><option value="">选择角色</option><option value="0">所有角色</option></select></label>
-<label for="side-job"><span>副职</span><select id="side-job"><option value="">选择副职</option><option value="0">所有副职</option></select></label>
-<button id="browse-all" class="text-button">查看全部</button></section>
-<div id="welcome" class="welcome"><h2>选择角色与副职</h2><p>查看每轮可选的仙命池与仙命；点击仙命即可阅读完整效果。</p></div>
-<div id="results" hidden>
+<label for="character"><span>角色</span><select id="character" required></select></label>
+<label for="side-job"><span>副职</span><select id="side-job"><option value="0">所有副职</option></select></label></section>
+<div id="results">
 <nav class="round-nav" aria-label="选择轮次"><span class="eyebrow">轮次</span><div id="round-buttons"></div><a href="#overview" class="overview-link">全轮次总览 ↓</a></nav>
 <section id="round-detail" aria-labelledby="round-title"><div class="section-heading"><div><p id="profile" class="eyebrow"></p><h2 id="round-title"></h2></div><p id="round-count" role="status"></p></div>
 <p class="availability-note">显示该角色、副职与轮次可能获得的选项。◇ 表示额外条件，点击仙命可查看详情。此前的选择及其他对局状态仍会影响可选项。</p>

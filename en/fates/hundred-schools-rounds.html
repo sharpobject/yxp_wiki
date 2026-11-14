@@ -4,8 +4,8 @@
 <link rel="stylesheet" href="/yxp_wiki/assets/site.css">
 <link rel="stylesheet" href="/yxp_wiki/assets/tier-list/fate-artwork.css?v=5">
 <link rel="stylesheet" href="/yxp_wiki/assets/hundred-schools/style.css">
-<link rel="stylesheet" href="/yxp_wiki/assets/hundred-schools-rounds/rounds.css?v=043a3232172d">
-<script defer src="/yxp_wiki/assets/hundred-schools-rounds/pool-lanes.js?v=043a3232172d"></script><script defer src="/yxp_wiki/assets/hundred-schools-rounds/app.js?v=043a3232172d"></script>
+<link rel="stylesheet" href="/yxp_wiki/assets/hundred-schools-rounds/rounds.css?v=2b5d2ac92673">
+<script defer src="/yxp_wiki/assets/hundred-schools-rounds/pool-lanes.js?v=2b5d2ac92673"></script><script defer src="/yxp_wiki/assets/hundred-schools-rounds/app.js?v=2b5d2ac92673"></script>
 </head><body><header>
 <a
  class="brand" href="/yxp_wiki/en/index.html">Yi Xian Card Gallery</a>
@@ -13,11 +13,9 @@
 </header><main class="hundred-schools-rounds">
 <section class="fate-index-hero hero"><div><h1>Hundred Schools — Fates by round</h1><p class="intro">Explore encounter pools and fate choices for your character and side job, round by round.</p></div><a class="pill source-link" href="/yxp_wiki/en/fates/hundred-schools.html">Full fate catalog ↗</a></section>
 <section class="filters seasonal-controls" aria-label="Character and side job filters">
-<label for="character"><span>Character</span><select id="character"><option value="">Choose your character</option><option value="0">All characters</option></select></label>
-<label for="side-job"><span>Side job</span><select id="side-job"><option value="">Choose your side job</option><option value="0">All side jobs</option></select></label>
-<button id="browse-all" class="text-button">Browse all</button></section>
-<div id="welcome" class="welcome"><h2>Choose your character and side job</h2><p>Then explore the pools and fates available in each round. Select a fate to read its full rules.</p></div>
-<div id="results" hidden>
+<label for="character"><span>Character</span><select id="character" required></select></label>
+<label for="side-job"><span>Side job</span><select id="side-job"><option value="0">All side jobs</option></select></label></section>
+<div id="results">
 <nav class="round-nav" aria-label="Choose a round"><span class="eyebrow">Round</span><div id="round-buttons"></div><a href="#overview" class="overview-link">All-round overview ↓</a></nav>
 <section id="round-detail" aria-labelledby="round-title"><div class="section-heading"><div><p id="profile" class="eyebrow"></p><h2 id="round-title"></h2></div><p id="round-count" role="status"></p></div>
 <p class="availability-note">Potential offers for this character, side job, and round. ◇ marks an extra condition; follow its link for details. Previous picks and other run state can still affect availability.</p>

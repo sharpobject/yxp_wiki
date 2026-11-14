@@ -79,12 +79,19 @@
     const targets = data.pools.filter(pool => ids.has(pool.id)).sort((a, b) => (a.configId ?? 0) - (b.configId ?? 0) || a.id.localeCompare(b.id));
     return new Map(targets.map((pool, index) => [pool.id, index]));
   }
+  function normalizedProfile(data, characterValue, jobValue) {
+    const characters = data.characters.filter(item => Number(item.id) > 0);
+    const character = characters.find(item => String(item.id) === String(characterValue)) ||
+      characters.find(item => Number(item.id) === 1000004) || characters[0];
+    return {
+      character: character ? String(character.id) : '',
+      job: data.sideJobs.some(item => String(item.id) === String(jobValue)) ? String(jobValue) : '0',
+    };
+  }
   function initialState(data, params, saved = {}) {
     const hasProfile = params.has('character') || params.has('side-job');
-    const valid = (value, items) => value != null && (String(value) === '0' || items.some(item => String(item.id) === String(value))) ? String(value) : '';
     return {
-      character: valid(hasProfile ? params.get('character') : saved.character, data.characters),
-      job: valid(hasProfile ? params.get('side-job') : saved.job, data.sideJobs),
+      ...normalizedProfile(data, hasProfile ? params.get('character') : saved.character, hasProfile ? params.get('side-job') : saved.job),
       round: normalizeRound(params.get('round') || (hasProfile ? 1 : saved.round) || 1, selectableRounds(data)),
     };
   }
@@ -199,10 +206,10 @@
       byId('cutoff-list').innerHTML = cutoffs.map(({pool, fate, last}) => `<button class="cutoff-item" data-pool="${escapeHTML(pool.id)}" data-select-round="${last}" data-fate="${escapeHTML(fate.id)}" title="${escapeHTML(pool.name)}">${iconHTML(fate)}<span><strong>${escapeHTML(fate.name)}</strong><small>${escapeHTML(pool.name)}</small></span><span class="cutoff-round">${text.last}<br><b>R${last}</b></span></button>`).join('');
     }
     function refresh() {
-      const ready = character.value !== '' && sideJob.value !== '';
-      byId('welcome').hidden = ready; byId('results').hidden = !ready;
-      if (ready) { renderOverview(); renderDetail(); save(); }
-      else updateLanguageLink();
+      const profile = normalizedProfile(data, character.value, sideJob.value);
+      character.value = profile.character; sideJob.value = profile.job;
+      byId('results').hidden = false;
+      renderOverview(); renderDetail(); save();
     }
     function revealPool(id, fateId) {
       const card = byId(id); if (!card) return;
@@ -227,7 +234,6 @@
       else { byId('round-detail').scrollIntoView(); document.querySelector(`.round-button[data-round="${round}"]`)?.focus({preventScroll: true}); }
     });
     [character, sideJob].forEach(element => element.addEventListener('change', refresh));
-    byId('browse-all').addEventListener('click', () => { character.value = '0'; sideJob.value = '0'; refresh(); });
     let saved = {};
     try { saved = JSON.parse(window.localStorage.getItem(storageKey) || '{}') || {}; } catch {}
     const initial = initialState(data, new URLSearchParams(window.location.search), saved);
