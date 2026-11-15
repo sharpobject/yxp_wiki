@@ -16,10 +16,40 @@
     "gameMode", "firstRound", "cupId", "cupProgress", "cupStage", "practice",
     "seasonMechanic", "seasonMechanicEnabled", "linXianMoFates", "linUnchosenXianMoFates",
     "roundOneXianMoPool", "xianMoPools",
+    "comprehendedCards", "comprehendedCardsEver", "innateElement", "innateElements", "innateElementChanged",
+    "immortalFates", "immortalFatesComplete", "comprehendedCardsInitialVerified", "innateElementInitialVerified",
   ]);
+  const CHARACTER_TRAIT_ARRAYS = ["comprehendedCards", "comprehendedCardsEver", "innateElements", "immortalFates"];
+  const CHARACTER_TRAIT_FLAGS = ["innateElementChanged", "immortalFatesComplete", "comprehendedCardsInitialVerified", "innateElementInitialVerified"];
+  const CHARACTER_TRAIT_KEYS = ["comprehendedCards", "comprehendedCardsEver", "innateElement", "innateElements", ...CHARACTER_TRAIT_FLAGS, "immortalFates"];
 
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
   const byteLength = (value) => new TextEncoder().encode(JSON.stringify(value)).length;
+
+  function characterTraitExtension(source) {
+    const result = {};
+    const validReference = entry => isObject(entry) && Number.isSafeInteger(entry.id) && entry.id > 0
+      && (entry.talentId === undefined || (Number.isSafeInteger(entry.talentId) && entry.talentId > 0));
+    for (const key of CHARACTER_TRAIT_KEYS) {
+      if (!Object.hasOwn(source, key)) continue;
+      const value = source[key];
+      if (CHARACTER_TRAIT_ARRAYS.includes(key)) {
+        if (!Array.isArray(value) || !value.every(validReference)) throw new Error(`invalid catalog character trait ${key}`);
+      } else if (key === "innateElement") {
+        if (value !== null && !validReference(value)) throw new Error("invalid catalog innate element");
+      } else if (typeof value !== "boolean") throw new Error(`invalid catalog character trait flag ${key}`);
+      result[key] = value;
+    }
+    return Object.keys(result).length ? result : null;
+  }
+
+  function unpackCharacterTraits(extension) {
+    if (extension == null) return {};
+    if (!isObject(extension) || Object.keys(extension).some(key => !CHARACTER_TRAIT_KEYS.includes(key))) {
+      throw new Error("invalid catalog character trait extension");
+    }
+    return characterTraitExtension(extension) ?? {};
+  }
 
   function collectValueMetadata(value) {
     const shapeCounts = new Map();
@@ -207,6 +237,7 @@
       const groupKey = JSON.stringify([item.targetUid, item.targetUsername, item.targetCharacterId]);
       if (!groups.has(groupKey)) groups.set(groupKey, [item.targetUid, item.targetUsername, item.targetCharacterId, []]);
       const filterLabels = {};
+      const characterTraits = characterTraitExtension(item);
       for (const [field, kind] of [["linFates", "fateStrategies"], ["linUnchosenFates", "fateStrategies"],
         ["linXianMoFates", "xianMoStrategies"], ["linUnchosenXianMoFates", "xianMoStrategies"],
         ["humanOpponentCharacters", "characters"]]) {
@@ -242,6 +273,7 @@
         item.seasonMechanicEnabled ?? null,
         item.roundOneXianMoPool ?? null,
         item.xianMoPools ?? null,
+        ...(characterTraits ? [characterTraits] : []),
       ]);
     }
     return [FORMAT_VERSION, packSharedCatalog(sharedCatalog), [...groups.values()]];
@@ -267,6 +299,10 @@
     const indexes = Object.fromEntries(["fates", "xianMoFates", "characters", "pools"]
       .map(kind => [kind, new Map()]));
     const reference = (kind, entry) => {
+      if (!indexes[kind]) {
+        indexes[kind] = new Map();
+        dictionaries[kind] = [];
+      }
       const signature = JSON.stringify(entry), index = indexes[kind];
       if (!index.has(signature)) {
         index.set(signature, dictionaries[kind].length);
@@ -287,6 +323,10 @@
         const id = BROWSER_POOL_EXAMPLE_FATES[pool.poolId], info = sharedCatalog.xianMoStrategies?.[id];
         if (info) dictionaries.examples[id] = { id: info.id, nameEnglish: info.nameEnglish, nameChinese: info.nameChinese };
       }
+      const characterTraits = characterTraitExtension(item);
+      const traitReferences = characterTraits && Object.fromEntries(Object.entries(characterTraits).map(([key, value]) => [key,
+        CHARACTER_TRAIT_ARRAYS.includes(key) ? references(key, value)
+          : key === "innateElement" && value !== null ? reference("innateElements", value) : value]));
       groups.get(groupKey)[3].push([
         item.id, item.startingRating, item.career, item.rounds, item.capturedThrough, item.linCareer,
         references("fates", item.linFates), references("xianMoFates", item.linXianMoFates),
@@ -297,6 +337,7 @@
         item.ratingKind ?? "", item.seasonMechanic ?? null, item.seasonMechanicEnabled ?? null,
         pool == null ? null : reference("pools", browserPool(pool)),
         item.xianMoPools == null ? null : references("pools", item.xianMoPools.map(browserPool)),
+        ...(traitReferences ? [traitReferences] : []),
       ]);
     }
     return [BROWSER_INDEX_VERSION, packValue(dictionaries), [...groups.values()]];
@@ -311,8 +352,11 @@
       if (!Array.isArray(dictionaries[kind])) throw new Error(`invalid browser ${kind} dictionary`);
     }
     if (!isObject(dictionaries.examples)) throw new Error("invalid browser example metadata");
+    for (const kind of CHARACTER_TRAIT_ARRAYS) {
+      if (dictionaries[kind] !== undefined && !Array.isArray(dictionaries[kind])) throw new Error(`invalid browser ${kind} dictionary`);
+    }
     const entry = (kind, index) => {
-      if (!Number.isSafeInteger(index) || index < 0 || index >= dictionaries[kind].length) {
+      if (!Array.isArray(dictionaries[kind]) || !Number.isSafeInteger(index) || index < 0 || index >= dictionaries[kind].length) {
         throw new Error(`invalid browser ${kind} reference ${index}`);
       }
       return dictionaries[kind][index];
@@ -324,14 +368,21 @@
     const catalog = [];
     for (const [targetUid, targetUsername, targetCharacterId, games] of packed[2]) {
       for (const game of games) {
-        if (game.length !== 23) throw new Error("invalid browser catalog row length");
+        if (![23, 24].includes(game.length) || (game.length === 24 && !isObject(game[23]))) {
+          throw new Error("invalid browser catalog row length");
+        }
         const [id, startingRating, career, rounds, capturedThrough, linCareer,
           fateRefs, xianMoRefs, opponentRefs, gameMode, firstRound, cupId, cupProgress, cupStage,
           practice, placementStart, placementEnd, ratingChange, ratingKind, seasonMechanic,
-          seasonMechanicEnabled, roundOnePoolRef, poolRefs] = game;
+          seasonMechanicEnabled, roundOnePoolRef, poolRefs, traitReferences = null] = game;
         if (seasonMechanicEnabled !== null && typeof seasonMechanicEnabled !== "boolean") {
           throw new Error("invalid catalog mechanic activation flag");
         }
+        if (traitReferences !== null && (!isObject(traitReferences)
+          || Object.keys(traitReferences).some(key => !CHARACTER_TRAIT_KEYS.includes(key)))) throw new Error("invalid browser character trait extension");
+        const characterTraits = traitReferences && Object.fromEntries(Object.entries(traitReferences).map(([key, value]) => [key,
+          CHARACTER_TRAIT_ARRAYS.includes(key) ? entries(key, value)
+            : key === "innateElement" && value !== null ? entry("innateElements", value) : value]));
         catalog.push({ id, file: `${id}.compact.json.gz`, targetUid, targetUsername, targetCharacterId,
           startingRating, career, rounds, capturedThrough, linCareer,
           linFates: entries("fates", fateRefs), linXianMoFates: entries("xianMoFates", xianMoRefs),
@@ -340,6 +391,7 @@
           placementStart, placementEnd, ratingChange, ratingKind, seasonMechanic, seasonMechanicEnabled,
           ...(roundOnePoolRef == null ? {} : { roundOneXianMoPool: entry("pools", roundOnePoolRef) }),
           ...(poolRefs == null ? {} : { xianMoPools: entries("pools", poolRefs) }),
+          ...unpackCharacterTraits(characterTraits),
           label: `${targetUsername} · ${rounds} rounds`,
         });
       }
@@ -364,7 +416,7 @@
           cupId = 0, cupProgress = 0, cupStage = "", practice = 0, placementStart = null, placementEnd = null,
           ratingChange = null, ratingKind = "", seasonMechanic = null,
           xianMoFateIds = [], unchosenXianMoFateIds = [], filterLabels = null,
-          seasonMechanicEnabled = null, roundOneXianMoPool = null, xianMoPools = null] = game;
+          seasonMechanicEnabled = null, roundOneXianMoPool = null, xianMoPools = null, characterTraits = null] = game;
         if (seasonMechanicEnabled !== null && typeof seasonMechanicEnabled !== "boolean") {
           throw new Error("invalid catalog mechanic activation flag");
         }
@@ -403,6 +455,7 @@
           seasonMechanicEnabled,
           ...(roundOneXianMoPool == null ? {} : { roundOneXianMoPool }),
           ...(xianMoPools == null ? {} : { xianMoPools }),
+          ...unpackCharacterTraits(characterTraits),
           label: `${targetUsername} · ${rounds} rounds`,
         });
       }

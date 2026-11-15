@@ -1,6 +1,9 @@
 (async () => {
   const $ = (selector) => document.querySelector(selector);
   document.body.classList.add("recording-browser-page");
+  $("#character-select")?.addEventListener("change", event => {
+    window.location.assign(event.currentTarget.value);
+  });
   const preferredTargetUid = "65db92284574f980c154b895"; // 愿与林小月长相守
   const assetMode = document.body.dataset.assetMode || "wiki";
   const recordingBase = document.body.dataset.recordingBase || "data";
@@ -103,6 +106,10 @@
   const roundSelect = $("#round-select");
   const filterToggle = $("#recording-filter-toggle");
   const filterPopover = $("#recording-filter-popover");
+  const startingTraits = document.createElement("section");
+  startingTraits.className = "recording-starting-traits";
+  startingTraits.hidden = true;
+  $(".replay-shell")?.prepend(startingTraits);
   const vaseZone = document.createElement("div");
   vaseZone.id = "vase-zone";
   vaseZone.className = "vase-zone";
@@ -335,10 +342,10 @@
     return `<img class="all-sword-marker" src="${src}" alt="${label}" title="${label}">`;
   }
 
-  function card(id, zeroAsNormalAttack = false, owner = null) {
+  function card(id, zeroAsNormalAttack = false, owner = null, metadataOverride = null) {
     if (!id && !zeroAsNormalAttack) return `<div class="empty-slot" title="${esc(copy.emptySlot)}"></div>`;
     const cardId = id || 0;
-    const info = recording.catalog.cards[cardId] ?? (cardId === 0
+    const info = recording.catalog.cards[cardId] ?? metadataOverride ?? (cardId === 0
       ? { id: 0, nameEnglish: "Normal Attack", nameChinese: "普通攻击", upgrade: 1 }
       : { id: cardId, nameEnglish: `Card ${cardId}`, nameChinese: `卡牌 ${cardId}`, upgrade: 1 });
     const dynamic = window.CLEAR_HEART.describe(cardId, owner, window.CLEAR_HEART_DATA, isChinese ? "zh" : "en");
@@ -662,6 +669,31 @@
       </div>
       <img data-character-fallback data-default-src="${characterAsset(player, "portrait", true)}" class="character-art" src="${characterAsset(player, "portrait")}" alt="${esc(characterName(player))}">
       <div class="character-stats"><strong>${esc(player.username)}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(displayedStats?.phase))}</span>${numericPrefix(player.career) ? `<span>${esc(careerName(player.career))}</span>` : ""}<span>${esc(displayedStats?.cultivation ?? 0)} ${esc(copy.cultivation)} · ${esc(player.life)} ${esc(copy.destiny)}</span><span>${showPhysique ? `${esc(physique)} / ${esc(displayedStats?.maxPhysique ?? 0)} ${esc(copy.physique)} · ` : ""}${esc(priorMaxHp(displayedStats))} ${esc(copy.maxHp)}</span></div>`;
+  }
+
+  function renderStartingTraits() {
+    // Initial metadata is independently audited. Later gains and element
+    // changes come only from the target's currently hydrated timeline state.
+    const target = states[index]?.players?.[recording?.targetUid];
+    const initialCards = activeCatalogItem?.comprehendedCardsInitialVerified === true ? activeCatalogItem.comprehendedCards ?? [] : [];
+    const knownCards = activeCatalogItem?.comprehendedCardsEver ?? initialCards;
+    const currentIds = target?.enlightenedCards;
+    const cards = currentIds?.length ? currentIds.map(id => ({...(recording.catalog.cards[id]
+      ?? knownCards.find(entry => Number(entry.id) === Number(id))
+      ?? initialCards.find(entry => Number(entry.id) === Number(id))), id: Number(id)})) : initialCards;
+    const initialElement = activeCatalogItem?.innateElementInitialVerified === true ? activeCatalogItem.innateElement : null;
+    const elements = activeCatalogItem?.innateElements ?? (initialElement ? [initialElement] : []);
+    const currentTalentIds = new Set((target?.talents ?? []).map(entry => Number(entry?.id ?? entry)));
+    const element = elements.find(entry => currentTalentIds.has(Number(entry.talentId))) ?? initialElement;
+    startingTraits.hidden = !cards.length && !element;
+    if (startingTraits.hidden) {
+      startingTraits.replaceChildren();
+      return;
+    }
+    startingTraits.setAttribute("aria-label", isChinese ? "开局特征" : "Starting traits");
+    const html = `${cards.length ? `<div class="starting-trait-group starting-comprehended-cards"><strong>${isChinese ? "领悟牌" : "Comprehended cards"}</strong><div class="starting-card-list">${cards.map(entry => `<div class="starting-card">${card(entry.id, false, null, entry)}<span>${esc(localizedInfo(entry) || localizedInfo(recording.catalog.cards[entry.id]) || `${isChinese ? "卡牌" : "Card"} ${entry.id}`)}</span></div>`).join("")}</div></div>` : ""}
+      ${element ? `<div class="starting-trait-group starting-innate-element"><strong>${isChinese ? "当前先天五行" : "Current innate element"}</strong><span class="innate-element-badge">${esc(localizedInfo(element))}</span>${initialElement && Number(initialElement.id) !== Number(element.id) ? `<small>${isChinese ? "开局：" : "Started with: "}${esc(localizedInfo(initialElement))}</small>` : ""}</div>` : ""}`;
+    if (startingTraits.innerHTML !== html) startingTraits.innerHTML = html;
   }
 
   function mirageText(entry, field = "name") {
@@ -1066,6 +1098,7 @@
     closeMobileTooltip();
     const state = states[index];
     if (!state) return;
+    renderStartingTraits();
     const battle = recording.steps[index]?.battle;
     const privatePlayer = state.privatePlayer;
     // Observer snapshots can belong to another player before capture starts or
@@ -1183,8 +1216,16 @@
   }
 
   function filterStateFromParams(params) {
+    const talents = filterNumbers(params, "talents");
+    const excludedTalents = filterNumbers(params, "excludedTalents");
+    for (const id of excludedTalents) talents.delete(id);
     return {
       fates: filterNumbers(params, "fates"),
+      talents, excludedTalents,
+      comprehendedCards: filterNumbers(params, "comprehendedCards"),
+      comprehendedScope: params.get("comprehendedScope") === "ever" ? "ever" : "initial",
+      startedElements: filterNumbers(params, "startedElements"),
+      everElements: filterNumbers(params, "everElements"),
       career: Math.max(0, Number.parseInt(params.get("career") ?? "0", 10) || 0),
       opponents: filterNumbers(params, "opponents"),
       roundOnePools: filterStrings(params, "roundOnePool"),
@@ -1201,14 +1242,21 @@
     else url.searchParams.delete("season");
     // Retired offered-but-not-chosen links no longer constrain recordings.
     url.searchParams.delete("unchosenFates");
+    url.searchParams.delete("comprehendedScope");
+    if (replayFilters.comprehendedScope === "ever") url.searchParams.set("comprehendedScope", "ever");
     for (const [name, values] of [
       ["fates", replayFilters.fates],
+      ["talents", replayFilters.talents],
+      ["excludedTalents", replayFilters.excludedTalents],
+      ["comprehendedCards", replayFilters.comprehendedCards],
+      ["startedElements", replayFilters.startedElements],
+      ["everElements", replayFilters.everElements],
       ["opponents", replayFilters.opponents],
       ["roundOnePool", replayFilters.roundOnePools],
       ["pools", replayFilters.pools],
     ]) {
       url.searchParams.delete(name);
-      if (values.size) url.searchParams.set(name, [...values].sort((first, second) =>
+      if (values?.size) url.searchParams.set(name, [...values].sort((first, second) =>
         typeof first === "number" ? first - second : first.localeCompare(second)).join(","));
     }
     url.searchParams.delete("career");
@@ -1301,6 +1349,7 @@
     $("#loading").hidden = false;
     $("#loading").textContent = copy.loading;
     $("#viewer").hidden = true;
+    startingTraits.hidden = true;
     const resultSummary = $("#recording-result");
     if (resultSummary) resultSummary.hidden = true;
     previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
@@ -1365,6 +1414,7 @@
   const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
     .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
   let filterFates = [], filterOpponents = [], filterCareers = [], filterRoundOnePools = [], filterPools = [];
+  let filterTalents = [], filterComprehendedCards = [], filterStartedElements = [], filterEverElements = [];
 
   function groupedFateEntries(values) {
     const groups = new Map();
@@ -1484,12 +1534,22 @@
       .sort((first, second) => first - second);
     filterRoundOnePools = season === "10" ? roundOnePoolEntries(seasonCatalog.map(item => item.roundOneXianMoPool)) : [];
     filterPools = season === "10" ? visiblePoolEntries(seasonCatalog.flatMap(item => item.xianMoPools ?? [])) : [];
+    filterTalents = uniqueFilterEntries(seasonCatalog.flatMap(item => item.immortalFates ?? []));
+    filterComprehendedCards = uniqueFilterEntries(seasonCatalog.flatMap(item => [
+      ...(item.comprehendedCardsInitialVerified === true ? item.comprehendedCards ?? [] : []),
+      ...(item.comprehendedCardsEver ?? []),
+    ]));
+    filterStartedElements = uniqueFilterEntries(seasonCatalog.flatMap(item => item.innateElementInitialVerified === true && item.innateElement ? [item.innateElement] : []));
+    filterEverElements = uniqueFilterEntries(seasonCatalog.flatMap(item => item.innateElements
+      ?? (item.innateElementInitialVerified === true && item.innateElement ? [item.innateElement] : [])));
     // Old links may name any ID in a now-consolidated fate group.
     replayFilters.fates = new Set([...replayFilters.fates].map(id =>
       filterFates.find(group => group.ids.includes(id))?.id).filter(id => id != null));
-    for (const [kind, entries] of [["opponents", filterOpponents], ["roundOnePools", filterRoundOnePools], ["pools", filterPools]]) {
+    for (const [kind, entries] of [["opponents", filterOpponents], ["roundOnePools", filterRoundOnePools], ["pools", filterPools],
+      ["talents", filterTalents], ["excludedTalents", filterTalents], ["comprehendedCards", filterComprehendedCards],
+      ["startedElements", filterStartedElements], ["everElements", filterEverElements]]) {
       const available = new Set(entries.map(entry => entry.id));
-      replayFilters[kind] = new Set([...replayFilters[kind]].filter(id => available.has(id)));
+      replayFilters[kind] = new Set([...(replayFilters[kind] ?? [])].filter(id => available.has(id)));
     }
     if (!filterCareers.includes(replayFilters.career)) replayFilters.career = 0;
     renderSeasonSelector();
@@ -1505,10 +1565,13 @@
 
   function filterCount() {
     return replayFilters.fates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0)
-      + replayFilters.roundOnePools.size + replayFilters.pools.size;
+      + replayFilters.roundOnePools.size + replayFilters.pools.size
+      + (replayFilters.talents?.size ?? 0) + (replayFilters.excludedTalents?.size ?? 0)
+      + (replayFilters.comprehendedCards?.size ?? 0) + (replayFilters.startedElements?.size ?? 0) + (replayFilters.everElements?.size ?? 0);
   }
 
   function renderRecordingFilters() {
+    const talentScrollTop = filterPopover.querySelector(".recording-talent-filters")?.scrollTop ?? 0;
     const checkbox = (kind, entry, checked) => {
       const openingPool = kind === "roundOnePools";
       const name = localizedInfo(entry);
@@ -1519,6 +1582,14 @@
       return `<label${openingPool ? ' class="recording-opening-pool"' : ""}${description ? ` title="${esc(description)}"` : ""}><input type="checkbox" data-filter-kind="${kind}" value="${esc(entry.id)}"${checked ? " checked" : ""}>${text}</label>`;
     };
     const poolFieldset = (kind, entries, label, rule) => entries.length ? `<fieldset class="recording-pool-filter"><legend>${esc(label)}</legend><p class="recording-filter-rule">${esc(rule)}</p><div class="recording-filter-options recording-pool-options">${entries.map(entry => checkbox(kind, entry, replayFilters[kind].has(entry.id))).join("")}</div></fieldset>` : "";
+    const traitFieldset = (kind, entries, label, rule, control = "") => entries.length ? `<fieldset><legend>${esc(label)}</legend>${control}<p class="recording-filter-rule">${esc(rule)}</p><div class="recording-filter-options">${entries.map(entry => checkbox(kind, entry, replayFilters[kind]?.has(entry.id))).join("")}</div></fieldset>` : "";
+    const comprehendedEver = replayFilters.comprehendedScope === "ever";
+    const comprehendScopeSelect = `<select class="recording-comprehend-scope" data-comprehended-scope aria-label="${isChinese ? "领悟牌筛选范围" : "Comprehended card scope"}"><option value="initial"${comprehendedEver ? "" : " selected"}>${isChinese ? "开局三张" : "Initial three"}</option><option value="ever"${comprehendedEver ? " selected" : ""}>${isChinese ? "对局中曾有" : "At any point"}</option></select>`;
+    const talentFilters = filterTalents.length ? `<fieldset><legend>${isChinese ? "仙命" : "Immortal Fates"}</legend><p class="recording-filter-rule">${isChinese ? "须包含全部指定仙命，且不含任何排除仙命。排除仙命仅匹配完整开局的录像。" : "Include every required fate and none of the excluded fates. Exclusions require a complete opening."}</p><div class="recording-talent-filters">${filterTalents.map(entry => {
+      const name = localizedInfo(entry);
+      const mode = replayFilters.excludedTalents?.has(entry.id) ? "exclude" : replayFilters.talents?.has(entry.id) ? "include" : "any";
+      return `<label title="${esc(localizedInfo(entry, "description"))}"><span>${esc(name)}</span><select data-talent-filter="${entry.id}" aria-label="${esc((isChinese ? "仙命筛选：" : "Fate filter: ") + name)}" data-filter-state="${mode}">${[["any", isChinese ? "不限" : "Any"], ["include", isChinese ? "包含" : "Include"], ["exclude", isChinese ? "排除" : "Exclude"]].map(([value, label]) => `<option value="${value}"${mode === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>`;
+    }).join("")}</div></fieldset>` : "";
     const fateLabel = isHundredSchoolsSeason(selectedSeason) ? (isChinese ? "已选择的百家仙命" : "Chosen Hundred Schools Fates") : copy.heavenlyFateFilter;
     const careerSelect = $("#career-filter");
     if (careerSelect) {
@@ -1526,11 +1597,33 @@
       careerSelect.value = String(replayFilters.career);
     }
     filterPopover.innerHTML = `<div class="recording-filter-head"><strong>${esc(copy.filters)}</strong><button type="button" data-clear-filters>${esc(copy.clearFilters)}</button></div>
+      ${traitFieldset("comprehendedCards", filterComprehendedCards, isChinese ? "领悟牌" : "Comprehended cards", comprehendedEver
+        ? (isChinese ? "对局中须曾领悟全部所选卡牌" : "Must have comprehended every selected card during the match")
+        : (isChinese ? "开局三张须包含全部所选卡牌" : "Initial three must include every selected card"), comprehendScopeSelect)}
+      ${traitFieldset("startedElements", filterStartedElements, isChinese ? "开局先天五行" : "Innate element · started with", isChinese ? "开局符合任一所选五行" : "Started with any selected element")}
+      ${traitFieldset("everElements", filterEverElements, isChinese ? "曾有先天五行" : "Innate element · had at any point", isChinese ? "对局中曾有任一所选五行" : "Had any selected element during the match")}
+      ${talentFilters}
       ${poolFieldset("roundOnePools", filterRoundOnePools, isChinese ? "第1轮仙命池" : "Round 1 fate pool", isChinese ? "符合任一所选仙命池" : "Matches any selected pool")}
       ${poolFieldset("pools", filterPools, isChinese ? "出现过的仙命池" : "Fate pools appearing", isChinese ? "必须出现所有所选仙命池" : "Must include every selected pool")}
       ${filterFates.length ? `<fieldset><legend>${esc(fateLabel)}</legend><div class="recording-filter-options">${filterFates.map(entry => checkbox("fates", entry, replayFilters.fates.has(entry.id))).join("")}</div></fieldset>` : ""}
       ${filterOpponents.length ? `<fieldset><legend>${esc(copy.opponentFilter)}</legend><div class="recording-filter-options">${filterOpponents.map(entry => checkbox("opponents", entry, replayFilters.opponents.has(Number(entry.id)))).join("")}</div></fieldset>` : ""}`;
     filterToggle.innerHTML = `☷${filterCount() ? `<span>${filterCount()}</span>` : ""}`;
+    const talentList = filterPopover.querySelector(".recording-talent-filters");
+    if (talentList) talentList.scrollTop = talentScrollTop;
+    filterPopover.querySelector("[data-comprehended-scope]")?.addEventListener("change", event => {
+      replayFilters.comprehendedScope = event.target.value === "ever" ? "ever" : "initial";
+      applyRecordingFilters();
+      renderRecordingFilters();
+    });
+    filterPopover.querySelectorAll("select[data-talent-filter]").forEach(control => control.addEventListener("change", () => {
+      const id = Number(control.dataset.talentFilter);
+      replayFilters.talents.delete(id);
+      replayFilters.excludedTalents.delete(id);
+      if (control.value === "include") replayFilters.talents.add(id);
+      if (control.value === "exclude") replayFilters.excludedTalents.add(id);
+      applyRecordingFilters();
+      renderRecordingFilters();
+    }));
     filterPopover.querySelectorAll("input[data-filter-kind]").forEach(input => input.addEventListener("change", () => {
       const kind = input.dataset.filterKind;
       const target = replayFilters[kind];
@@ -1541,6 +1634,8 @@
     }));
     filterPopover.querySelector("[data-clear-filters]")?.addEventListener("click", () => {
       replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.roundOnePools.clear(); replayFilters.pools.clear(); replayFilters.career = 0;
+      for (const kind of ["talents", "excludedTalents", "comprehendedCards", "startedElements", "everElements"]) replayFilters[kind]?.clear();
+      replayFilters.comprehendedScope = "initial";
       applyRecordingFilters();
       renderRecordingFilters();
     });
@@ -1555,6 +1650,7 @@
     // recording after a filter or browser-history change.
     loadGeneration++;
     recording = activeCatalogItem = null;
+    startingTraits.hidden = true;
     states = [];
     $("#viewer").hidden = true;
     const resultSummary = $("#recording-result");
@@ -1575,11 +1671,30 @@
     updateLanguageLink(url);
   }
 
+  function matchesStartingTraitFilters(item, filters) {
+    const ever = filters.comprehendedScope === "ever";
+    const cards = new Set((ever ? item.comprehendedCardsEver ?? [] : item.comprehendedCards ?? []).map(entry => Number(entry.id)));
+    if (!ever && filters.comprehendedCards?.size && item.comprehendedCardsInitialVerified !== true) return false;
+    if (![...(filters.comprehendedCards ?? [])].every(id => cards.has(id))) return false;
+    if (filters.startedElements?.size && (item.innateElementInitialVerified !== true
+      || !filters.startedElements.has(Number(item.innateElement?.id)))) return false;
+    if (filters.everElements?.size && !(item.innateElements
+      ?? (item.innateElementInitialVerified === true && item.innateElement ? [item.innateElement] : []))
+      .some(entry => filters.everElements.has(Number(entry.id)))) return false;
+    const talents = new Set((item.immortalFates ?? []).map(entry => Number(entry.id)));
+    if (![...(filters.talents ?? [])].every(id => talents.has(id))) return false;
+    // Missing/incomplete metadata is unknown, not proof that a fate was absent.
+    if (filters.excludedTalents?.size && (!Array.isArray(item.immortalFates)
+      || item.immortalFatesComplete !== true || [...filters.excludedTalents].some(id => talents.has(id)))) return false;
+    return true;
+  }
+
   function applyRecordingFilters({ navigate = true, sync = true, historyMode = "push" } = {}) {
     const fateField = isHundredSchoolsSeason(selectedSeason) ? "linXianMoFates" : "linFates";
     const chosenGroups = [...replayFilters.fates].map(id => filterFates.find(group => group.id === id));
     filteredCatalog = seasonCatalog.filter(item =>
-      (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
+      matchesStartingTraitFilters(item, replayFilters)
+      && (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
       && (!replayFilters.roundOnePools.size || replayFilters.roundOnePools.has(item.roundOneXianMoPool?.id))
       && [...replayFilters.pools].every(id => (item.xianMoPools ?? []).some(pool => pool.id === id))
       && chosenGroups.every(group => (item[fateField] ?? []).some(entry => group?.ids.includes(Number(entry.id))))

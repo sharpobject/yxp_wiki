@@ -14,6 +14,27 @@
 .recording-intro h1 { margin: 0 0 6px; }
 .recording-intro p { margin: 0; }
 
+.recording-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin-bottom: 6px;
+}
+.recording-intro .recording-title-row h1 { margin: 0; }
+.recording-character-select {
+  width: 152px;
+  max-width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #111713;
+  color: var(--ink);
+  padding: 4px 7px;
+  font: 13px/1.3 system-ui, sans-serif;
+  cursor: pointer;
+}
+.recording-character-select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
 .eyebrow {
   margin: 0 0 5px !important;
   color: var(--accent);
@@ -142,6 +163,52 @@
 .recording-pool-label { display: grid; min-width: 0; overflow: hidden; line-height: 12px; }
 .recording-pool-label > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recording-pool-hint { font-weight: 400; }
+
+.recording-talent-filters { display: grid; gap: 4px; max-height: 190px; overflow-y: auto; padding-right: 3px; }
+.recording-talent-filters label {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 5px;
+  border-radius: 4px;
+  background: #18231e;
+  color: #d7d2c2;
+  font-size: 11px;
+  letter-spacing: 0;
+}
+.recording-talent-filters select { min-height: 28px; padding: 3px 5px; font-size: 11px; }
+.recording-talent-filters select[data-filter-state="include"] { border-color: #82bd91; color: #b5edc4; }
+.recording-talent-filters select[data-filter-state="exclude"] { border-color: #bb7e73; color: #f0b6ab; }
+.recording-comprehend-scope { width: auto; max-width: 160px; min-height: 28px; padding: 3px 5px; font-size: 11px; }
+
+.recording-starting-traits {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #655b3e;
+  background: linear-gradient(110deg, #25291b, #111b17);
+}
+.recording-starting-traits[hidden] { display: none; }
+.starting-trait-group { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.starting-trait-group > strong { color: #efd18d; font-size: 13px; line-height: 1.3; }
+.starting-card-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.starting-card { display: grid; justify-items: center; align-content: start; gap: 5px; width: 90px; }
+.recording-starting-traits .game-card { width: 48px; min-width: 48px; max-width: 48px; flex-basis: 48px; }
+.recording-starting-traits .card-fallback { overflow: hidden; }
+.starting-card > span { color: #e0d8bc; font-size: 11px; line-height: 1.25; text-align: center; overflow-wrap: anywhere; }
+.innate-element-badge { padding: 5px 14px; border: 1px solid #9d8959; border-radius: 6px; background: #17241e; color: #f4df9d; font-size: 22px; font-weight: 750; }
+.starting-innate-element { flex-wrap: wrap; }
+.starting-innate-element small { color: #c8c0a7; font-size: 11px; }
+
+@media (max-width: 760px) {
+  .recording-starting-traits { padding: 8px 10px; }
+  .starting-comprehended-cards { display: grid; gap: 6px; }
+  .starting-card-list { gap: 5px; }
+  .starting-card { width: 72px; }
+}
 
 
 .replay-shell {
