@@ -180,13 +180,15 @@
     }
     function renderOverview() {
       const headings = lanes.map((_, index) => `<th scope="col" class="lane-heading"><span class="sr-only">${text.lane} ${index + 1}</span></th>`).join('');
-      const rows = rounds.map(selectedRound => {
+      const rows = rounds.map((selectedRound, roundIndex) => {
         const cells = lanes.map((lane, laneIndex) => {
           const pool = lane.find(pool => selectedRound >= pool.minRound && selectedRound <= pool.maxRound);
           const available = pool ? fatesFor(pool, selectedRound) : [];
           if (!available.length) return `<td class="lane-cell"><span class="matrix-empty" aria-label="${text.noPool}">—</span></td>`;
-          const first = rounds.find(value => value >= pool.minRound && value <= pool.maxRound) === selectedRound;
-          const last = rounds.filter(value => value >= pool.minRound && value <= pool.maxRound).at(-1) === selectedRound;
+          // Cap each visible stretch of offers, including either side of an empty round.
+          const hasOffersAt = value => value >= pool.minRound && value <= pool.maxRound && fatesFor(pool, value).length;
+          const first = !hasOffersAt(rounds[roundIndex - 1]);
+          const last = !hasOffersAt(rounds[roundIndex + 1]);
           const endings = available.filter(fate => earlyLastRound(fate, pool, maximum) === selectedRound);
           const regular = available.find(fate => (fate.minRound ?? pool.minRound) <= pool.minRound &&
             (fate.maxRound ?? pool.maxRound) >= pool.maxRound);
