@@ -38,6 +38,8 @@
     return rounds.filter(round => round <= number).at(-1) ?? rounds[0] ?? 1;
   }
   function eligible(data, fate, characterId, jobId, round) {
+    // Cultivators never offer fates on rounds 2 and 4, despite pool windows.
+    if (round === 2 || round === 4) return false;
     const rule = fate.eligibility || {};
     const included = rule.includeCharacters || [];
     if (characterId) {
