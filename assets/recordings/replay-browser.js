@@ -4,7 +4,9 @@
   $("#character-select")?.addEventListener("change", event => {
     window.location.assign(event.currentTarget.value);
   });
-  const preferredTargetUid = "65db92284574f980c154b895"; // 愿与林小月长相守
+  // Staged pages select their own default player. Keep Lin's existing preference
+  // for the local viewer and older pages that do not yet supply this attribute.
+  const preferredTargetUid = document.body.dataset.preferredTargetUid ?? "65db92284574f980c154b895";
   const assetMode = document.body.dataset.assetMode || "wiki";
   const recordingBase = document.body.dataset.recordingBase || "data";
   const recordingVersion = document.body.dataset.recordingVersion || "";
@@ -1642,7 +1644,18 @@
   }
 
   function preferredRecording(items) {
-    return items.find((item) => item.targetUid === preferredTargetUid) ?? items[0];
+    const preferred = items.filter(item => item.targetUid === preferredTargetUid);
+    const capturedAt = item => {
+      const timestamp = Date.parse(item.capturedThrough ?? "");
+      return Number.isFinite(timestamp) ? timestamp : Number.NEGATIVE_INFINITY;
+    };
+    return (preferred.length ? preferred : items).reduce((latest, item) => {
+      if (!latest) return item;
+      const timestamp = capturedAt(item), latestTimestamp = capturedAt(latest);
+      if (timestamp > latestTimestamp) return item;
+      if (timestamp === latestTimestamp && String(item.id) < String(latest.id)) return item;
+      return latest;
+    }, null);
   }
 
   function clearRecording() {
