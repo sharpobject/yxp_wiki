@@ -1197,6 +1197,58 @@
     };
   }
 
+  // Only Lin pages opt in; other collections neither render this control nor
+  // request the leaderboard-derived player list.
+  const elitismUrl = document.body?.dataset?.elitismUrl || "";
+  let elitePlayerUids = null, elitismRequest = null, elitismError = false;
+  let elitismCheckbox = null, elitismRetry = null;
+  let elitismRestoreGeneration = 0;
+
+  async function loadElitePlayers() {
+    if (elitePlayerUids || !elitismUrl) return;
+    if (!elitismRequest) {
+      elitismError = false;
+      elitismRequest = (async () => {
+        try {
+          const response = await fetch(elitismUrl, { cache: "no-cache" });
+          if (!response.ok) throw new Error(`leaderboard eligibility: ${response.status}`);
+          const data = await response.json();
+          if (data.schema !== 1 || data.characterId !== 1000004
+            || !Number.isInteger(data.currentRankedSeasonId) || data.currentRankedSeasonId < 0
+            || !Array.isArray(data.eligibleUids) || !data.eligibleUids.length
+            || new Set(data.eligibleUids).size !== data.eligibleUids.length
+            || data.eligibleUids.some(uid => typeof uid !== "string" || !/^[a-f0-9]{24}$/.test(uid))
+            || typeof data.eligibilityChangedAt !== "string" || !Number.isFinite(Date.parse(data.eligibilityChangedAt))) {
+            throw new Error("invalid leaderboard eligibility");
+          }
+          elitePlayerUids = new Set(data.eligibleUids);
+        } catch (error) {
+          elitismError = true;
+          console.error("could not load top-10 players", error);
+        } finally {
+          elitismRequest = null;
+          renderElitismControl();
+        }
+      })();
+    }
+    return elitismRequest;
+  }
+
+  function matchesElitismFilter(item) {
+    return !replayFilters.elitism || elitePlayerUids?.has(item.targetUid) === true;
+  }
+
+  function renderElitismControl() {
+    if (elitismCheckbox) elitismCheckbox.checked = replayFilters.elitism;
+    if (elitismRetry) elitismRetry.hidden = !replayFilters.elitism || !elitismError;
+  }
+
+  function elitismUnavailableMessage() {
+    return elitismError
+      ? (isChinese ? "无法载入前十玩家名单。请重试或关闭精英筛选。" : "Could not load top-10 players. Retry or turn off Elitism.")
+      : (isChinese ? "正在载入前十玩家名单…" : "Loading top-10 players…");
+  }
+
   function updateLanguageLink(url) {
     const link = $(".lang");
     if (!link) return;
@@ -1222,6 +1274,7 @@
     const excludedTalents = filterNumbers(params, "excludedTalents");
     for (const id of excludedTalents) talents.delete(id);
     return {
+      elitism: Boolean(elitismUrl) && params.get("elitism") === "1",
       fates: filterNumbers(params, "fates"),
       talents, excludedTalents,
       comprehendedCards: filterNumbers(params, "comprehendedCards"),
@@ -1261,6 +1314,8 @@
       if (values?.size) url.searchParams.set(name, [...values].sort((first, second) =>
         typeof first === "number" ? first - second : first.localeCompare(second)).join(","));
     }
+    url.searchParams.delete("elitism");
+    if (elitismUrl && replayFilters.elitism) url.searchParams.set("elitism", "1");
     url.searchParams.delete("career");
     if (replayFilters.career > 0) url.searchParams.set("career", String(replayFilters.career));
     return url;
@@ -1567,12 +1622,13 @@
 
   function filterCount() {
     return replayFilters.fates.size + replayFilters.opponents.size + (replayFilters.career > 0 ? 1 : 0)
-      + replayFilters.roundOnePools.size + replayFilters.pools.size
+      + replayFilters.roundOnePools.size + replayFilters.pools.size + (replayFilters.elitism ? 1 : 0)
       + (replayFilters.talents?.size ?? 0) + (replayFilters.excludedTalents?.size ?? 0)
       + (replayFilters.comprehendedCards?.size ?? 0) + (replayFilters.startedElements?.size ?? 0) + (replayFilters.everElements?.size ?? 0);
   }
 
   function renderRecordingFilters() {
+    renderElitismControl();
     const talentScrollTop = filterPopover.querySelector(".recording-talent-filters")?.scrollTop ?? 0;
     const checkbox = (kind, entry, checked) => {
       const openingPool = kind === "roundOnePools";
@@ -1638,6 +1694,13 @@
       replayFilters.fates.clear(); replayFilters.opponents.clear(); replayFilters.roundOnePools.clear(); replayFilters.pools.clear(); replayFilters.career = 0;
       for (const kind of ["talents", "excludedTalents", "comprehendedCards", "startedElements", "everElements"]) replayFilters[kind]?.clear();
       replayFilters.comprehendedScope = "initial";
+      replayFilters.elitism = false;
+      elitismRestoreGeneration++;
+      if (elitismRequest) {
+        syncFilterLocation();
+        restoreLocation();
+        return;
+      }
       applyRecordingFilters();
       renderRecordingFilters();
     });
@@ -1669,7 +1732,8 @@
     const resultSummary = $("#recording-result");
     if (resultSummary) resultSummary.hidden = true;
     $("#loading").hidden = false;
-    $("#loading").textContent = catalog.length ? copy.noMatchingRecordings : copy.noRecordings;
+    $("#loading").textContent = replayFilters.elitism && !elitePlayerUids
+      ? elitismUnavailableMessage() : catalog.length ? copy.noMatchingRecordings : copy.noRecordings;
     previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
     roundSelect.innerHTML = "";
     timeline.value = 0;
@@ -1706,7 +1770,8 @@
     const fateField = isHundredSchoolsSeason(selectedSeason) ? "linXianMoFates" : "linFates";
     const chosenGroups = [...replayFilters.fates].map(id => filterFates.find(group => group.id === id));
     filteredCatalog = seasonCatalog.filter(item =>
-      matchesStartingTraitFilters(item, replayFilters)
+      matchesElitismFilter(item)
+      && matchesStartingTraitFilters(item, replayFilters)
       && (!replayFilters.career || numericPrefix(item.linCareer) === replayFilters.career)
       && (!replayFilters.roundOnePools.size || replayFilters.roundOnePools.has(item.roundOneXianMoPool?.id))
       && [...replayFilters.pools].every(id => (item.xianMoPools ?? []).some(pool => pool.id === id))
@@ -1737,7 +1802,8 @@
       ?? preferredRecording(filteredCatalog);
     if (!item) {
       clearRecording();
-      syncEmptyLocation();
+      if (replayFilters.elitism && !elitePlayerUids) syncFilterLocation();
+      else syncEmptyLocation();
       return;
     }
     select.value = item.id;
@@ -1814,6 +1880,28 @@
   }
 
   function restoreLocation() {
+    const generation = ++elitismRestoreGeneration;
+    const requestedFilters = filterStateFromParams(new URLSearchParams(location.search));
+    if (requestedFilters.elitism && !elitePlayerUids && !elitismError) {
+      catalogNavigationGeneration++;
+      replaceFilterState(requestedFilters);
+      if (lazyCatalogs) {
+        const requestedSeason = requestedLocation().season;
+        selectedSeason = availableSeasons.includes(requestedSeason) ? requestedSeason : catalogSource.manifest.defaultSeason;
+        renderSeasonSelector();
+      } else setSeason(seasonFromLocation(requestedLocation()));
+      clearRecording();
+      select.innerHTML = `<option value="">${esc(elitismUnavailableMessage())}</option>`;
+      select.disabled = true;
+      renderRecordingFilters();
+      // Keep the requested recording/step until eligibility is known. In
+      // particular, a deep link must not be erased by a temporary empty list.
+      return loadElitePlayers().then(() => {
+        if (generation !== elitismRestoreGeneration) return;
+        if (lazyCatalogs) return restoreSeasonLocation();
+        return restoreLoadedLocation();
+      });
+    }
     if (lazyCatalogs) return restoreSeasonLocation();
     return restoreLoadedLocation();
   }
@@ -1854,6 +1942,49 @@
       careerControl.setAttribute("aria-label", isChinese ? "选择副职业" : "Choose a side job");
       careerPicker.append(careerControl);
       pickers.insertBefore(careerPicker, picker);
+    }
+  }
+  if (elitismUrl) {
+    const headingLabel = select.closest(".recording-choice")?.querySelector('label[for="recording-select"]');
+    if (headingLabel) {
+      const heading = document.createElement("div");
+      heading.className = "recording-choice-heading";
+      headingLabel.before(heading);
+      heading.append(headingLabel);
+      const label = document.createElement("label");
+      label.className = "recording-elitism-filter";
+      label.title = isChinese
+        ? "仅显示林小月排行榜当前前十或往季结算前十玩家的录像。"
+        : "Only players currently top 10, or in a previous season’s final top 10, on Lin Xiaoyue’s leaderboard.";
+      elitismCheckbox = document.createElement("input");
+      elitismCheckbox.id = "elitism-filter";
+      elitismCheckbox.type = "checkbox";
+      elitismCheckbox.setAttribute("aria-label", label.title);
+      label.append(elitismCheckbox, document.createTextNode(isChinese ? "精英筛选" : "Elitism"));
+      heading.append(label);
+      elitismRetry = document.createElement("button");
+      elitismRetry.type = "button";
+      elitismRetry.id = "elitism-retry";
+      elitismRetry.className = "recording-elitism-retry";
+      elitismRetry.textContent = isChinese ? "重试" : "Retry";
+      elitismRetry.hidden = true;
+      heading.append(elitismRetry);
+      elitismCheckbox.addEventListener("change", () => {
+        replayFilters.elitism = elitismCheckbox.checked;
+        elitismRestoreGeneration++;
+        if ((replayFilters.elitism && !elitePlayerUids && !elitismError)
+          || (!replayFilters.elitism && elitismRequest)) {
+          syncFilterLocation();
+          restoreLocation();
+        } else {
+          applyRecordingFilters();
+          renderRecordingFilters();
+        }
+      });
+      elitismRetry.addEventListener("click", () => {
+        elitismError = false;
+        restoreLocation();
+      });
     }
   }
   $("#career-filter")?.addEventListener("change", event => {

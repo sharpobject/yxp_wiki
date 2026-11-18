@@ -53,6 +53,30 @@
 }
 
 .recording-choice { grid-column: 1 / -1; }
+.recording-choice-heading { display: flex; align-items: center; gap: 8px; }
+.recording-elitism-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  cursor: pointer;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+}
+.recording-elitism-filter input { margin: 0; accent-color: var(--accent); }
+.recording-elitism-retry {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-transform: none;
+  cursor: pointer;
+}
+.recording-elitism-retry[hidden] { display: none; }
+
 
 /* Older collection pages use the shared viewer without the season wrapper. */
 .recording-intro > .recording-picker { min-width: min(440px, 42vw); max-width: 64%; }
