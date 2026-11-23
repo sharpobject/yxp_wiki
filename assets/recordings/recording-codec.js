@@ -6,6 +6,9 @@
   "use strict";
 
   const FORMAT_VERSION = 1;
+  // Recording-only version: old readers reject the evidence contract rather
+  // than silently decoding it into a timeline with no provenance.
+  const INTEGRITY_FORMAT_VERSION = 2;
   // New kinds are appended so archived four-kind recordings remain readable.
   const CATALOG_KINDS = ["cards", "talents", "fateStrategies", "characters", "xianMoStrategies"];
   const CATALOG_ITEM_KEYS = new Set([
@@ -25,6 +28,37 @@
 
   const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
   const byteLength = (value) => new TextEncoder().encode(JSON.stringify(value)).length;
+
+  const isSupportedRecordingFormat = version => version === FORMAT_VERSION || version === INTEGRITY_FORMAT_VERSION;
+
+  /** Check the evidence contract, not the truth of a producer's declarations.
+   * Legacy exports cannot qualify. Reconstructed timelines require an explicit
+   * opt-in; consumers needing native evidence must inspect observations.
+   */
+  function assertRecordingIntegrity(recording, { allowReconstructed = false } = {}) {
+    const integrity = recording?.integrity;
+    if (!isObject(integrity) || integrity.version !== 1
+      || !["native-observation", "reconstructed"].includes(integrity.timeline)
+      || integrity.nativeEvidence !== "separate-observations") {
+      throw new Error("recording lacks a supported integrity contract; legacy evidence is unverified");
+    }
+    if (!Array.isArray(recording.observations) || !recording.observations.length || !recording.observations.every(isObject)
+      || !Array.isArray(recording.steps)) {
+      throw new Error("recording integrity contract requires a separate native observation ledger");
+    }
+    for (const step of recording.steps) {
+      if (!isObject(step?.provenance) || !["native-observation", "reconstructed"].includes(step.provenance.kind)) {
+        throw new Error("recording step lacks explicit provenance");
+      }
+      if (integrity.timeline === "native-observation" && step.provenance.kind !== "native-observation") {
+        throw new Error("native timeline contains a reconstructed step");
+      }
+    }
+    if (!allowReconstructed && integrity.timeline !== "native-observation") {
+      throw new Error("reconstructed timeline is not native evidence; inspect observations or explicitly allow reconstruction");
+    }
+    return recording;
+  }
 
   function characterTraitExtension(source) {
     const result = {};
@@ -55,7 +89,17 @@
     const shapeCounts = new Map();
     const shapeKeys = new Map();
     const stringCounts = new Map();
+    const ancestors = new Set();
     const visit = (current) => {
+      if (current === undefined || (typeof current === "number" && !Number.isFinite(current))
+        || ["function", "symbol", "bigint"].includes(typeof current)) throw new Error("recording value is not lossless JSON");
+      if (current !== null && typeof current === "object") {
+        if (ancestors.has(current)) throw new Error("cyclic recording value");
+        if (!Array.isArray(current) && ![Object.prototype, null].includes(Object.getPrototypeOf(current))) {
+          throw new Error("recording value must be a plain JSON object");
+        }
+        ancestors.add(current);
+      }
       if (isObject(current)) {
         const keys = Object.keys(current);
         const signature = JSON.stringify(keys);
@@ -63,10 +107,14 @@
         shapeKeys.set(signature, keys);
         for (const child of Object.values(current)) visit(child);
       } else if (Array.isArray(current)) {
-        for (const child of current) visit(child);
+        for (let index = 0; index < current.length; index++) {
+          if (!Object.hasOwn(current, index)) throw new Error("sparse recording array is not lossless JSON");
+          visit(current[index]);
+        }
       } else if (typeof current === "string") {
         stringCounts.set(current, (stringCounts.get(current) ?? 0) + 1);
       }
+      if (current !== null && typeof current === "object") ancestors.delete(current);
     };
     visit(value);
     const shapes = [...shapeCounts]
@@ -107,10 +155,20 @@
   function unpackValue(packed) {
     if (!Array.isArray(packed) || packed.length !== 3) throw new Error("invalid packed value");
     const [shapes, strings, encoded] = packed;
+    if (!Array.isArray(shapes) || shapes.some(keys => !Array.isArray(keys)
+      || keys.some(key => typeof key !== "string") || new Set(keys).size !== keys.length)
+      || !Array.isArray(strings) || strings.some(text => typeof text !== "string")) {
+      throw new Error("invalid recording value dictionaries");
+    }
     const decode = (current) => {
-      if (!Array.isArray(current)) return current;
+      if (!Array.isArray(current)) {
+        if (current !== null && !["boolean", "number", "string"].includes(typeof current)
+          || (typeof current === "number" && !Number.isFinite(current))) throw new Error("invalid recording value literal");
+        return current;
+      }
       const tag = current[0];
       if (tag === 0) {
+        if (!Number.isSafeInteger(current[1]) || current[1] < 0) throw new Error("invalid recording object schema reference");
         const keys = shapes[current[1]];
         if (!keys) throw new Error(`unknown recording object schema ${current[1]}`);
         if (current.length !== keys.length + 2) throw new Error("recording object schema length mismatch");
@@ -118,6 +176,7 @@
       }
       if (tag === 1) return current.slice(1).map(decode);
       if (tag === 2) {
+        if (current.length !== 2 || !Number.isSafeInteger(current[1]) || current[1] < 0) throw new Error("invalid recording string reference");
         if (typeof strings[current[1]] !== "string") throw new Error(`unknown recording string ${current[1]}`);
         return strings[current[1]];
       }
@@ -176,8 +235,10 @@
   }
 
   function packRecording(recording, options = {}) {
+    const version = Object.hasOwn(recording, "integrity") ? INTEGRITY_FORMAT_VERSION : FORMAT_VERSION;
+    if (version === INTEGRITY_FORMAT_VERSION) assertRecordingIntegrity(recording, { allowReconstructed: true });
     const { catalog, ...withoutCatalog } = recording;
-    const packed = [FORMAT_VERSION, catalogReferences(catalog), packValue(withoutCatalog, options)];
+    const packed = [version, catalogReferences(catalog), packValue(withoutCatalog, options)];
     if (options.sharedCatalog) {
       const overrides = {};
       for (const kind of CATALOG_KINDS) {
@@ -193,20 +254,20 @@
   }
 
   function unpackRecording(packed, sharedCatalog) {
-    if (!Array.isArray(packed) || packed[0] !== FORMAT_VERSION || ![3, 4].includes(packed.length)) {
+    if (!Array.isArray(packed) || !isSupportedRecordingFormat(packed[0]) || ![3, 4].includes(packed.length)) {
       throw new Error("unsupported packed recording format");
     }
     const recording = unpackValue(packed[2]);
+    if (!isObject(recording)) throw new Error("invalid recording payload");
+    if (packed[0] === INTEGRITY_FORMAT_VERSION) assertRecordingIntegrity(recording, { allowReconstructed: true });
+    else if (Object.hasOwn(recording, "integrity")) throw new Error("recording integrity contract requires format 2");
     const overrides = packed.length === 4 ? unpackValue(packed[3]) : {};
     const effectiveCatalog = Object.fromEntries(CATALOG_KINDS.map(kind =>
       [kind, { ...sharedCatalog[kind], ...overrides[kind] }]));
     const catalog = catalogFromReferences(packed[1], effectiveCatalog);
     return {
-      id: recording.id,
-      targetUid: recording.targetUid,
-      targetUsername: recording.targetUsername,
+      ...recording,
       catalog,
-      steps: recording.steps,
     };
   }
 
@@ -280,7 +341,8 @@
   }
 
   // Browser indexes are derived, lossy list projections; canonical catalogs and
-  // recorded timelines retain FORMAT_VERSION 1 and their complete metadata.
+  // canonical catalogs retain FORMAT_VERSION 1. Evidence-aware recordings use
+  // the independent INTEGRITY_FORMAT_VERSION.
   const BROWSER_INDEX_VERSION = 2;
   const BROWSER_POOL_EXAMPLE_FATES = {
     1: 1001, 2: 2001, 3: 3001, 4: 4001, 5: 5001, 6: 6001, 7: 7001,
@@ -465,6 +527,9 @@
 
   return {
     FORMAT_VERSION,
+    INTEGRITY_FORMAT_VERSION,
+    isSupportedRecordingFormat,
+    assertRecordingIntegrity,
     BROWSER_INDEX_VERSION,
     CATALOG_KINDS,
     packValue,

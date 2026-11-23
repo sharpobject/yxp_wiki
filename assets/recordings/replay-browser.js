@@ -12,7 +12,7 @@
   const recordingVersion = document.body.dataset.recordingVersion || "";
   const versionedUrl = (filename) => `${recordingBase}/${filename}${recordingVersion
     ? `?v=${encodeURIComponent(recordingVersion)}` : ""}`;
-  async function loadCompressedJson(url) {
+  async function loadCompressedJson(url, validationEntry = null) {
     const response = await fetch(url);
     if (!response.ok) {
       const error = new Error(`${response.status} ${response.statusText}`);
@@ -28,9 +28,22 @@
     } else {
       text = new TextDecoder().decode(bytes);
     }
+    if (validationEntry) await validationGate.verifyPayload(text, validationEntry);
     return JSON.parse(text);
   }
   if (!window.RECORDING_CODEC) throw new Error("recording codec did not load");
+  if (!window.RECORDING_VALIDATION_GATE) throw new Error("recording validation gate did not load");
+  const validationGate = window.RECORDING_VALIDATION_GATE.createGate({
+    manifestUrl: document.body.dataset.recordingValidationUrl || "",
+    manifestSha256: document.body.dataset.recordingValidationSha256 || "",
+    fetchBytes: async url => {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error("Replay validation status could not be loaded");
+      return new Uint8Array(await response.arrayBuffer());
+    },
+    sha256: async bytes => Array.from(new Uint8Array(await crypto.subtle.digest("SHA-256", bytes)),
+      byte => byte.toString(16).padStart(2, "0")).join(""),
+  });
   async function createCatalogSource() {
     const load = file => loadCompressedJson(versionedUrl(file));
     const decode = packed => {
@@ -345,6 +358,9 @@
   }
 
   function card(id, zeroAsNormalAttack = false, owner = null, metadataOverride = null) {
+    // null is an occupied card whose identity is unresolved. Zero is empty (or
+    // Normal Attack in battle); neither may borrow an actual card's artwork.
+    if (id === null) return `<div class="game-card placeholder-card unknown-card" data-card-identity="unknown" title="${esc(copy.unknownCard)}"><span class="card-fallback"><strong>${esc(copy.unknownCard)}</strong></span></div>`;
     if (!id && !zeroAsNormalAttack) return `<div class="empty-slot" title="${esc(copy.emptySlot)}"></div>`;
     const cardId = id || 0;
     const info = recording.catalog.cards[cardId] ?? metadataOverride ?? (cardId === 0
@@ -362,7 +378,7 @@
     }
     const name = localizedInfo(info) || copy.unknownCard;
     const level = isChinese ? `${info.upgrade ?? 1}级` : `Lv.${info.upgrade ?? 1}`;
-    if (info.placeholder) return `<div class="game-card placeholder-card" title="${esc(name)}"><span class="card-fallback"><strong>${esc(name)}</strong></span><img data-asset-fallback src="${cardAsset(399)}" alt="${esc(name)}"></div>`;
+    if (info.placeholder) return `<div class="game-card placeholder-card unknown-card" data-card-identity="unknown" title="${esc(name)}"><span class="card-fallback"><strong>${esc(name)}</strong></span></div>`;
     if (Number(cardId) === -1) return `<div class="game-card special-card" title="${esc(name)} ${esc(level)}"><img data-asset-fallback class="card-special-art" src="${specialCardArt(cardId)}" alt=""><span class="special-card-name"><strong>${esc(name)}</strong><small>${esc(level)}</small></span></div>`;
     return `<div class="game-card" title="${esc(name)} ${esc(level)}">
       <span class="card-fallback"><strong>${esc(name)}</strong><small>${esc(level)}</small></span>
@@ -376,10 +392,17 @@
   function cardTransition(before, after, step) {
     const deck = (after?.privatePlayer?.deck ?? []).map(id => ({ id, change: "" }));
     const hand = (after?.privatePlayer?.hand ?? []).map(id => ({ id, change: "" }));
-    const vase = Array.from({length: 3}, (_, i) => ({id: after?.privatePlayer?.cardStorage?.[199]?.[i] || 0, change: ""}));
+    const vase = Array.from({length: 3}, (_, i) => {
+      const id = after?.privatePlayer?.cardStorage?.[199]?.[i];
+      return {id: id === undefined ? 0 : id, change: ""};
+    });
     const result = { deck, hand, vase, deckPrevious: null };
     if (!before || step?.battle ||
         before.privatePlayer?.uid !== after.privatePlayer?.uid) return result;
+    // Identity resolution is not an acquisition. Without resolved identities,
+    // multiset/slot matching cannot establish which copies moved or appeared.
+    if ([before, after].some(state => [state.privatePlayer?.hand, state.privatePlayer?.deck,
+      state.privatePlayer?.cardStorage?.[199]].some(zone => zone?.includes(null)))) return result;
     if (before.round !== after.round) {
       // A round-start hand already includes its draws. Highlight only new
       // copies; round changes must not produce red history or deck highlights.
@@ -734,7 +757,7 @@
 
   function seasonalZoneEntries(zone) {
     const entries = zone.kind === "sigil" ? (zone.entries ?? []).map(entry => entry || null)
-      : (zone.cards ?? []).map(id => Number(id) || 0);
+      : (zone.cards ?? []).map(id => id === null ? null : Number(id) || 0);
     // Sigil slots are independent of their cost budget and always number three.
     const capacity = zone.kind === "sigil" && zone.id === "sigil-deck" ? 3
       : zone.id === "dream-storage" ? 2 : Number(zone.capacity);
@@ -748,7 +771,8 @@
   function seasonalZoneTransition(zone, previous) {
     const current = seasonalZoneEntries(zone);
     const old = previous ? seasonalZoneEntries(previous) : [];
-    const idOf = entry => Number(zone.kind === "sigil" ? entry?.id : entry) || 0;
+    const idOf = entry => zone.kind !== "sigil" && entry === null ? null
+      : Number(zone.kind === "sigil" ? entry?.id : entry) || 0;
     const fixedSlots = Number.isInteger(Number(zone.capacity)) || zone.id === "sigil-deck";
     const unmatched = [...old];
     return current.map((entry, slot) => {
@@ -757,7 +781,7 @@
         const position = unmatched.findIndex(candidate => idOf(candidate) === idOf(entry));
         prior = position >= 0 ? unmatched.splice(position, 1)[0] : null;
       }
-      const changed = previous && idOf(entry) !== idOf(prior);
+      const changed = previous && idOf(entry) !== null && idOf(prior) !== null && idOf(entry) !== idOf(prior);
       const sold = previous && zone.kind === "sigil" && idOf(entry) === idOf(prior)
         && entry?.soldOut === true && prior?.soldOut !== true;
       return { entry, previous: prior, change: changed ? idOf(entry) ? "appear" : "leaving" : sold ? "sold" : "", slot: slot + 1 };
@@ -1171,8 +1195,14 @@
     previous.disabled = index === 0;
     next.disabled = index === recording.steps.length - 1;
     $("#step-label").textContent = `${index + 1} / ${recording.steps.length}`;
-    $("#recording-meta").textContent = state.players[targetUid]?.username
-      || activeCatalogItem?.targetUsername || recording.targetUsername;
+    const evidenceLabel = recording.integrity?.timeline === "reconstructed"
+      ? (isChinese ? "重建回放（含推断）" : "Reconstructed replay (includes inference)")
+      : !recording.integrity ? (isChinese ? "旧回放：来源未验证" : "Legacy replay: provenance unverified") : "";
+    $("#recording-meta").textContent = [state.players[targetUid]?.username
+      || activeCatalogItem?.targetUsername || recording.targetUsername, evidenceLabel].filter(Boolean).join(" · ");
+    $("#recording-meta").title = isChinese
+      ? "未知卡牌身份以未知显示。重建的动作、时序与卡牌身份可能包含推断。原生快照中的牌池计数也可能滞后。"
+      : "Unknown card identities remain unknown. Reconstructed actions, timing and identities may be inferred. Native snapshot stock counts may also be stale.";
     document.querySelectorAll(".player-portrait").forEach((button) => button.addEventListener("click", () => {
       selectedUid = button.dataset.uid;
       selectionFollowsTarget = selectedUid === targetUid;
@@ -1410,7 +1440,11 @@
     const resultSummary = $("#recording-result");
     if (resultSummary) resultSummary.hidden = true;
     previous.disabled = next.disabled = timeline.disabled = roundSelect.disabled = true;
-    Promise.all([loadCompressedJson(versionedUrl(item.file)), recordingSharedCatalog])
+    // Check the pinned current disposition before fetching any historical
+    // payload. A failed rebuild must never silently load an older success.
+    validationGate.authorize(item.id).then(entry => Promise.all([
+      loadCompressedJson(versionedUrl(item.file), entry), recordingSharedCatalog,
+    ]))
       .then(([packed, metadata]) => window.RECORDING_CODEC.unpackRecording(packed, metadata))
       .then((data) => {
         if (generation !== loadGeneration) return;
@@ -1418,7 +1452,18 @@
       })
       .catch((error) => {
         console.error(`could not load recording ${item.file}`, error);
-        if (generation === loadGeneration) $("#loading").textContent = `${copy.couldNotLoad} ${item.file}`;
+        if (generation === loadGeneration) {
+          recording = activeCatalogItem = null;
+          states = [];
+          const unavailable = error.code === "REPLAY_RECONSTRUCTION_REJECTED";
+          $("#loading").textContent = unavailable
+            ? (isChinese ? "此录像的当前重建未通过验证。存在无法确认的片段，旧的推断回放未加载。"
+              : "This replay’s current reconstruction could not be verified. Some intervals are unresolved; the previous inferred timeline was not loaded.")
+            : error.code?.startsWith("VALIDATION_") || error.code === "REPLAY_PAYLOAD_HASH_MISMATCH"
+              ? (isChinese ? "无法验证此录像的版本。旧回放未加载。" : "This replay version could not be verified. The previous timeline was not loaded.")
+              : `${copy.couldNotLoad} ${item.file}`;
+          $("#step-label").textContent = "—";
+        }
       });
   }
 
