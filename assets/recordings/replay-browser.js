@@ -172,7 +172,7 @@
     jumpRound: "跳转到轮次…", loading: "正在载入…", couldNotLoad: "无法载入", noRecordings: "没有完整录像。",
     rating: "分", rounds: "轮", currentPrivate: "当前私密视角", cupPreliminary: "天衍杯初赛", cupFinal: "天衍杯决赛", cup: "天衍杯", practice: "练习赛",
     actionKinds: { draw: "抽牌", gain: "获得卡牌", move: "移动", rearrange: "调整", upgrade: "合成", exchange: "换牌", absorb: "吸收", destiny: "命元", leave: "离场", emote: "表情", breakthrough: "突破", sideJob: "副职业", immortalFate: "仙命", heavenlyFate: "天衍仙命", heavenlyFateUse: "使用天衍仙命", seasonalFate: "百家仙命", seasonalFateUse: "使用百家仙命", sigilMove: "移动刻印", sigilBuy: "购买刻印", sigilRefine: "炼化刻印", sigilRefresh: "刷新刻印商店", sigilReplace: "更换刻印", reroll: "刷新" },
-    battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", draw: "平", firstAction: "先手", opponentLastRound: "对手上一轮",
+    battle: "战斗", battleResult: "战斗结果", win: "胜", loss: "负", resultUnavailable: "未记录", firstAction: "先手", opponentLastRound: "对手上一轮",
     previousOffer: "此前选项", rerolled: "刷新", rerolledAway: "已刷走", finalOffer: "最终选项", offer: "选项", daoYunChoices: "道韵预感", cardSelections: "卡牌选择", chosen: "已选择", innerDemon: "心魔", andOtherCards: (count) => `另有 ${count} 张牌`,
     filters: "筛选", heavenlyFateFilter: "已选择的天衍仙命", sideJobFilter: "副职业", opponentFilter: "人类对手角色", anySideJob: "任意副职业", clearFilters: "清除", noMatchingRecordings: "没有符合条件的录像",
   } : {
@@ -187,7 +187,7 @@
     jumpRound: "Jump to round…", loading: "Loading…", couldNotLoad: "Could not load", noRecordings: "No complete recordings are available.",
     rating: "rating", rounds: "rounds", currentPrivate: "Current private view", cupPreliminary: "Heavenly Derivation Cup preliminary", cupFinal: "Heavenly Derivation Cup final", cup: "Heavenly Derivation Cup", practice: "Practice",
     actionKinds: { draw: "Draw", gain: "Gain", move: "move", rearrange: "rearrange", upgrade: "upgrade", exchange: "exchange", absorb: "absorb", destiny: "destiny", leave: "left", emote: "emote", breakthrough: "breakthrough", sideJob: "Side Job", immortalFate: "Immortal Fate", heavenlyFate: "Heavenly Derivation", heavenlyFateUse: "used Heavenly Derivation", seasonalFate: "Hundred Schools", seasonalFateUse: "used Hundred Schools", sigilMove: "Move sigil", sigilBuy: "Buy sigil", sigilRefine: "Refine sigil", sigilRefresh: "Refresh sigil shop", sigilReplace: "Replace sigil", reroll: "reroll" },
-    battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", draw: "Draw", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
+    battle: "battle", battleResult: "Battle result", win: "Win", loss: "Loss", resultUnavailable: "Not recorded", firstAction: "Acts first", opponentLastRound: "Opponent · last round",
     previousOffer: "Previous offer", rerolled: "Rerolled", rerolledAway: "Rerolled away", finalOffer: "Final offer", offer: "Offer", daoYunChoices: "Daoist Rhyme Omens", cardSelections: "Card selections", chosen: "Chosen", innerDemon: "Inner Demon", andOtherCards: (count) => `and ${count} other cards`,
     filters: "Filters", heavenlyFateFilter: "Chosen Heavenly Derivation Fates", sideJobFilter: "Side Job", opponentFilter: "Human opponent characters", anySideJob: "Any Side Job", clearFilters: "Clear", noMatchingRecordings: "No matching recordings",
   };
@@ -1052,6 +1052,11 @@
       : `<li class="empty">${esc(copy.noActions)}</li>`;
   }
 
+  function battleForPlayer(battle, playerUid) {
+    const matchups = battle?.matchups ?? (battle?.players ? [{ players: battle.players }] : []);
+    return matchups.some(entry => entry.players?.[playerUid]) ? battle : null;
+  }
+
   function renderBattle(battle, playerUid) {
     const host = $("#battle-panel");
     const matchups = battle?.matchups ?? (battle?.players ? [{ players: battle.players }] : []);
@@ -1074,7 +1079,7 @@
           <div class="battle-player">
             <img data-character-fallback data-default-src="${characterAsset(player, "avatar", true)}" src="${characterAsset(player, "avatar")}" alt="">
             <div><strong>${esc(player.username)}${player.innerDemon ? isChinese ? `（${esc(copy.innerDemon)}）` : ` (${esc(copy.innerDemon)})` : ""}</strong><span>${esc(characterName(player))}</span><span>${esc(phaseName(player.phase))}${numericPrefix(player.career) ? ` · ${esc(careerName(player.career))}` : ""}</span></div>
-            <b class="battle-result-stamp">${esc(copy[player.result] ?? copy.draw)}</b>
+            <b class="battle-result-stamp">${esc(["win", "loss"].includes(player.result) ? copy[player.result] : copy.resultUnavailable)}</b>
           </div>
           <div class="battle-values">
             <span><small>${esc(copy.destiny)}</small><strong>${esc(player.lifeBefore)}${deltaText}</strong></span>
@@ -1125,7 +1130,7 @@
     const state = states[index];
     if (!state) return;
     renderStartingTraits();
-    const battle = recording.steps[index]?.battle;
+    const stepBattle = recording.steps[index]?.battle;
     const privatePlayer = state.privatePlayer;
     // Observer snapshots can belong to another player before capture starts or
     // after elimination. They never change which player this recording follows.
@@ -1138,6 +1143,9 @@
       selectionFollowsTarget = true;
     }
     const selected = state.players[selectedUid] ?? players[0];
+    // An observed result for another pair must not hide this player's
+    // separately observed roster/deck view behind an empty battle panel.
+    const battle = battleForPlayer(stepBattle, selected?.uid);
     const isOwn = selected?.uid === privateOwnerUid;
     const prior = isOwn ? null : selected?.lastRound;
     const deck = isOwn ? state.privatePlayer?.deck ?? [] : prior?.deck ?? [];
