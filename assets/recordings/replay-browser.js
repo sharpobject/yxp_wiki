@@ -1,4 +1,54 @@
 (async () => {
+  // BEGIN typed talent display localization
+  // Exact Talent_* namespace, verified against all 14 historical native builds
+  // used by the deployed corpus. Evidence SHA256:
+  // bdb73b4bf5c66e2d298f7fe02f12008586cfa3b9e4f2dcdf8f0b9d376d39de3c
+  // Archived payloads retain their original decoder metadata. These display-only
+  // aliases must never apply to CardName_*, character profiles, or sigil cards.
+  const talentDisplayNames = [
+    { key: "Talent_2", ids: [2, 10002, 20002, 30002], chinese: "融会贯通", english: "Integrating Knowledge", legacy: "The Fusion" },
+    { key: "Talent_73", ids: [73, 10073, 20073, 30073], chinese: "金灵传承", english: "Inheritance of Metal Spirit", legacy: "Metal Spirit Legacy" },
+    { key: "Talent_74", ids: [74, 10074, 20074, 30074], chinese: "木灵传承", english: "Inheritance of Wood Spirit", legacy: "Wood Spirit Legacy" },
+    { key: "Talent_75", ids: [75, 10075, 20075, 30075], chinese: "水灵传承", english: "Inheritance of Water Spirit", legacy: "Water Spirit Legacy" },
+    { key: "Talent_76", ids: [76, 10076, 20076, 30076], chinese: "火灵传承", english: "Inheritance of Fire Spirit", legacy: "Fire Spirit Legacy" },
+    { key: "Talent_77", ids: [77, 10077, 20077, 30077], chinese: "土灵传承", english: "Inheritance of Earth Spirit", legacy: "Earth Spirit Legacy" },
+    { key: "Talent_241", ids: [241], chinese: "复刻", english: "Replication", legacy: "Replicate" },
+  ];
+  function talentDisplayCorrection(info, kind) {
+    if (kind !== "talent") return null;
+    return talentDisplayNames.find(entry => entry.ids.includes(Number(info?.id))
+      && info?.nameChinese === entry.chinese && info?.nameEnglish === entry.legacy) ?? null;
+  }
+  function localizedDisplayInfo(info, field = "name", kind = "", chinese = false) {
+    const corrected = field === "name" && !chinese ? talentDisplayCorrection(info, kind) : null;
+    const value = corrected?.english || info?.[`${field}${chinese ? "Chinese" : "English"}`]
+      || info?.[`${field}${chinese ? "English" : "Chinese"}`] || "";
+    return typeof value === "string" ? value.replace(/\\n/g, "\n") : value;
+  }
+  function localizedTalentAction(action, talents, references, chinese = false) {
+    const text = action?.[chinese ? "textChinese" : "textEnglish"] || action?.text || "";
+    if (chinese || !["immortalFate", "breakthrough"].includes(action?.kind)
+      || typeof action.actorUsername !== "string" || !action.actorUsername) return text;
+    const selectedIds = new Set((references ?? []).map(reference => Number(reference?.id ?? reference)));
+    for (const id of selectedIds) {
+      const correction = talentDisplayCorrection(talents?.[id], "talent");
+      if (!correction) continue;
+      const prefix = action.actorUsername;
+      const englishSuffix = `${action.kind === "breakthrough" ? " and" : ""} chose ${correction.legacy} as their Immortal Fate`;
+      const chineseSuffix = `${action.kind === "breakthrough" ? "并" : ""}选择${correction.chinese}作为仙命`;
+      const englishStart = action.kind === "breakthrough" ? `${prefix} broke through to ` : prefix;
+      const chineseStart = action.kind === "breakthrough" ? `${prefix}突破至` : prefix;
+      if (!text.startsWith(englishStart) || !text.endsWith(englishSuffix)
+        || !action.textChinese?.startsWith(chineseStart) || !action.textChinese.endsWith(chineseSuffix)) continue;
+      if (action.kind === "immortalFate"
+        && (text !== prefix + englishSuffix || action.textChinese !== prefix + chineseSuffix)) continue;
+      return text.slice(0, -englishSuffix.length) + englishSuffix.replace(correction.legacy, correction.english);
+    }
+    return text;
+  }
+  // END typed talent display localization
+  // Team recordings remain stored, but are excluded from this wiki browser.
+  const visibleRecording = item => Boolean(item) && Number(item.gameMode) !== 150;
   const $ = (selector) => document.querySelector(selector);
   document.body.classList.add("recording-browser-page");
   $("#character-select")?.addEventListener("change", event => {
@@ -48,6 +98,7 @@
     const load = file => loadCompressedJson(versionedUrl(file));
     const decode = packed => {
       const data = window.RECORDING_CODEC.unpackCatalog(packed);
+      data.catalog = data.catalog.filter(visibleRecording);
       data.catalog.sort((first, second) =>
         String(first.targetUid ?? "").localeCompare(String(second.targetUid ?? ""))
         || String(second.capturedThrough ?? "").localeCompare(String(first.capturedThrough ?? "")));
@@ -305,11 +356,7 @@
   };
   const numericPrefix = (value) => Number.parseInt(String(value ?? "0"), 10) || 0;
   const localizedPair = (pair, fallback = "") => pair ? pair[isChinese ? 1 : 0] : fallback;
-  const localizedInfo = (info, field = "name") => {
-    const value = info?.[`${field}${isChinese ? "Chinese" : "English"}`]
-      || info?.[`${field}${isChinese ? "English" : "Chinese"}`] || "";
-    return typeof value === "string" ? value.replace(/\\n/g, "\n") : value;
-  };
+  const localizedInfo = (info, field = "name", kind = "") => localizedDisplayInfo(info, field, kind, isChinese);
   const phaseName = (value) => localizedPair(vocabulary.phases[numericPrefix(value)], String(value ?? copy.unknownPhase));
   const priorMaxHp = (prior) => Number(baseMaxHpByPhase[numericPrefix(prior?.phase)] ?? 0) + Number(prior?.extraMaxHp ?? 0);
   const sectName = (value) => localizedPair(vocabulary.sects[numericPrefix(value)], String(value ?? ""));
@@ -557,7 +604,7 @@
           : kind === "talent" ? recording.catalog.talents[id]
             : kind === "xianMoStrategy" ? recording.catalog.xianMoStrategies?.[id] : recording.catalog.fateStrategies[id];
         const selected = !row.previous && Number(id) === Number(history.selected);
-        const name = localizedInfo(info) || id;
+        const name = localizedInfo(info, "name", kind) || id;
         const artwork = kind === "card"
           ? `<img data-asset-fallback src="${cardAsset(id)}" alt="${esc(name)}">`
           : fateArtwork(info ?? { id }, kind, name);
@@ -581,7 +628,7 @@
     const badge = runtime
       ? `<span class="trait-count${runtime.kind === "cooldown" ? " cooldown" : ""}">${esc(badgeText)}</span>`
       : "";
-    const name = localizedInfo(info);
+    const name = localizedInfo(info, "name", kind);
     const localizedDescription = localizedInfo(info, "description");
     const enchantedSlot = kind === "xianMoStrategy" ? recordedEnchantedSlot(reference) : null;
     const slotDescription = enchantedSlot == null ? "" : enchantmentSlotText(enchantedSlot);
@@ -927,7 +974,7 @@
       }
       const kind = overlay.kind === "immortal-fate" ? "talent" : overlay.kind === "hundred-schools" ? "xianMoStrategy" : "fateStrategy";
       const info = kind === "talent" ? recording.catalog.talents[reference.id] : kind === "xianMoStrategy" ? recording.catalog.xianMoStrategies?.[reference.id] : recording.catalog.fateStrategies[reference.id];
-      const name = localizedInfo(info) || reference.id;
+      const name = localizedInfo(info, "name", kind) || reference.id;
       const optionCanReroll = canReroll && !(kind === "xianMoStrategy" && info?.isSkip);
       return `<article class="selection-option${selected ? " selected" : ""}"><div class="selection-icon">${fateArtwork(info ?? { id: reference.id }, kind, name)}</div>${optionCanReroll ? `<span class="reroll-slot">↻ <small>${optionIndex + 1}</small></span>` : ""}<span class="chosen-mark${selected ? "" : " placeholder"}">${selected ? `✓ ${esc(copy.chosen)}` : "—"}</span><strong>${esc(name)}</strong><p>${esc(localizedInfo(info, "description"))}</p></article>`;
     }).concat(omittedCardCount > 0
@@ -1030,12 +1077,14 @@
 
   function recentActions() {
     return recording.steps.slice(0, index + 1)
-      .flatMap((step, stepIndex) => (step.humanActions ?? []).map((action) => ({ ...action, current: stepIndex === index })))
+      .flatMap((step, stepIndex) => (step.humanActions ?? []).map((action) => ({ ...action,
+        talentReferences: states[stepIndex]?.players?.[action.actorUid]?.talents ?? [],
+        current: stepIndex === index })))
       .slice(-5);
   }
 
   const actionText = (action, mechanic) => {
-    const text = action[isChinese ? "textChinese" : "textEnglish"] || action.text || "";
+    const text = localizedTalentAction(action, recording.catalog.talents, action.talentReferences, isChinese);
     return Number(mechanic) === 6 && action.kind === "seasonalFate"
       ? mirageText({ nameEnglish: text, nameChinese: text }) : text;
   };
@@ -1391,7 +1440,7 @@
   }
 
   function navigateToRecording(item, { historyMode = "push" } = {}) {
-    if (!item) return;
+    if (!visibleRecording(item)) return;
     select.value = item.id;
     syncPendingRecordingLocation(item, historyMode);
     loadRecording(item, { historyMode: "replace" });
@@ -1436,7 +1485,7 @@
   }
 
   function loadRecording(item, { stepIndex = null, historyMode = "replace" } = {}) {
-    if (!item) return;
+    if (!visibleRecording(item)) return;
     closeMobileTooltip();
     const generation = ++loadGeneration;
     const recordingSharedCatalog = typeof catalogSource !== "undefined" && catalogSource.loadReplayCatalog
@@ -1504,7 +1553,7 @@
     ["r-36ad1a94e89e3947", "r-0222490fe4a782ee"],
   ]);
   const catalogItemForId = (id) => catalog.find((candidate) =>
-    candidate.id === (legacyRecordingAliases.get(id) ?? id));
+    visibleRecording(candidate) && candidate.id === (legacyRecordingAliases.get(id) ?? id));
   const seasonForItem = (item) => {
     if (item?.seasonMechanic == null || !Number.isInteger(Number(item.seasonMechanic))) return "unknown";
     if (Number(item.seasonMechanic) === 10 && item.seasonMechanicEnabled === false) return "10-preseason";
@@ -1521,8 +1570,8 @@
   const replayFilters = filterStateFromParams(new URLSearchParams(location.search));
   let seasonCatalog = [];
   let filteredCatalog = [];
-  const uniqueFilterEntries = (values) => [...new Map(values.map((value) => [Number(value.id), value])).values()]
-    .sort((first, second) => localizedInfo(first).localeCompare(localizedInfo(second)));
+  const uniqueFilterEntries = (values, kind = "") => [...new Map(values.map((value) => [Number(value.id), value])).values()]
+    .sort((first, second) => localizedInfo(first, "name", kind).localeCompare(localizedInfo(second, "name", kind)));
   let filterFates = [], filterOpponents = [], filterCareers = [], filterRoundOnePools = [], filterPools = [];
   let filterTalents = [], filterComprehendedCards = [], filterStartedElements = [], filterEverElements = [];
 
@@ -1636,7 +1685,7 @@
 
   function setSeason(season) {
     selectedSeason = season;
-    seasonCatalog = catalog.filter((item) => seasonForItem(item) === season);
+    seasonCatalog = catalog.filter((item) => visibleRecording(item) && seasonForItem(item) === season);
     const fateField = isHundredSchoolsSeason(season) ? "linXianMoFates" : "linFates";
     filterFates = groupedFateEntries(seasonCatalog.flatMap(item => item[fateField] ?? []));
     filterOpponents = uniqueFilterEntries(seasonCatalog.flatMap(item => item.humanOpponentCharacters ?? []));
@@ -1644,7 +1693,7 @@
       .sort((first, second) => first - second);
     filterRoundOnePools = season === "10" ? roundOnePoolEntries(seasonCatalog.map(item => item.roundOneXianMoPool)) : [];
     filterPools = season === "10" ? visiblePoolEntries(seasonCatalog.flatMap(item => item.xianMoPools ?? [])) : [];
-    filterTalents = uniqueFilterEntries(seasonCatalog.flatMap(item => item.immortalFates ?? []));
+    filterTalents = uniqueFilterEntries(seasonCatalog.flatMap(item => item.immortalFates ?? []), "talent");
     filterComprehendedCards = uniqueFilterEntries(seasonCatalog.flatMap(item => [
       ...(item.comprehendedCardsInitialVerified === true ? item.comprehendedCards ?? [] : []),
       ...(item.comprehendedCardsEver ?? []),
@@ -1697,7 +1746,7 @@
     const comprehendedEver = replayFilters.comprehendedScope === "ever";
     const comprehendScopeSelect = `<select class="recording-comprehend-scope" data-comprehended-scope aria-label="${isChinese ? "领悟牌筛选范围" : "Comprehended card scope"}"><option value="initial"${comprehendedEver ? "" : " selected"}>${isChinese ? "开局三张" : "Initial three"}</option><option value="ever"${comprehendedEver ? " selected" : ""}>${isChinese ? "对局中曾有" : "At any point"}</option></select>`;
     const talentFilters = filterTalents.length ? `<fieldset><legend>${isChinese ? "仙命" : "Immortal Fates"}</legend><p class="recording-filter-rule">${isChinese ? "须包含全部指定仙命，且不含任何排除仙命。排除仙命仅匹配完整开局的录像。" : "Include every required fate and none of the excluded fates. Exclusions require a complete opening."}</p><div class="recording-talent-filters">${filterTalents.map(entry => {
-      const name = localizedInfo(entry);
+      const name = localizedInfo(entry, "name", "talent");
       const mode = replayFilters.excludedTalents?.has(entry.id) ? "exclude" : replayFilters.talents?.has(entry.id) ? "include" : "any";
       return `<label title="${esc(localizedInfo(entry, "description"))}"><span>${esc(name)}</span><select data-talent-filter="${entry.id}" aria-label="${esc((isChinese ? "仙命筛选：" : "Fate filter: ") + name)}" data-filter-state="${mode}">${[["any", isChinese ? "不限" : "Any"], ["include", isChinese ? "包含" : "Include"], ["exclude", isChinese ? "排除" : "Exclude"]].map(([value, label]) => `<option value="${value}"${mode === value ? " selected" : ""}>${label}</option>`).join("")}</select></label>`;
     }).join("")}</div></fieldset>` : "";
@@ -1760,6 +1809,7 @@
   }
 
   function preferredRecording(items) {
+    items = items.filter(visibleRecording);
     const preferred = items.filter(item => item.targetUid === preferredTargetUid);
     const capturedAt = item => {
       const timestamp = Date.parse(item.capturedThrough ?? "");
