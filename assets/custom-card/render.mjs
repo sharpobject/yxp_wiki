@@ -1,7 +1,7 @@
-import './scene-resample.mjs?v=aa2bea43e4bb66ac';
-import './scene-render.mjs?v=aa2bea43e4bb66ac';
-import {loadNativeText,bitmap,composite} from './native-text.mjs?v=aa2bea43e4bb66ac';
-import {autoStyle,markup} from './auto-style.mjs?v=aa2bea43e4bb66ac';
+import './scene-resample.mjs?v=32ca270e2756c9d2';
+import './scene-render.mjs?v=32ca270e2756c9d2';
+import {loadNativeText,bitmap,composite} from './native-text.mjs?v=32ca270e2756c9d2';
+import {autoStyle,markup} from './auto-style.mjs?v=32ca270e2756c9d2';
 const Scene=globalThis.CardScene,resample=globalThis.CardResample;
 // Cache prepared pieces, not complete cards: changing text should not resample
 // the artwork, and adjusting a crop should not rasterize the same text again.

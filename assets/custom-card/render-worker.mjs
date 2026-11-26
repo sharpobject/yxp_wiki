@@ -1,4 +1,4 @@
-import {renderCard} from './render.mjs?v=aa2bea43e4bb66ac';
+import {renderCard} from './render.mjs?v=32ca270e2756c9d2';
 let catalog,base;
 self.onmessage=async({data})=>{
  if(data.type==='init'){catalog=data.catalog;base=new URL(data.base);return;}
